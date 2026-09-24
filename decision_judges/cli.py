@@ -178,6 +178,94 @@ def judge(
     typer.echo(f"{gate} spend: ${spend.spent(gate_impl.stage):.6f}")
 
 
+def _read_compact_states(state_dir: Path, variant: str) -> dict[str, StateRecord]:
+    """Read compact serialized states for a variant, keyed by task id."""
+    directory = state_dir / variant / StateProfile.compact.value
+    if not directory.is_dir():
+        raise typer.BadParameter(f"no compact states under {directory}; run 'serialize' first")
+    states: dict[str, StateRecord] = {}
+    for path in sorted(directory.glob("*.json")):
+        record = StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
+        states[record.task_id] = record
+    if not states:
+        raise typer.BadParameter(f"no compact states under {directory}; run 'serialize' first")
+    return states
+
+
+def _read_rewards(agent_dir: Path, variant: str) -> dict[str, float]:
+    """Read run rewards for a variant, keyed by task id."""
+    directory = agent_dir / variant
+    if not directory.is_dir():
+        raise typer.BadParameter(f"no agent records under {directory}; run 'run-agent' first")
+    rewards: dict[str, float] = {}
+    for path in sorted(directory.glob("*.json")):
+        record = run_agent_mod.AgentRecord.model_validate_json(path.read_text(encoding="utf-8"))
+        rewards[record.task_id] = record.reward
+    return rewards
+
+
+def _resolve_base(base: str | None, study_config: object) -> Path:
+    """Resolve the base checkpoint to a local directory, downloading if needed."""
+    if base is not None and Path(base).is_dir():
+        return Path(base)
+    from huggingface_hub import snapshot_download
+
+    laya = study_config.models.laya  # type: ignore[attr-defined]
+    repo_id = base or laya.repo_id
+    revision = None if base is not None else laya.revision
+    patterns = ["rl_agent_config.json", "encoder/config.json", "tokenizer/*", "model.safetensors"]
+    return Path(snapshot_download(repo_id, revision=revision, allow_patterns=patterns))
+
+
+@app.command(name="finetune-laya")
+def finetune_laya(
+    base: Annotated[str | None, typer.Option("--base")] = None,
+    state_dir: Annotated[Path, typer.Option("--state-dir")] = Path("cache/state"),
+    agent_dir: Annotated[Path, typer.Option("--agent-dir")] = Path("cache/agent"),
+    variant: Annotated[str, typer.Option("--variant")] = "baseline",
+    out: Annotated[Path, typer.Option("--out")] = Path("models"),
+    folds: Annotated[int, typer.Option("--folds")] = 5,
+    epochs: Annotated[int, typer.Option("--epochs")] = 2,
+    lr: Annotated[float, typer.Option("--lr")] = 2e-5,
+    batch_size: Annotated[int, typer.Option("--batch-size")] = 8,
+    device: Annotated[str, typer.Option("--device")] = "cpu",
+    max_steps: Annotated[int | None, typer.Option("--max-steps")] = None,
+    study: Annotated[Path, typer.Option("--study")] = Path("config/study.toml"),
+) -> None:
+    """Fine-tune Laya on G3 outcomes with k-fold cross validation."""
+    from decision_judges.gates.g3_outcome import G3Outcome
+    from decision_judges.training import finetune_laya as training
+
+    if variant not in _VARIANTS:
+        raise typer.BadParameter("variant must be 'baseline' or 'degraded'")
+    study_config = load_study(study)
+    base_dir = _resolve_base(base, study_config)
+    states = _read_compact_states(state_dir, variant)
+    rewards = _read_rewards(agent_dir, variant)
+    questions = G3Outcome().questions()
+    manifests = training.run_cross_validation(
+        base_dir,
+        states,
+        rewards,
+        questions,
+        out,
+        k=folds,
+        seed=study_config.seed,
+        epochs=epochs,
+        learning_rate=lr,
+        batch_size=batch_size,
+        device=device,
+        max_steps=max_steps,
+    )
+    for manifest in manifests:
+        directory = out / f"laya-g3-fold{manifest.fold}"
+        typer.echo(
+            f"{directory}: n_train={len(manifest.train_task_ids)} "
+            f"n_test={len(manifest.test_task_ids)} "
+            f"temperatures={manifest.temperature_by_options}"
+        )
+
+
 @app.command(name="run-agent")
 def run_agent(
     variant: Annotated[str, typer.Option("--variant")],
