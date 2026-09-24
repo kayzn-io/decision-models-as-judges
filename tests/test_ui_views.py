@@ -1,6 +1,5 @@
 """Unit tests for the pure trajectory presentation helpers."""
 
-import math
 from pathlib import Path
 
 from decision_judges.bench.load import ExpectedAction, Task
@@ -188,6 +187,9 @@ def test_verdict_rows_over_fixture_verdicts_has_two_judges() -> None:
     assert set(frame["judge_id"]) == {"code", "fake"}
     assert list(frame["repeats"]) == [2, 2]
     assert list(frame["errors"]) == [0, 0]
-    # The fixture verdicts carry an outcome noul, not a pass/fail verdict choice.
-    assert all(verdict is None for verdict in frame["verdict"])
-    assert all(math.isnan(value) for value in frame["agreement"])
+    # Each judge answered both fixture states once, so the modal verdict spans two states.
+    assert set(frame["verdict"]) <= {"pass", "fail"}
+    assert all(value == 0.8 for value in frame["confidence"])
+    completed = dict(zip(frame["judge_id"], frame["completed"], strict=True))
+    assert completed["code"] == 0.5  # one pass at 0.9, one fail at 0.1
+    assert completed["fake"] == 0.9  # the fake judge calls both states a pass
