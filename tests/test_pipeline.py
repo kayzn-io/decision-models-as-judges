@@ -254,8 +254,9 @@ def test_parse_repeats_rejects_mixed() -> None:
 
 def test_gate_registry_contains_g3() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g3"}
+    assert set(registry) == {"g3", "g10"}
     assert registry["g3"]().gate_id == "g3"
+    assert registry["g10"]().gate_id == "g10"
 
 
 # --- run_gate and analyze_gate end to end (offline, fake judge) ------------

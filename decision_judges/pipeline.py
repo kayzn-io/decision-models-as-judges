@@ -22,6 +22,7 @@ from decision_judges.cache import Cache
 from decision_judges.config import StudyConfig
 from decision_judges.gates.base import Gate, Item
 from decision_judges.gates.g3_outcome import G3Outcome
+from decision_judges.gates.g10_local_model import G10LocalModel
 from decision_judges.judges.base import HasStateText, Judge, build_verdict, timed
 from decision_judges.judges.code import CodeJudge
 from decision_judges.judges.llm import LlmJudge, OpenAiClientAdapter
@@ -273,7 +274,7 @@ def parse_repeats(values: Sequence[str], *, default: int = 1) -> Mapping[str, in
 
 def gate_registry() -> dict[str, type[Gate]]:
     """Return the gates the judge command can run, keyed by gate id."""
-    return {"g3": G3Outcome}
+    return {"g3": G3Outcome, "g10": G10LocalModel}
 
 
 def gate_rubric_path(gate: Gate) -> Path:
