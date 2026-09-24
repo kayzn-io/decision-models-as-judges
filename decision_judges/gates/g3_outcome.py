@@ -68,6 +68,11 @@ class G3Outcome(Gate):
         return self._questions
 
     @property
+    def rubric_path(self) -> Path:
+        """Path of the rubric file this gate loads."""
+        return self._rubric_path
+
+    @property
     def prompt_version(self) -> str:
         """Return the prompt version judges share, derived from rubric and questions."""
         if self._prompt_version is None:

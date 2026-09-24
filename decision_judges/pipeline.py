@@ -277,13 +277,13 @@ def gate_registry() -> dict[str, type[Gate]]:
 
 
 def gate_rubric_path(gate: Gate) -> Path:
-    """Return the rubric path a gate exposes to rubric-reading judges."""
-    return gate._rubric_path  # type: ignore[attr-defined]
+    """Return the gate's rubric path."""
+    return gate.rubric_path
 
 
 def gate_prompt_version(gate: Gate) -> str:
-    """Return the prompt version a gate shares across its judges."""
-    return gate.prompt_version  # type: ignore[attr-defined]
+    """Return the gate's prompt version."""
+    return gate.prompt_version
 
 
 def run_gate(

@@ -7,6 +7,7 @@ cache, and analyzes the resulting verdicts into tables, charts, and findings.
 
 from abc import ABC, abstractmethod
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict
 
@@ -62,6 +63,16 @@ class Gate(ABC):
 
     gate_id: str
     stage: str
+
+    @property
+    @abstractmethod
+    def rubric_path(self) -> Path:
+        """Path of the rubric file whose text every judge shares."""
+
+    @property
+    @abstractmethod
+    def prompt_version(self) -> str:
+        """Version string binding the rubric text and question set."""
 
     @abstractmethod
     def build_items(
