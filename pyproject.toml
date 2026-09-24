@@ -54,6 +54,11 @@ line-length = 100
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 
+[tool.pytest.ini_options]
+markers = [
+    "tau_bench: test imports the installed tau_bench package (skipped when absent)",
+]
+
 [tool.mypy]
 disallow_untyped_defs = true
 warn_unused_ignores = true
