@@ -1,0 +1,195 @@
+"""Tests for the serialize, judge, and results CLI stages."""
+
+import json
+from pathlib import Path
+
+from typer.testing import CliRunner
+
+from decision_judges import pipeline
+from decision_judges.bench.load import Task, load_tasks
+from decision_judges.bench.run_agent import AgentRecord
+from decision_judges.cli import app
+from decision_judges.serialize import StateProfile
+
+REPO_ROOT = Path(__file__).resolve().parents[1]
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "tasks_sample.json"
+STUDY_FILE = REPO_ROOT / "config" / "study.toml"
+PRICING_FILE = REPO_ROOT / "config" / "pricing.toml"
+
+MARKERS = "<!-- results:start -->\n{body}\n<!-- results:end -->"
+EMPTY_SUMMARY = "No cached results yet. Tables and charts appear here as evaluation stages run."
+
+
+def _tasks() -> dict[str, Task]:
+    """Return the sample tasks keyed by id."""
+    source = json.loads(FIXTURE.read_text(encoding="utf-8"))
+    return {task.task_id: task for task in load_tasks(source=source)}
+
+
+def _record(task_id: str, reward: float) -> AgentRecord:
+    """Build an agent record with a tiny valid trajectory."""
+    return AgentRecord(
+        variant="baseline",
+        task_id=task_id,
+        trajectory=[
+            {"role": "user", "content": "please help"},
+            {"role": "assistant", "content": "done"},
+        ],
+        reward=reward,
+        harness_info={},
+        agent_model="agent",
+        user_model="user",
+        tau_bench_ref="ref",
+    )
+
+
+def _write_agent_records(agent_dir: Path) -> dict[str, AgentRecord]:
+    """Write two baseline agent records to the agent cache and return them."""
+    records = {
+        "retail-0": _record("retail-0", 1.0),
+        "retail-1": _record("retail-1", 0.0),
+    }
+    variant_dir = agent_dir / "baseline"
+    variant_dir.mkdir(parents=True, exist_ok=True)
+    for task_id, record in records.items():
+        (variant_dir / f"{task_id}.json").write_text(record.model_dump_json(), encoding="utf-8")
+    return records
+
+
+# --- serialize -------------------------------------------------------------
+
+
+def test_cli_serialize_writes_states_and_prints_counts(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "cache" / "agent"
+    state_dir = tmp_path / "cache" / "state"
+    _write_agent_records(agent_dir)
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "serialize",
+            "--agent-dir",
+            str(agent_dir),
+            "--state-dir",
+            str(state_dir),
+            "--variant",
+            "baseline",
+            "--tasks-fixture",
+            str(FIXTURE),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    for profile in ("full", "compact"):
+        assert (state_dir / "baseline" / profile / "retail-0.json").is_file()
+        assert (state_dir / "baseline" / profile / "retail-1.json").is_file()
+    assert "baseline: 4 states" in result.output
+
+
+# --- judge -----------------------------------------------------------------
+
+
+def _serialize_states(tmp_path: Path) -> tuple[Path, Path]:
+    """Set up agent records and full-profile states, returning their dirs."""
+    agent_dir = tmp_path / "cache" / "agent"
+    state_dir = tmp_path / "cache" / "state"
+    records = _write_agent_records(agent_dir)
+    pipeline.serialize_all(records, _tasks(), state_dir, [StateProfile.full])
+    return agent_dir, state_dir
+
+
+def _judge_args(tmp_path: Path, agent_dir: Path, state_dir: Path) -> list[str]:
+    """Build the judge invocation arguments for a code+fake run."""
+    return [
+        "judge",
+        "--gate",
+        "g3",
+        "--profile",
+        "full",
+        "--variant",
+        "baseline",
+        "--judges",
+        "code,fake",
+        "--repeats",
+        "2",
+        "--agent-dir",
+        str(agent_dir),
+        "--state-dir",
+        str(state_dir),
+        "--cache-dir",
+        str(tmp_path / "cache" / "judge"),
+        "--results-dir",
+        str(tmp_path / "results"),
+        "--study",
+        str(STUDY_FILE),
+        "--pricing",
+        str(PRICING_FILE),
+        "--ledger",
+        str(tmp_path / "results" / "spend.json"),
+        "--tasks-fixture",
+        str(FIXTURE),
+    ]
+
+
+def test_cli_judge_runs_gate_and_warms_cache(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    cache_dir = tmp_path / "cache" / "judge"
+    results_dir = tmp_path / "results"
+    runner = CliRunner()
+    args = _judge_args(tmp_path, agent_dir, state_dir)
+
+    first = runner.invoke(app, args)
+
+    assert first.exit_code == 0, first.output
+    verdict_files = sorted(cache_dir.rglob("*.json"))
+    assert verdict_files, "expected cached verdict files"
+    assert (results_dir / "g3_summary.md").is_file()
+    assert (results_dir / "g3_accuracy.png").is_file()
+    assert "accuracy" in first.output.lower()
+
+    before = {path: path.stat().st_mtime_ns for path in verdict_files}
+    second = runner.invoke(app, args)
+
+    assert second.exit_code == 0, second.output
+    after = {path: path.stat().st_mtime_ns for path in sorted(cache_dir.rglob("*.json"))}
+    assert after == before, "warm cache must not recompute any verdict"
+
+
+def test_cli_judge_unknown_gate_lists_registry(tmp_path: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["judge", "--gate", "nope"])
+
+    assert result.exit_code != 0
+    assert "g3" in result.output
+
+
+# --- results ---------------------------------------------------------------
+
+
+def test_cli_results_lists_gate_tables(tmp_path: Path) -> None:
+    results_dir = tmp_path / "results"
+    results_dir.mkdir()
+    (results_dir / "g3_summary.md").write_text("| a |\n|---|\n", encoding="utf-8")
+    readme = tmp_path / "README.md"
+    readme.write_text(MARKERS.format(body="placeholder"), encoding="utf-8")
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "results",
+            "--cache-dir",
+            str(tmp_path / "cache"),
+            "--results-dir",
+            str(results_dir),
+            "--readme",
+            str(readme),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    body = (results_dir / "summary.md").read_text(encoding="utf-8")
+    assert "Tables" in body
+    assert "g3_summary" in body
+    assert "g3_summary" in readme.read_text(encoding="utf-8")
