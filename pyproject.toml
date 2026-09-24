@@ -57,6 +57,7 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.pytest.ini_options]
 markers = [
     "tau_bench: test imports the installed tau_bench package (skipped when absent)",
+    "laya_real: test loads the real Laya checkpoint (skipped unless LAYA_REAL=1)",
 ]
 
 [tool.mypy]
