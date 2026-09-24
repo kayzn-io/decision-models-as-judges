@@ -7,6 +7,7 @@ invalidates the cache without a manual clear.
 """
 
 import hashlib
+import json
 import os
 from dataclasses import dataclass
 from pathlib import Path
@@ -15,6 +16,7 @@ import pandas as pd
 import streamlit as st
 from pydantic import ValidationError
 
+from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.config import PricingTable, StudyConfig, load_pricing, load_study
 from decision_judges.serialize import StateRecord
@@ -118,6 +120,24 @@ def load_states(paths: Paths) -> dict[tuple[str, str, str, str], StateRecord]:
     """Load state records keyed by ``(variant, profile, injection, task_id)``."""
     state_dir = paths.cache_dir / "state"
     return _load_states(str(state_dir), dir_fingerprint(state_dir))
+
+
+@st.cache_data(show_spinner=False)
+def _load_tasks_for_ui(data_dir: str, _fingerprint: str) -> dict[str, Task]:
+    """Load exported tasks keyed by task id, empty when the file is absent."""
+    path = Path(data_dir) / "tasks.json"
+    if not path.is_file():
+        return {}
+    try:
+        source = json.loads(path.read_text(encoding="utf-8"))
+    except (ValueError, OSError):
+        return {}
+    return {task.task_id: task for task in load_tasks(source=source)}
+
+
+def load_tasks_for_ui(paths: Paths) -> dict[str, Task]:
+    """Load the exported task definitions keyed by task id, empty when absent."""
+    return _load_tasks_for_ui(str(paths.data_dir), dir_fingerprint(paths.data_dir))
 
 
 @st.cache_data(show_spinner=False)
