@@ -148,6 +148,23 @@ def test_option_logits_returns_one_float_per_option() -> None:
     assert all(isinstance(value, float) for value in logits)
 
 
+def test_strict_loading_rejects_renamed_key(tmp_path: Path) -> None:
+    import shutil
+
+    from safetensors.torch import load_file, save_file
+
+    corrupt = tmp_path / "stub"
+    shutil.copytree(STUB, corrupt)
+    weights = corrupt / "model.safetensors"
+    state = load_file(str(weights))
+    key = next(iter(state))
+    state[f"renamed.{key}"] = state.pop(key)
+    save_file(state, str(weights))
+
+    with pytest.raises(RuntimeError):
+        LayaDecisionModel.from_pretrained(str(corrupt))
+
+
 # --- Judge over the stub ----------------------------------------------------
 
 

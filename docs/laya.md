@@ -38,29 +38,35 @@ a dependency of this repository — the `laya` extra installs only `torch` and
 `transformers` (see `pyproject.toml`).
 (Sources: model card "Single-Model Mode"; GitHub README "Single-Model Mode".)
 
-**2. Transformers + safetensors (the path this repository uses).** The model
-repository's `rl_agent_api.py` loads the checkpoint with only `transformers`,
-`safetensors`, and `torch` — the exact set the `laya` extra provides. The loader
-reads a checkpoint directory containing `rl_agent_config.json`, `tokenizer/`,
-`encoder/`, and `model.safetensors`:
+**2. Transformers + safetensors (the path this repository uses).** This
+repository vendors the model repository's own inference code — `rl_common.py` and
+`rl_agent_config.json`, copied unmodified at revision
+`55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851` under
+`decision_judges/judges/laya_vendor/` (Apache-2.0, Convai Innovations) — and
+delegates to it. `LayaDecisionModel.from_pretrained` reads a checkpoint directory
+containing `rl_agent_config.json`, `tokenizer/`, `encoder/`, and
+`model.safetensors`:
 
 ```python
-# from rl_agent_api.py (convaiinnovations/laya), abridged
 from safetensors.torch import load_file
 from transformers import AutoTokenizer
 
+from decision_judges.judges.laya_vendor import rl_common
+
 tok = AutoTokenizer.from_pretrained(f"{model_dir}/tokenizer")
-model = build_model(cfg, encoder_dir=f"{model_dir}/encoder")  # rl_common.build_model
+model = rl_common.build_model(cfg, encoder_dir=f"{model_dir}/encoder")
 model.load_state_dict(load_file(f"{model_dir}/model.safetensors"), strict=True)
 model.to(device).eval()
 ```
 
-`build_model` (in `rl_common.py`) constructs the encoder architecture from
-`encoder/config.json` with `AutoModel.from_config(...)` and wraps it in the
-`DecisionModel` head; weights then come from the state dict. Download the pinned
-checkpoint with `huggingface_hub` at the revision recorded in `config/study.toml`
-and point the loader at the local snapshot directory.
-(Sources: `rl_agent_api.py`, `rl_common.py` `build_model`, HF file listing.)
+`build_model` (in the vendored `rl_common.py`) constructs the encoder
+architecture from `encoder/config.json` with `AutoModel.from_config(...)` and
+wraps it in the `DecisionModel` head; weights then come from the state dict.
+Loading is `strict=True`, so any drift between the head's module attribute names
+and the checkpoint keys fails loudly. A directory argument is loaded as-is;
+otherwise the checkpoint is fetched with `huggingface_hub.snapshot_download` at
+the revision recorded in `config/study.toml`.
+(Sources: `rl_agent_api.py`, vendored `rl_common.py` `build_model`, HF file listing.)
 
 > If `transformers` probes for TensorFlow at import and hangs, run with
 > `USE_TF=0`. (Source: model card note under "Single-Model Mode".)
@@ -248,10 +254,11 @@ typed answers, and needs no extra runtime. MLX and ONNX are optional.
   `55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851`) so results are reproducible.
 
 **Fallback (loader).** This repository loads the checkpoint with `transformers` +
-`safetensors`, reproducing the `RLAgent` loader from the model repository's
-`rl_agent_api.py` (stock `AutoModel` encoder plus the `DecisionModel` head from
-`rl_common.py`), rather than depending on the `laya` PyPI package. This keeps the
-dependency set to the `torch` + `transformers` the `laya` extra installs.
+`safetensors`, delegating to the model repository's own `rl_common.py` vendored
+under `decision_judges/judges/laya_vendor/` (stock `AutoModel` encoder plus the
+`DecisionModel` head), rather than depending on the `laya` PyPI package. This
+keeps the dependency set to the `torch` + `transformers` the `laya` extra
+installs.
 
 **Fallback (fine-tuning entry point).** There is no standalone training CLI; the
 published loop is the Kaggle notebook. When a custom loop is needed, this

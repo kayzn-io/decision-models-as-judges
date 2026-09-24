@@ -50,6 +50,7 @@ allow-direct-references = true
 
 [tool.ruff]
 line-length = 100
+extend-exclude = ["decision_judges/judges/laya_vendor"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
@@ -64,3 +65,8 @@ markers = [
 disallow_untyped_defs = true
 warn_unused_ignores = true
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "decision_judges.judges.laya_vendor.*"
+ignore_errors = true
+follow_imports = "skip"

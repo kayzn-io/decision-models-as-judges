@@ -1,27 +1,37 @@
 """Generate a tiny, deterministic Laya stub checkpoint for tests.
 
 Running this script rebuilds the fixture under this directory: a small WordPiece
-tokenizer, a tiny BERT-like encoder, and randomly initialized head weights whose
-keys match :data:`decision_judges.judges.laya_model.HEAD_WEIGHT_KEYS`. The whole
+tokenizer, a tiny BERT encoder config, an ``rl_agent_config.json``, and a full
+:class:`DecisionModel` state dict saved as ``model.safetensors``. The whole
 checkpoint stays well under 5 MB so it can live in the repository.
 
 Run with: ``python tests/fixtures/laya_stub/make_stub.py``.
 """
 
+import json
 import shutil
 from pathlib import Path
 
-import torch
 from safetensors.torch import save_file
 from tokenizers import Tokenizer, models, pre_tokenizers, trainers
-from transformers import BertConfig, BertModel, PreTrainedTokenizerFast
+from transformers import BertConfig, PreTrainedTokenizerFast
 
-from decision_judges.judges.laya_model import HEAD_WEIGHT_KEYS, DecisionHead
+from decision_judges.judges.laya_vendor import rl_common
 
 ROOT = Path(__file__).parent
-HIDDEN_SIZE = 32
+HIDDEN_SIZE = 64
 SIZE_LIMIT_BYTES = 5 * 1024 * 1024
 SPECIAL_TOKENS = ["[PAD]", "[UNK]", "[CLS]", "[SEP]", "[MASK]"]
+
+CONFIG = {
+    "encoder": "<ignored offline>",
+    "head_layers": 1,
+    "max_len": 512,
+    "head_max_len": 192,
+    "act_costs": {"escalate": 0.5},
+    "temperature": [1, 1, 1],
+    "temperature_by_options": {},
+}
 
 CORPUS = [
     "the customer asked for a refund on a damaged order",
@@ -79,17 +89,19 @@ def main() -> None:
         hidden_size=HIDDEN_SIZE,
         num_hidden_layers=2,
         num_attention_heads=2,
-        intermediate_size=64,
+        intermediate_size=128,
         max_position_embeddings=512,
+        tie_word_embeddings=False,
     )
-    torch.manual_seed(0)
-    encoder = BertModel(config)
-    encoder.save_pretrained(str(ROOT / "encoder"), safe_serialization=True)
+    (ROOT / "encoder").mkdir(parents=True, exist_ok=True)
+    config.save_pretrained(str(ROOT / "encoder"))
 
-    torch.manual_seed(1)
-    head = DecisionHead(HIDDEN_SIZE)
-    remapped = {HEAD_WEIGHT_KEYS[key]: value for key, value in head.state_dict().items()}
-    save_file(remapped, str(ROOT / "model.safetensors"))
+    (ROOT / "rl_agent_config.json").write_text(json.dumps(CONFIG, indent=2) + "\n")
+
+    rl_common.seed_all(0)
+    model = rl_common.build_model(CONFIG, encoder_dir=str(ROOT / "encoder"))
+    state = {key: value.contiguous() for key, value in model.state_dict().items()}
+    save_file(state, str(ROOT / "model.safetensors"))
 
     total = dir_size_bytes(ROOT)
     if total >= SIZE_LIMIT_BYTES:
