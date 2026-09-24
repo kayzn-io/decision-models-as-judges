@@ -4,6 +4,7 @@ import os
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from pathlib import Path
+from uuid import uuid4
 
 from pydantic import BaseModel, Field
 
@@ -35,6 +36,7 @@ class SpendCapExceeded(RuntimeError):
 class Reservation(BaseModel):
     """A held estimate of spend for a stage awaiting settlement."""
 
+    reservation_id: str = Field(default_factory=lambda: uuid4().hex)
     stage: str
     model_id: str
     estimated_usd: float
@@ -75,7 +77,7 @@ class Spend:
         self._ledger_path = ledger_path
         self._ledger = self._load()
         self._reserved: dict[str, float] = {}
-        self._open: set[int] = set()
+        self._open: set[str] = set()
 
     def _load(self) -> Ledger:
         """Load the ledger from disk if present, else start empty."""
@@ -102,14 +104,14 @@ class Spend:
             raise SpendCapExceeded(stage, cap, self.spent(stage), estimate)
         reservation = Reservation(stage=stage, model_id=model_id, estimated_usd=estimate)
         self._reserved[stage] = self.reserved(stage) + estimate
-        self._open.add(id(reservation))
+        self._open.add(reservation.reservation_id)
         return reservation
 
     def _release(self, reservation: Reservation) -> None:
         """Drop a reservation's held estimate from the stage total."""
-        if id(reservation) not in self._open:
+        if reservation.reservation_id not in self._open:
             raise ValueError("reservation is not open")
-        self._open.discard(id(reservation))
+        self._open.discard(reservation.reservation_id)
         remaining = self.reserved(reservation.stage) - reservation.estimated_usd
         if remaining > 0.0:
             self._reserved[reservation.stage] = remaining
