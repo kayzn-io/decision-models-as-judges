@@ -1,0 +1,46 @@
+{
+  "agent_model": "openai/gpt-4.1",
+  "excluded": false,
+  "exclusion_reason": null,
+  "harness_info": {
+    "token_estimate": "chars_over_4"
+  },
+  "reward": 1.0,
+  "task_id": "retail-0",
+  "tau_bench_ref": "59a200c6d575d595120f1cb70fea53cef0632f6b",
+  "trajectory": [
+    {
+      "content": "Retail support policy applies.",
+      "role": "system"
+    },
+    {
+      "content": "Hello, I need help with my order.",
+      "role": "user"
+    },
+    {
+      "content": "",
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{\"order_id\": \"#W0000001\"}",
+            "name": "get_order_details"
+          },
+          "id": "call_1"
+        }
+      ]
+    },
+    {
+      "content": "{\"status\": \"delivered\", \"items\": [\"widget\"]}",
+      "name": "get_order_details",
+      "role": "tool",
+      "tool_call_id": "call_1"
+    },
+    {
+      "content": "Your order is confirmed. Anything else?",
+      "role": "assistant"
+    }
+  ],
+  "user_model": "openai/gpt-4o-mini",
+  "variant": "baseline"
+}

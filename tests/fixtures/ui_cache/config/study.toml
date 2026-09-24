@@ -1,0 +1,36 @@
+repeats = 5
+seed = 7
+llm_base_url = "https://openrouter.ai/api/v1"
+
+[models]
+agent = "openai/gpt-4.1"
+user_sim = "openai/gpt-4o-mini"
+llm_cheap = "openai/gpt-4o-mini"
+llm_strong = "openai/gpt-5"
+jev = "jev-1.13.0"
+
+[models.laya]
+repo_id = "convaiinnovations/laya"
+revision = "55cf4c4ebb4ebe31b2550e8bdf3bd21b99753851"
+
+[concurrency]
+jev = 8
+llm = 4
+laya = 2
+
+# USD per stage, enforced before each paid call. Stages that reuse earlier verdicts (g5, g6, g8) spend nothing.
+[spend_caps]
+agent = 25.0
+g1 = 5.0
+g2 = 25.0
+g3 = 50.0
+g4 = 10.0
+g5 = 0.0
+g6 = 0.0
+g7 = 15.0
+g8 = 0.0
+g9 = 5.0
+g10 = 5.0
+
+[thresholds]
+cascade = [0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
