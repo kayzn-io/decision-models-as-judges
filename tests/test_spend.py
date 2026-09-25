@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from decision_judges.config import PricingTable, UnpricedModel
+from decision_judges.config import ModelPrice, PricingTable, UnpricedModel
 from decision_judges.spend import Reservation, Spend, SpendCapExceeded
 from decision_judges.types import Usage
 
@@ -102,3 +102,17 @@ def test_unpriced_model_raises_from_reserve(tmp_path: Path) -> None:
     spend = _spend(tmp_path, {"agent": 5.0})
     with pytest.raises(UnpricedModel):
         spend.reserve("agent", "no-such-model", est_input_tokens=1)
+
+
+def test_ledger_is_created_in_a_missing_directory(tmp_path: Path) -> None:
+    """A fresh checkout has no results/ directory yet; settling must create it."""
+    pricing = PricingTable(
+        effective_date=date(2026, 1, 1),
+        source="test",
+        models={"m": ModelPrice(input_per_mtok=1.0, output_per_mtok=1.0)},
+    )
+    ledger = tmp_path / "results" / "spend.json"
+    spend = Spend(pricing, {"agent": 10.0}, ledger)
+    reservation = spend.reserve("agent", "m", 1000)
+    spend.settle(reservation, Usage(input_tokens=1000, output_tokens=0))
+    assert ledger.is_file()

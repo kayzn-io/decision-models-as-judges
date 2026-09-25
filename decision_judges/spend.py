@@ -87,6 +87,7 @@ class Spend:
 
     def _persist(self) -> None:
         """Write the ledger atomically via a temp file and os.replace."""
+        self._ledger_path.parent.mkdir(parents=True, exist_ok=True)
         tmp = self._ledger_path.with_suffix(self._ledger_path.suffix + ".tmp")
         tmp.write_text(self._ledger.model_dump_json(indent=2))
         os.replace(tmp, self._ledger_path)

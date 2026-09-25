@@ -93,20 +93,30 @@ class RunStep(BaseModel):
 
 @contextlib.contextmanager
 def _openrouter_key(key: str | None) -> Iterator[None]:
-    """Set the OpenRouter key for the block, only when one is not already present.
+    """Install the session's OpenRouter key for the block, then restore the environment.
 
-    A key already in the environment wins and is left untouched; a supplied key
-    is installed for the duration and removed afterwards so it never outlives the
-    step that used it.
+    tau_bench calls litellm directly and can only take credentials from the
+    environment, so the key is installed under both the OpenRouter name and
+    ``OPENAI_API_KEY``, which litellm's ``openai`` provider reads. A key supplied
+    from the app wins over whatever the shell exported, since a stale or empty
+    shell value is the usual reason a run fails with missing credentials. Without
+    a supplied key the environment is left as it is.
     """
-    if not key or _OPENROUTER_ENV in os.environ:
+    if not key:
         yield
         return
-    os.environ[_OPENROUTER_ENV] = key
+    names = (_OPENROUTER_ENV, "OPENAI_API_KEY")
+    previous = {name: os.environ.get(name) for name in names}
+    for name in names:
+        os.environ[name] = key
     try:
         yield
     finally:
-        os.environ.pop(_OPENROUTER_ENV, None)
+        for name, value in previous.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
 
 
 # --- disk readers -----------------------------------------------------------
