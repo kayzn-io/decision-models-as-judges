@@ -392,7 +392,8 @@ def test_parse_repeats_rejects_mixed() -> None:
 
 def test_gate_registry_contains_judging_gates() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g2", "g3", "g4", "g7", "g10"}
+    assert set(registry) == {"g1", "g2", "g3", "g4", "g7", "g10"}
+    assert registry["g1"]().gate_id == "g1"
     assert registry["g2"]().gate_id == "g2"
     assert registry["g3"]().gate_id == "g3"
     assert registry["g4"]().gate_id == "g4"

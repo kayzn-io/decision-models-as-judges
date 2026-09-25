@@ -133,7 +133,8 @@ def judge(
 
     study_config = load_study(study)
     pricing_table = load_pricing(pricing)
-    gate_impl = registry[gate]()
+    tasks = {task.task_id: task for task in _load_tasks(tasks_fixture)}
+    gate_impl = pipeline.make_gate(gate, tasks)
 
     records, warnings = pipeline.load_agent_records(agent_dir, variant)
     for warning in warnings:
@@ -142,7 +143,6 @@ def judge(
         raise typer.BadParameter(
             f"no agent records under {agent_dir / variant}; run 'run-agent' first"
         )
-    tasks = {task.task_id: task for task in _load_tasks(tasks_fixture)}
     items = pipeline.items_for_gate(gate, state_dir, agent_dir, state_profile, variant, tasks)
     if not items:
         raise typer.BadParameter(

@@ -21,6 +21,7 @@ from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
 from decision_judges.config import JevRoute, PricingTable, StudyConfig
 from decision_judges.gates.base import Gate, Item
+from decision_judges.gates.g1_triage import G1Triage
 from decision_judges.gates.g2_steps import (
     G2Steps,
     enumerate_steps,
@@ -355,12 +356,24 @@ def gate_registry() -> dict[str, type[Gate]]:
     so the CLI can build them without study or pricing context.
     """
     return {
+        "g1": G1Triage,
         "g3": G3Outcome,
         "g4": G4Decomposition,
         "g7": G7Robustness,
         "g10": G10LocalModel,
         "g2": G2Steps,
     }
+
+
+def make_gate(gate_id: str, tasks: Mapping[str, Task]) -> Gate:
+    """Construct a gate, giving the triage gate the tasks its analysis reads.
+
+    The registry holds zero-argument gate classes; G1 needs the task action
+    counts at analysis time, so it is built with the tasks mapping here.
+    """
+    if gate_id == "g1":
+        return G1Triage(tasks=tasks)
+    return gate_registry()[gate_id]()
 
 
 def default_repeats(
@@ -453,11 +466,15 @@ def items_for_gate(
 ) -> list[Item]:
     """Build the items a gate judges for one variant and profile.
 
-    The G2 step gate judges per-step states labeled by the task's expected
-    actions; the G7 robustness gate judges the injected copies of failing runs;
-    every other gate judges whole-trajectory states labeled by the run's reward.
+    The G1 triage gate builds one item per record from the task instruction and
+    policy alone; the G2 step gate judges per-step states labeled by the task's
+    expected actions; the G7 robustness gate judges the injected copies of
+    failing runs; every other gate judges whole-trajectory states labeled by the
+    run's reward.
     """
     records, _ = load_agent_records(agent_dir, variant)
+    if gate_id == "g1":
+        return G1Triage(tasks=tasks).build_items(records, tasks, profile)
     if gate_id == "g2":
         return step_items(read_step_states(state_dir, variant, profile), records, tasks)
     if gate_id == "g7":
