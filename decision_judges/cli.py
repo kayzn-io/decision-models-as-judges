@@ -112,6 +112,8 @@ def judge(
     ledger: Annotated[Path, typer.Option("--ledger")] = Path("results/spend.json"),
     tasks_fixture: Annotated[Path | None, typer.Option("--tasks-fixture")] = None,
     labels: Annotated[Path, typer.Option("--labels")] = Path("data/labels/taxonomy.jsonl"),
+    models_root: Annotated[Path, typer.Option("--models-root")] = Path("models"),
+    device: Annotated[str, typer.Option("--device")] = "cpu",
 ) -> None:
     """Run a gate's judges over serialized states and analyze the verdicts."""
     registry = pipeline.gate_registry()
@@ -164,6 +166,8 @@ def judge(
         records=records,
         rubric_path=pipeline.gate_rubric_path(gate_impl),
         prompt_version=pipeline.gate_prompt_version(gate_impl),
+        models_root=models_root,
+        device=device,
     )
 
     ledger.parent.mkdir(parents=True, exist_ok=True)

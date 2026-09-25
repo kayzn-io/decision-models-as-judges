@@ -74,6 +74,47 @@ def expected_level(probs: Sequence[float]) -> float:
     return sum(index * probability for index, probability in enumerate(probs))
 
 
+def question_options(question: Question) -> tuple[str, list[str]]:
+    """Return the model question type and option list for a typed question.
+
+    Choice questions expose their options, score questions their levels, and
+    noul questions the fixed false/true pair the model scores.
+    """
+    if question.kind is QuestionKind.choice:
+        return "choice", list(question.options or [])
+    if question.kind is QuestionKind.score:
+        return "score", list(question.levels or [])
+    return "noul", list(NOUL_OPTIONS)
+
+
+def answer_for(question: Question, probs: Sequence[float]) -> Answer:
+    """Build the typed answer for a question from its option probabilities.
+
+    Choice answers take the argmax option, score answers the probability-weighted
+    level index, and noul answers the true-slot probability.
+    """
+    if question.kind is QuestionKind.choice:
+        options = question.options or []
+        best = max(range(len(options)), key=lambda index: probs[index])
+        return Answer(
+            question_id=question.id,
+            kind=QuestionKind.choice,
+            choice=options[best],
+            probabilities=dict(zip(options, probs, strict=True)),
+            confidence=confidence_from_probs(probs),
+        )
+    if question.kind is QuestionKind.score:
+        levels = question.levels or []
+        return Answer(
+            question_id=question.id,
+            kind=QuestionKind.score,
+            score=expected_level(probs),
+            probabilities=dict(zip(levels, probs, strict=True)),
+            confidence=confidence_from_probs(probs),
+        )
+    return Answer(question_id=question.id, kind=QuestionKind.noul, noul=probs[1])
+
+
 class LayaJudge:
     """Answers typed questions with a local Laya decision model."""
 
@@ -142,26 +183,6 @@ class LayaJudge:
 
     def _answer(self, state: HasStateText, question: Question) -> Answer:
         """Answer one typed question, dispatching on its kind."""
-        if question.kind is QuestionKind.choice:
-            options = question.options or []
-            probs = self._probabilities(state.text, "choice", question.text, options)
-            best = max(range(len(options)), key=lambda index: probs[index])
-            return Answer(
-                question_id=question.id,
-                kind=QuestionKind.choice,
-                choice=options[best],
-                probabilities=dict(zip(options, probs, strict=True)),
-                confidence=confidence_from_probs(probs),
-            )
-        if question.kind is QuestionKind.score:
-            levels = question.levels or []
-            probs = self._probabilities(state.text, "score", question.text, levels)
-            return Answer(
-                question_id=question.id,
-                kind=QuestionKind.score,
-                score=expected_level(probs),
-                probabilities=dict(zip(levels, probs, strict=True)),
-                confidence=confidence_from_probs(probs),
-            )
-        probs = self._probabilities(state.text, "noul", question.text, NOUL_OPTIONS)
-        return Answer(question_id=question.id, kind=QuestionKind.noul, noul=probs[1])
+        question_type, options = question_options(question)
+        probs = self._probabilities(state.text, question_type, question.text, options)
+        return answer_for(question, probs)

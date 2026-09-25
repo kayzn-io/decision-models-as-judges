@@ -55,7 +55,7 @@ from decision_judges.types import Answer, Question, QuestionKind, Verdict
 _PASS = "pass"
 _FAIL = "fail"
 _UNPRICED_MODEL_ID = "none"
-_KNOWN_JUDGES = ("code", "llm_cheap", "llm_strong", "jev", "fake")
+_KNOWN_JUDGES = ("code", "llm_cheap", "llm_strong", "jev", "laya_base", "laya_ft", "fake")
 _QUARANTINE = "_quarantine"
 _DEFAULT_LABELS_PATH = Path("data") / "labels" / "taxonomy.jsonl"
 
@@ -245,7 +245,7 @@ class JudgeSpec(BaseModel):
     """A resolved judge: its display name, kind, and model id."""
 
     name: str
-    kind: Literal["code", "llm", "jev", "fake"]
+    kind: Literal["code", "llm", "jev", "laya", "fake"]
     model_id: str
 
 
@@ -261,6 +261,8 @@ def judge_specs_from(names: Sequence[str], study: StudyConfig) -> list[JudgeSpec
             specs.append(JudgeSpec(name="llm_strong", kind="llm", model_id=study.models.llm_strong))
         elif name == "jev":
             specs.append(JudgeSpec(name="jev", kind="jev", model_id=study.models.jev))
+        elif name in ("laya_base", "laya_ft"):
+            specs.append(JudgeSpec(name=name, kind="laya", model_id=study.models.laya.repo_id))
         elif name == "fake":
             specs.append(JudgeSpec(name="fake", kind="fake", model_id=_UNPRICED_MODEL_ID))
         else:
@@ -288,8 +290,17 @@ def build_judges(
     records: Mapping[str, AgentRecord],
     rubric_path: Path,
     prompt_version: str,
+    models_root: Path = Path("models"),
+    device: str = "cpu",
 ) -> list[Judge]:
-    """Construct judges from specs, importing the decision SDK lazily for jev."""
+    """Construct judges from specs, importing the decision SDKs lazily.
+
+    The jev and laya kinds pull heavy optional dependencies (the TypeSafe SDK and
+    torch), so they are imported only when a spec of that kind is built. Laya
+    judges run locally on ``device``: ``laya_base`` loads the study's checkpoint
+    once, while ``laya_ft`` routes each task to its fold's checkpoint under
+    ``models_root``.
+    """
     judges: list[Judge] = []
     for spec in specs:
         if spec.kind == "code":
@@ -316,11 +327,55 @@ def build_judges(
                     prompt_version=prompt_version,
                 )
             )
+        elif spec.kind == "laya":
+            judges.append(
+                _build_laya_judge(
+                    spec,
+                    study=study,
+                    models_root=models_root,
+                    device=device,
+                    prompt_version=prompt_version,
+                )
+            )
         elif spec.kind == "fake":
             judges.append(FakeJudge(judge_id=spec.name, prompt_version=prompt_version))
         else:
-            raise ValueError(f"unknown judge kind {spec.kind!r}; known: code, llm, jev, fake")
+            raise ValueError(f"unknown judge kind {spec.kind!r}; known: code, llm, jev, laya, fake")
     return judges
+
+
+def _build_laya_judge(
+    spec: JudgeSpec,
+    *,
+    study: StudyConfig,
+    models_root: Path,
+    device: str,
+    prompt_version: str,
+) -> Judge:
+    """Build a Laya judge, importing torch-backed modules lazily.
+
+    ``laya_base`` wraps the study checkpoint at temperature 1.0; ``laya_ft``
+    routes each task to its held-out fold's calibrated checkpoint.
+    """
+    from decision_judges.judges.laya import LayaJudge
+    from decision_judges.judges.laya_folds import FoldRoutedLayaJudge
+    from decision_judges.judges.laya_model import LayaDecisionModel
+
+    if spec.name == "laya_base":
+        model = LayaDecisionModel.from_pretrained(
+            study.models.laya.repo_id, revision=study.models.laya.revision, device=device
+        )
+        return LayaJudge(
+            model,
+            judge_id="laya_base",
+            model_label=study.models.laya.repo_id,
+            prompt_version=prompt_version,
+            temperature=1.0,
+            device=device,
+        )
+    if spec.name == "laya_ft":
+        return FoldRoutedLayaJudge(models_root, prompt_version=prompt_version, device=device)
+    raise ValueError(f"unknown laya judge {spec.name!r}; known: laya_base, laya_ft")
 
 
 # --- repeats ----------------------------------------------------------------

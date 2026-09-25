@@ -23,6 +23,7 @@ FIXTURE = Path(__file__).resolve().parent / "fixtures" / "tasks_sample.json"
 STUDY_FILE = REPO_ROOT / "config" / "study.toml"
 PRICING_FILE = REPO_ROOT / "config" / "pricing.toml"
 RUBRIC_FILE = REPO_ROOT / "config" / "rubrics" / "g3_outcome.md"
+LAYA_STUB = Path(__file__).resolve().parent / "fixtures" / "laya_stub"
 
 
 def _tasks() -> dict[str, Task]:
@@ -333,6 +334,31 @@ def test_judge_specs_from_maps_known_names() -> None:
     assert specs["jev"].kind == "jev"
     assert specs["jev"].model_id == study.models.jev
     assert specs["fake"].kind == "fake"
+
+
+def test_judge_specs_from_maps_laya_base_and_ft() -> None:
+    study = _study()
+    specs = {spec.name: spec for spec in pipeline.judge_specs_from(["laya_base", "laya_ft"], study)}
+
+    assert specs["laya_base"].kind == "laya"
+    assert specs["laya_ft"].kind == "laya"
+    assert specs["laya_base"].model_id == study.models.laya.repo_id
+    assert specs["laya_ft"].model_id == study.models.laya.repo_id
+
+
+def test_build_judges_constructs_laya_base_from_local_dir() -> None:
+    study = _study()
+    study.models.laya.repo_id = str(LAYA_STUB)
+    specs = pipeline.judge_specs_from(["laya_base"], study)
+
+    judges = pipeline.build_judges(
+        specs, study=study, tasks={}, records={}, rubric_path=RUBRIC_FILE, prompt_version="pv"
+    )
+
+    assert len(judges) == 1
+    assert judges[0].judge_id == "laya_base"
+    assert judges[0].model_id.startswith("laya:")
+    assert judges[0].prompt_version == "pv"
 
 
 def test_judge_specs_from_unknown_name_lists_options() -> None:
