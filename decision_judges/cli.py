@@ -58,15 +58,6 @@ def _parse_variants(values: list[str] | None) -> list[str]:
     return names
 
 
-def _read_states(state_dir: Path, variant: str, profile: StateProfile) -> list[StateRecord]:
-    """Read serialized states for a variant and profile, or fail clearly."""
-    states = list(pipeline.read_states(state_dir, variant, profile).values())
-    if not states:
-        directory = state_dir / variant / profile.value
-        raise typer.BadParameter(f"no serialized states under {directory}; run 'serialize' first")
-    return states
-
-
 @app.command()
 def results(
     cache_dir: Annotated[Path, typer.Option("--cache-dir")] = Path("cache"),
@@ -152,8 +143,11 @@ def judge(
             f"no agent records under {agent_dir / variant}; run 'run-agent' first"
         )
     tasks = {task.task_id: task for task in _load_tasks(tasks_fixture)}
-    states = _read_states(state_dir, variant, state_profile)
-    items = pipeline.items_from_states(states, records)
+    items = pipeline.items_for_gate(gate, state_dir, agent_dir, state_profile, variant, tasks)
+    if not items:
+        raise typer.BadParameter(
+            f"no serialized states for gate {gate!r} under {state_dir}; run 'serialize' first"
+        )
 
     names = [name.strip() for name in judges.split(",") if name.strip()]
     specs = pipeline.judge_specs_from(names, study_config)

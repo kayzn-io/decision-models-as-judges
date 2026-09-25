@@ -156,6 +156,101 @@ def test_cli_judge_runs_gate_and_warms_cache(tmp_path: Path) -> None:
     assert after == before, "warm cache must not recompute any verdict"
 
 
+def _record_with_calls(task_id: str = "retail-0") -> AgentRecord:
+    """Build a record with one expected and one unexpected tool call."""
+    return AgentRecord(
+        variant="baseline",
+        task_id=task_id,
+        trajectory=[
+            {"role": "user", "content": "help"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "c0",
+                        "function": {
+                            "name": "get_order_details",
+                            "arguments": '{"order_id": "#W2378156"}',
+                        },
+                    }
+                ],
+            },
+            {"role": "tool", "tool_call_id": "c0", "content": "ok"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "c1",
+                        "function": {
+                            "name": "cancel_pending_order",
+                            "arguments": '{"order_id": "#W9"}',
+                        },
+                    }
+                ],
+            },
+        ],
+        reward=1.0,
+        harness_info={},
+        agent_model="agent",
+        user_model="user",
+        tau_bench_ref="ref",
+    )
+
+
+def test_cli_judge_g2_writes_step_verdicts_and_summary(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "cache" / "agent"
+    state_dir = tmp_path / "cache" / "state"
+    cache_dir = tmp_path / "cache" / "judge"
+    results_dir = tmp_path / "results"
+    record = _record_with_calls()
+    (agent_dir / "baseline").mkdir(parents=True)
+    (agent_dir / "baseline" / "retail-0.json").write_text(
+        record.model_dump_json(), encoding="utf-8"
+    )
+    pipeline.serialize_all({"retail-0": record}, _tasks(), state_dir, [StateProfile.full])
+
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        [
+            "judge",
+            "--gate",
+            "g2",
+            "--profile",
+            "full",
+            "--variant",
+            "baseline",
+            "--judges",
+            "fake",
+            "--repeats",
+            "1",
+            "--agent-dir",
+            str(agent_dir),
+            "--state-dir",
+            str(state_dir),
+            "--cache-dir",
+            str(cache_dir),
+            "--results-dir",
+            str(results_dir),
+            "--study",
+            str(STUDY_FILE),
+            "--pricing",
+            str(PRICING_FILE),
+            "--ledger",
+            str(results_dir / "spend.json"),
+            "--tasks-fixture",
+            str(FIXTURE),
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    verdict_files = sorted(cache_dir.rglob("*.json"))
+    assert len(verdict_files) == 2, "expected one verdict per step under cache/judge"
+    assert (results_dir / "g2_summary.md").is_file()
+
+
 def test_cli_judge_unknown_gate_lists_registry(tmp_path: Path) -> None:
     runner = CliRunner()
     result = runner.invoke(app, ["judge", "--gate", "nope"])

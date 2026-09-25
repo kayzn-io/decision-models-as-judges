@@ -20,7 +20,7 @@ def render() -> None:
     paths = data.Paths.from_env()
     records = data.load_agent_records(paths)
     states = data.load_states(paths)
-    grouped = data.verdicts_by_state([*data.load_verdicts(paths), *data.load_step_verdicts(paths)])
+    grouped = data.verdicts_by_state(data.load_verdicts(paths))
     tasks = data.load_tasks_for_ui(paths)
 
     st.title("Trajectories")

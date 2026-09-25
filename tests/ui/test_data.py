@@ -42,7 +42,7 @@ def test_load_verdicts_skips_invalid_files(ui_root: Path, tmp_path: Path) -> Non
     (shard / "broken.json").write_text("{ not valid json", encoding="utf-8")
 
     verdicts = data.load_verdicts(_paths_for(tmp_path))
-    assert len(verdicts) == 4
+    assert len(verdicts) == 8
 
 
 def test_judge_roster_columns_and_rows(ui_root: Path) -> None:
@@ -57,5 +57,5 @@ def test_judge_roster_columns_and_rows(ui_root: Path) -> None:
 def test_verdicts_by_state_groups_correctly(ui_root: Path) -> None:
     verdicts = data.load_verdicts(_paths_for(ui_root))
     grouped = data.verdicts_by_state(verdicts)
-    assert len(grouped) == 2
+    assert len(grouped) == 4
     assert all(len(group) == 2 for group in grouped.values())

@@ -261,6 +261,46 @@ def skipped_malformed(records: Mapping[str, AgentRecord]) -> int:
     return total
 
 
+def _step_by_index(record: AgentRecord, step_index: int) -> StepRef | None:
+    """Return the enumerated step at an index, or None when it is absent."""
+    for step in enumerate_steps(record):
+        if step.step_index == step_index:
+            return step
+    return None
+
+
+def step_items(
+    step_states: Mapping[tuple[str, int], StateRecord],
+    records: Mapping[str, AgentRecord],
+    tasks: Mapping[str, Task],
+) -> list[Item]:
+    """Pair each per-step state with its necessity truth from the task's actions.
+
+    A step is necessary when its normalized call appears in the task's expected
+    actions, mirroring ``build_items``. States without a matching record, task,
+    or step are skipped.
+    """
+    items: list[Item] = []
+    for (task_id, step_index), state in sorted(step_states.items()):
+        record = records.get(task_id)
+        task = tasks.get(task_id)
+        if record is None or task is None:
+            continue
+        step = _step_by_index(record, step_index)
+        if step is None:
+            continue
+        expected = {normalize_action(action.name, action.kwargs) for action in task.actions}
+        necessary = normalize_action(step.name, step.arguments) in expected
+        items.append(
+            Item(
+                state=state,
+                truth_label=_NECESSARY if necessary else _UNNECESSARY,
+                truth_value=1.0 if necessary else 0.0,
+            )
+        )
+    return items
+
+
 def repeats_for(study: StudyConfig, judge_ids: Sequence[str]) -> dict[str, int]:
     """Return per-judge G2 repeat counts, defaulting unknown judges to 1."""
     mapping = study.g2.repeats

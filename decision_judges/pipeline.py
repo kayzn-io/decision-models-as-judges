@@ -21,7 +21,13 @@ from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
 from decision_judges.config import PricingTable, StudyConfig
 from decision_judges.gates.base import Gate, Item
-from decision_judges.gates.g2_steps import G2Steps, repeats_for
+from decision_judges.gates.g2_steps import (
+    G2Steps,
+    enumerate_steps,
+    repeats_for,
+    serialize_step,
+    step_items,
+)
 from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.gates.g4_decomposition import G4Decomposition
 from decision_judges.gates.g5_cascade import G5Cascade
@@ -82,6 +88,24 @@ def _write_state_json(path: Path, state: StateRecord) -> None:
         raise
 
 
+def _write_step_states(
+    record: AgentRecord, task: Task, profile: StateProfile, out_dir: Path
+) -> None:
+    """Serialize each non-malformed step and write it under the ``steps`` subdirectory.
+
+    Files are named ``<task_id>.<step_index>.json`` with the index zero-padded to
+    three digits so they sort in trajectory order and never collide with the
+    whole-trajectory file.
+    """
+    steps_dir = out_dir / record.variant / profile.value / "steps"
+    for step in enumerate_steps(record):
+        if step.malformed:
+            continue
+        state = serialize_step(record, task, step, profile)
+        path = steps_dir / f"{record.task_id}.{step.step_index:03d}.json"
+        _write_state_json(path, state)
+
+
 def serialize_all(
     records: Mapping[str, AgentRecord],
     tasks: Mapping[str, Task],
@@ -90,8 +114,12 @@ def serialize_all(
 ) -> int:
     """Serialize each non-excluded record under every profile and return the count.
 
-    States are written to ``<out_dir>/<variant>/<profile>/<task_id>.json``.
-    Serialization is deterministic, so re-running overwrites identical content.
+    Whole-trajectory states are written to
+    ``<out_dir>/<variant>/<profile>/<task_id>.json`` and one per-step state per
+    tool call to ``<out_dir>/<variant>/<profile>/steps/<task_id>.<step_index>.json``
+    (index zero-padded to three digits). The returned count is the number of
+    whole-trajectory states. Serialization is deterministic, so re-running
+    overwrites identical content.
     """
     out_dir = Path(out_dir)
     count = 0
@@ -104,6 +132,7 @@ def serialize_all(
             path = out_dir / record.variant / profile.value / f"{record.task_id}.json"
             _write_state_json(path, state)
             count += 1
+            _write_step_states(record, task, profile, out_dir)
     return count
 
 
@@ -327,6 +356,47 @@ def read_states(state_dir: Path, variant: str, profile: StateProfile) -> dict[st
         record = StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
         states[record.task_id] = record
     return states
+
+
+def read_step_states(
+    state_dir: Path, variant: str, profile: StateProfile
+) -> dict[tuple[str, int], StateRecord]:
+    """Read per-step states for a variant and profile, keyed by task id and step index.
+
+    Step states live under the ``steps`` subdirectory the serialize stage writes.
+    A missing directory yields an empty mapping.
+    """
+    directory = Path(state_dir) / variant / profile.value / "steps"
+    states: dict[tuple[str, int], StateRecord] = {}
+    if not directory.is_dir():
+        return states
+    for path in sorted(directory.glob("*.json")):
+        record = StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
+        if record.step_index is None:
+            continue
+        states[(record.task_id, record.step_index)] = record
+    return states
+
+
+def items_for_gate(
+    gate_id: str,
+    state_dir: Path,
+    agent_dir: Path,
+    profile: StateProfile,
+    variant: str,
+    tasks: Mapping[str, Task],
+) -> list[Item]:
+    """Build the items a gate judges for one variant and profile.
+
+    The G2 step gate judges per-step states labeled by the task's expected
+    actions; every other gate judges whole-trajectory states labeled by the
+    run's reward.
+    """
+    records, _ = load_agent_records(agent_dir, variant)
+    if gate_id == "g2":
+        return step_items(read_step_states(state_dir, variant, profile), records, tasks)
+    states = read_states(state_dir, variant, profile)
+    return items_from_states(list(states.values()), records)
 
 
 def items_for_variants(

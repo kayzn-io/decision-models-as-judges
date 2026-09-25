@@ -17,6 +17,7 @@ from decision_judges.gates.g2_steps import (
     repeats_for,
     serialize_step,
     skipped_malformed,
+    step_items,
 )
 from decision_judges.serialize import LeakageError, StateProfile, StateRecord
 from decision_judges.types import Answer, QuestionKind, Usage, Verdict
@@ -366,3 +367,32 @@ def test_step_ref_is_pydantic_model() -> None:
     step = StepRef(task_id="retail-0", step_index=0, tool_call_id=None, name=_GET, arguments={})
     assert step.tool_call_id is None
     assert step.malformed is False
+
+
+def test_step_items_labels_by_expected_actions() -> None:
+    record = _record()
+    task = _task()
+    step_states = {
+        (record.task_id, step.step_index): serialize_step(record, task, step, StateProfile.full)
+        for step in enumerate_steps(record)
+    }
+
+    items = step_items(step_states, {record.task_id: record}, {task.task_id: task})
+
+    by_step = {item.state.step_index: item for item in items}
+    assert set(by_step) == {0, 1, 2}
+    assert by_step[0].truth_label == "necessary"  # find_user matches
+    assert by_step[1].truth_label == "necessary"  # get_order_details matches
+    assert by_step[2].truth_label == "unnecessary"  # cancel is not expected
+    assert by_step[0].truth_value == 1.0
+    assert by_step[2].truth_value == 0.0
+
+
+def test_step_items_skips_states_without_record() -> None:
+    record = _record()
+    task = _task()
+    step = enumerate_steps(record)[0]
+    key = (record.task_id, step.step_index)
+    step_states = {key: serialize_step(record, task, step, StateProfile.full)}
+
+    assert step_items(step_states, {}, {task.task_id: task}) == []

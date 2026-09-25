@@ -181,9 +181,12 @@ def test_verdict_rows_aggregates_modal_verdict_agreement_and_errors() -> None:
 
 def test_verdict_rows_over_fixture_verdicts_has_two_judges() -> None:
     verdicts = data.load_verdicts(_paths())
-    assert len(verdicts) == 4
+    assert len(verdicts) == 8  # four whole-trajectory and four per-step verdicts
 
-    frame = views.verdict_rows(verdicts)
+    grouped = data.verdicts_by_state(verdicts)
+    whole = data.trajectory_states(data.load_states(_paths()))
+    whole_verdicts = [v for state in whole.values() for v in grouped.get(state.state_hash, [])]
+    frame = views.verdict_rows(whole_verdicts)
 
     assert set(frame["judge_id"]) == {"code", "fake"}
     assert list(frame["repeats"]) == [2, 2]

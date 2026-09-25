@@ -199,19 +199,13 @@ def _load_verdicts(judge_dir: str, _fingerprint: str) -> list[Verdict]:
 
 
 def load_verdicts(paths: Paths) -> list[Verdict]:
-    """Load verdicts from the judge cache, skipping quarantined and invalid files."""
+    """Load verdicts from the judge cache, skipping quarantined and invalid files.
+
+    The cache holds both whole-trajectory and per-step verdicts in one
+    content-addressed tree, so the returned list carries both kinds.
+    """
     judge_dir = paths.cache_dir / "judge"
     return _load_verdicts(str(judge_dir), dir_fingerprint(judge_dir))
-
-
-def load_step_verdicts(paths: Paths) -> list[Verdict]:
-    """Load per-step verdicts from the step-judge cache, empty when it is absent.
-
-    The G2 gate scores individual tool calls; its verdicts live under
-    ``cache/step_judge`` so the whole-trajectory verdict counts stay unchanged.
-    """
-    step_dir = paths.cache_dir / "step_judge"
-    return _load_verdicts(str(step_dir), dir_fingerprint(step_dir))
 
 
 def verdicts_by_state(verdicts: list[Verdict]) -> dict[str, list[Verdict]]:

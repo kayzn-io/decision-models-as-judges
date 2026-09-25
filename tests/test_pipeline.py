@@ -103,6 +103,117 @@ def test_serialize_all_is_idempotent(tmp_path: Path) -> None:
     assert first == second == 1
 
 
+# --- step states -----------------------------------------------------------
+
+
+def _record_with_calls(task_id: str = "retail-0") -> AgentRecord:
+    """Build a record with one expected and one unexpected tool call."""
+    return AgentRecord(
+        variant="baseline",
+        task_id=task_id,
+        trajectory=[
+            {"role": "user", "content": "help"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "c0",
+                        "function": {
+                            "name": "get_order_details",
+                            "arguments": '{"order_id": "#W2378156"}',
+                        },
+                    }
+                ],
+            },
+            {"role": "tool", "tool_call_id": "c0", "content": "ok"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "c1",
+                        "function": {
+                            "name": "cancel_pending_order",
+                            "arguments": '{"order_id": "#W9"}',
+                        },
+                    }
+                ],
+            },
+        ],
+        reward=1.0,
+        harness_info={},
+        agent_model="agent",
+        user_model="user",
+        tau_bench_ref="ref",
+    )
+
+
+def test_serialize_all_writes_step_files_with_padded_names(tmp_path: Path) -> None:
+    out_dir = tmp_path / "state"
+    pipeline.serialize_all(
+        {"retail-0": _record_with_calls()}, _tasks(), out_dir, [StateProfile.full]
+    )
+
+    steps_dir = out_dir / "baseline" / "full" / "steps"
+    assert (steps_dir / "retail-0.000.json").is_file()
+    assert (steps_dir / "retail-0.001.json").is_file()
+    first = StateRecord.model_validate_json((steps_dir / "retail-0.000.json").read_text())
+    assert first.step_index == 0
+
+
+def test_read_step_states_keys_by_task_and_index(tmp_path: Path) -> None:
+    out_dir = tmp_path / "state"
+    pipeline.serialize_all(
+        {"retail-0": _record_with_calls()}, _tasks(), out_dir, [StateProfile.full]
+    )
+
+    step_states = pipeline.read_step_states(out_dir, "baseline", StateProfile.full)
+
+    assert set(step_states) == {("retail-0", 0), ("retail-0", 1)}
+    assert step_states[("retail-0", 1)].step_index == 1
+
+
+def test_read_step_states_missing_dir_is_empty(tmp_path: Path) -> None:
+    assert pipeline.read_step_states(tmp_path / "state", "baseline", StateProfile.full) == {}
+
+
+def test_items_for_gate_g2_labels_each_step(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    record = _record_with_calls()
+    (agent_dir / "baseline").mkdir(parents=True)
+    (agent_dir / "baseline" / "retail-0.json").write_text(
+        record.model_dump_json(), encoding="utf-8"
+    )
+    pipeline.serialize_all({"retail-0": record}, _tasks(), state_dir, [StateProfile.full])
+
+    items = pipeline.items_for_gate(
+        "g2", state_dir, agent_dir, StateProfile.full, "baseline", _tasks()
+    )
+
+    by_step = {item.state.step_index: item for item in items}
+    assert set(by_step) == {0, 1}
+    assert by_step[0].truth_label == "necessary"  # get_order_details is expected
+    assert by_step[0].truth_value == 1.0
+    assert by_step[1].truth_label == "unnecessary"  # cancel is not expected
+    assert by_step[1].truth_value == 0.0
+
+
+def test_items_for_gate_g3_uses_whole_states(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    _seed_variant(agent_dir, state_dir, "baseline")
+
+    items = pipeline.items_for_gate(
+        "g3", state_dir, agent_dir, StateProfile.full, "baseline", _tasks()
+    )
+
+    by_task = {item.state.task_id: item for item in items}
+    assert set(by_task) == {"retail-0", "retail-1"}
+    assert all(item.state.step_index is None for item in items)
+
+
 # --- load_agent_records ----------------------------------------------------
 
 

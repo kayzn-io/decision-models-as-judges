@@ -26,7 +26,7 @@ def render() -> None:
 
     columns = st.columns(4)
     columns[0].metric("Agent records", len(agent_records))
-    columns[1].metric("States", len(states))
+    columns[1].metric("States (whole + step)", len(states))
     columns[2].metric("Verdicts", len(verdicts))
     columns[3].metric("Total spend (USD)", f"{data.total_spend(ledger):.4f}")
 
