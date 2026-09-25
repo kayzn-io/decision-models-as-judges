@@ -31,6 +31,81 @@ def test_load_study_succeeds() -> None:
     assert "agent" in study.spend_caps
 
 
+def test_load_study_reads_g2_repeats() -> None:
+    study = load_study(CONFIG_DIR / "study.toml")
+    assert study.g2.repeats == {
+        "jev": 5,
+        "laya_base": 5,
+        "laya_ft": 5,
+        "llm_cheap": 1,
+        "llm_strong": 1,
+        "code": 1,
+    }
+
+
+def test_study_without_g2_table_uses_defaults(tmp_path: Path) -> None:
+    minimal = tmp_path / "study.toml"
+    minimal.write_text(
+        "\n".join(
+            [
+                "repeats = 5",
+                "seed = 7",
+                'llm_base_url = "https://openrouter.ai/api/v1"',
+                "",
+                "[models]",
+                'agent = "openai/gpt-4.1"',
+                'user_sim = "openai/gpt-4o-mini"',
+                'llm_cheap = "openai/gpt-4o-mini"',
+                'llm_strong = "openai/gpt-5"',
+                "",
+                "[models.laya]",
+                'revision = "abc"',
+                "",
+                "[concurrency]",
+                "llm = 1",
+                "",
+                "[spend_caps]",
+                "agent = 1.0",
+            ]
+        )
+    )
+    study = load_study(minimal)
+    assert study.g2.repeats["jev"] == 5
+    assert study.g2.repeats["llm_cheap"] == 1
+
+
+def test_study_g2_table_overrides_defaults(tmp_path: Path) -> None:
+    override = tmp_path / "study.toml"
+    override.write_text(
+        "\n".join(
+            [
+                "seed = 7",
+                'llm_base_url = "https://openrouter.ai/api/v1"',
+                "",
+                "[models]",
+                'agent = "openai/gpt-4.1"',
+                'user_sim = "openai/gpt-4o-mini"',
+                'llm_cheap = "openai/gpt-4o-mini"',
+                'llm_strong = "openai/gpt-5"',
+                "",
+                "[models.laya]",
+                'revision = "abc"',
+                "",
+                "[concurrency]",
+                "llm = 1",
+                "",
+                "[spend_caps]",
+                "agent = 1.0",
+                "",
+                "[g2]",
+                "repeats = { jev = 3 }",
+            ]
+        )
+    )
+    study = load_study(override)
+    assert study.g2.repeats == {"jev": 3}
+
+
 def test_load_pricing_succeeds() -> None:
     pricing = load_pricing(CONFIG_DIR / "pricing.toml")
     assert isinstance(pricing, PricingTable)

@@ -139,7 +139,6 @@ def judge(
         state_profile = StateProfile(profile)
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
-    repeat_plan = pipeline.parse_repeats(repeats or [])
 
     study_config = load_study(study)
     pricing_table = load_pricing(pricing)
@@ -158,6 +157,11 @@ def judge(
 
     names = [name.strip() for name in judges.split(",") if name.strip()]
     specs = pipeline.judge_specs_from(names, study_config)
+    repeat_plan = (
+        pipeline.parse_repeats(repeats)
+        if repeats
+        else pipeline.default_repeats(gate, study_config, names)
+    )
     judge_list = pipeline.build_judges(
         specs,
         study=study_config,

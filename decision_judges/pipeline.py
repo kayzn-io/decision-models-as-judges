@@ -21,6 +21,7 @@ from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
 from decision_judges.config import PricingTable, StudyConfig
 from decision_judges.gates.base import Gate, Item
+from decision_judges.gates.g2_steps import G2Steps, repeats_for
 from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.gates.g4_decomposition import G4Decomposition
 from decision_judges.gates.g5_cascade import G5Cascade
@@ -283,7 +284,20 @@ def gate_registry() -> dict[str, type[Gate]]:
     These gates make their own judge calls and have zero-argument constructors,
     so the CLI can build them without study or pricing context.
     """
-    return {"g3": G3Outcome, "g4": G4Decomposition, "g10": G10LocalModel}
+    return {"g3": G3Outcome, "g4": G4Decomposition, "g10": G10LocalModel, "g2": G2Steps}
+
+
+def default_repeats(
+    gate_id: str, study: StudyConfig, names: Sequence[str]
+) -> Mapping[str, int] | int:
+    """Return the default repeat plan for a gate when none is given on the CLI.
+
+    G2 reads its per-judge counts from the study; every other gate defaults to a
+    single repeat.
+    """
+    if gate_id == "g2":
+        return repeats_for(study, names)
+    return 1
 
 
 def analysis_registry(study: StudyConfig, pricing: PricingTable) -> dict[str, Gate]:

@@ -35,6 +35,22 @@ class Thresholds(BaseModel):
     cascade: list[float] = Field(default_factory=lambda: list(DEFAULT_CASCADE))
 
 
+G2_DEFAULT_REPEATS: dict[str, int] = {
+    "jev": 5,
+    "laya_base": 5,
+    "laya_ft": 5,
+    "llm_cheap": 1,
+    "llm_strong": 1,
+    "code": 1,
+}
+
+
+class G2Config(BaseModel):
+    """Per-judge repeat counts for the high-volume G2 step gate."""
+
+    repeats: dict[str, int] = Field(default_factory=lambda: dict(G2_DEFAULT_REPEATS))
+
+
 class StudyConfig(BaseModel):
     """Top-level configuration for a study run."""
 
@@ -43,6 +59,7 @@ class StudyConfig(BaseModel):
     concurrency: dict[str, int]
     spend_caps: dict[str, float]
     thresholds: Thresholds = Field(default_factory=Thresholds)
+    g2: G2Config = Field(default_factory=G2Config)
     seed: int = 7
     llm_base_url: str
 

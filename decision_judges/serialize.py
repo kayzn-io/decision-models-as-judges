@@ -9,6 +9,7 @@ injection helper builds paired persuasion/control variants for experiments.
 import hashlib
 import json
 import re
+from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 
@@ -47,6 +48,7 @@ class StateRecord(BaseModel):
     token_estimate: int
     truncated: bool = False
     state_hash: str
+    step_index: int | None = None
 
 
 # --- policy context (author-written, not the wiki verbatim) ----------------
@@ -168,10 +170,15 @@ class _Turn:
     tool_raw: str | None = None  # raw content for a tool turn
 
 
-def _build_turns(record: AgentRecord) -> list[_Turn]:
-    """Render the trajectory into turns, skipping the system message."""
+def render_call(name: str, arguments: dict[str, object]) -> str:
+    """Render one tool call as ``call: name({sorted-key JSON arguments})``."""
+    return f"call: {name}({json.dumps(arguments, sort_keys=True)})"
+
+
+def _build_turns(messages: Sequence[dict[str, object]]) -> list[_Turn]:
+    """Render conversation messages into turns, skipping the system message."""
     turns: list[_Turn] = []
-    for message in record.trajectory:
+    for message in messages:
         role = str(message.get("role", ""))
         if role == "system":
             continue
@@ -183,7 +190,7 @@ def _build_turns(record: AgentRecord) -> list[_Turn]:
             if content.strip():
                 lines.append(f"assistant: {content}")
             for name, arguments in _tool_calls(message):
-                lines.append(f"call: {name}({json.dumps(arguments, sort_keys=True)})")
+                lines.append(render_call(name, arguments))
             turns.append(_Turn(role="assistant", lines=lines))
         else:
             turns.append(_Turn(role=role, lines=[f"{role}: {_content(message)}"]))
@@ -195,6 +202,15 @@ def _render_turn(turn: _Turn, cap: int) -> str:
     if turn.role == "tool":
         return f"tool: {_truncate_tool(turn.tool_raw or '', cap)}"
     return "\n".join(turn.lines)
+
+
+def render_turns(messages: Sequence[dict[str, object]], truncate_results_to: int) -> str:
+    """Render messages (system skipped) to text, capping each tool result.
+
+    Tool results are truncated to ``truncate_results_to`` characters, exactly as
+    the full profile renders a turn.
+    """
+    return "\n".join(_render_turn(turn, truncate_results_to) for turn in _build_turns(messages))
 
 
 def _estimate(text: str) -> int:
@@ -223,7 +239,7 @@ def _assemble_full(header: str, turns: list[_Turn], caps: list[int], kept: list[
 def _serialize_full(record: AgentRecord, task: Task, budget_tokens: int) -> tuple[str, bool]:
     """Render the full profile, truncating to fit budget_tokens if needed."""
     header = f"{task.instruction}\n{POLICY_SUMMARY}"
-    turns = _build_turns(record)
+    turns = _build_turns(record.trajectory)
     caps = [600] * len(turns)
     kept = [True] * len(turns)
 

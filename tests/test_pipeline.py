@@ -259,10 +259,20 @@ def test_parse_repeats_rejects_mixed() -> None:
 
 def test_gate_registry_contains_judging_gates() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g3", "g4", "g10"}
+    assert set(registry) == {"g2", "g3", "g4", "g10"}
+    assert registry["g2"]().gate_id == "g2"
     assert registry["g3"]().gate_id == "g3"
     assert registry["g4"]().gate_id == "g4"
     assert registry["g10"]().gate_id == "g10"
+
+
+def test_default_repeats_g2_returns_study_mapping() -> None:
+    plan = pipeline.default_repeats("g2", _study(), ["jev", "code", "unknown"])
+    assert plan == {"jev": 5, "code": 1, "unknown": 1}
+
+
+def test_default_repeats_other_gate_is_one() -> None:
+    assert pipeline.default_repeats("g3", _study(), ["jev", "code"]) == 1
 
 
 # --- analysis registry -----------------------------------------------------
