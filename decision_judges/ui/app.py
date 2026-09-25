@@ -8,8 +8,7 @@ import streamlit as st
 from streamlit.navigation.page import StreamlitPage
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-from decision_judges import __version__
-from decision_judges.ui import data
+from decision_judges.ui import components, data
 from decision_judges.ui.pages import gates, label, live, overview, trajectories
 
 _SHARED_PAGES = [
@@ -44,12 +43,17 @@ def build_pages(local: bool) -> list[StreamlitPage]:
 
 def main() -> None:
     """Configure the page, build navigation, and run the selected page."""
-    st.set_page_config(page_title="Decision models as judges", layout="wide")
+    st.set_page_config(
+        page_title="Decision models as judges",
+        page_icon=str(components.FAVICON),
+        layout="wide",
+    )
     local = data.is_local()
     mode = "local mode" if local else "shared mode"
+    components.sidebar_brand()
     pages = build_pages(local)
     navigation = st.navigation(pages)
-    st.sidebar.caption(f"v{__version__} · {mode}")
+    st.sidebar.caption(mode)
     navigation.run()
 
 

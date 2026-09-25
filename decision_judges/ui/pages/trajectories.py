@@ -9,10 +9,11 @@ from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.serialize import Injection, StateRecord
 from decision_judges.types import Verdict
-from decision_judges.ui import data, views
+from decision_judges.ui import components, data, views
 
 _DEFAULT_PROFILE = "full"
 _DEFAULT_INJECTION = "none"
+_PURPOSE = "Read one agent run beside its ground truth and every judge's verdict."
 
 
 def render() -> None:
@@ -23,9 +24,10 @@ def render() -> None:
     grouped = data.verdicts_by_state(data.load_verdicts(paths))
     tasks = data.load_tasks_for_ui(paths)
 
-    st.title("Trajectories")
+    components.page_header("Trajectories", _PURPOSE)
     if not records:
         st.caption("No agent runs are available yet.")
+        components.footer()
         return
 
     trajectory_states = data.trajectory_states(states)
@@ -54,6 +56,7 @@ def render() -> None:
         _ground_truth(record, task)
     with verdicts:
         _verdicts(state, grouped)
+    components.footer()
 
 
 def _select_default(label: str, options: list[str], default: str, key: str) -> str:

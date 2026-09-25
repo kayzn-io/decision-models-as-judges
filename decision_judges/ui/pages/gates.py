@@ -15,19 +15,19 @@ from decision_judges.gates.base import GateResult
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.gates.g7_robustness import G7Robustness
-from decision_judges.ui import data
+from decision_judges.ui import components, data
 
 _PROFILE = "full"
 _FAST_JUDGE = "jev"
 _SLOW_JUDGE = "llm_strong"
 _SIGNAL_HELP = "The three probability signals G6 scores against ground truth."
+_PURPOSE = "Results for each evaluation gate, static and interactive."
 
 
 def render() -> None:
     """Render one tab per gate, static where results exist and interactive elsewhere."""
     paths = data.Paths.from_env()
-    st.title("Gates")
-    st.write("Static gate summaries beside interactive cascade, calibration, and regression views.")
+    components.page_header("Gates", _PURPOSE)
     outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = st.tabs(
         [
             "G3 Outcome",
@@ -56,12 +56,7 @@ def render() -> None:
         _g9_tab(paths)
     with robustness:
         _g7_tab(paths)
-
-
-def _empty_state(what: str, command: str) -> None:
-    """Render one sentence on what a gate measures and the command that fills it."""
-    st.caption(what)
-    st.code(command, language="bash")
+    components.footer()
 
 
 def _table(result: GateResult, name: str) -> pd.DataFrame:
@@ -82,7 +77,7 @@ def _static_gate(paths: data.Paths, table: str, chart: str, what: str, command: 
     """Show a written results table and chart, or an empty state when absent."""
     frame = data.load_results_table(paths, table)
     if frame is None:
-        _empty_state(what, command)
+        components.empty_state(what, command)
         return
     st.dataframe(frame, hide_index=True)
     image = data.load_chart_path(paths, chart)
@@ -130,7 +125,7 @@ def _g5_tab(paths: data.Paths) -> None:
     judge_ids = sorted({verdict.judge_id for verdict in verdicts})
     missing = [judge for judge in (_FAST_JUDGE, _SLOW_JUDGE) if judge not in judge_ids]
     if not items or missing:
-        _empty_state(
+        components.empty_state(
             "G5 replays the G3 verdicts as a confidence-gated cascade, but the verdict "
             f"cache is missing these judges: {', '.join(missing) or 'all'}.",
             "judges analyze --gate g5 --variant baseline --variant degraded",
@@ -168,7 +163,7 @@ def _g6_tab(paths: data.Paths) -> None:
     """Score judge probability signals against the truth and recalibrate on demand."""
     items, verdicts = data.load_items_and_verdicts(paths, _PROFILE)
     if not verdicts:
-        _empty_state(
+        components.empty_state(
             "G6 scores how well each judge's probabilities track the truth.",
             "judges analyze --gate g6 --variant baseline --variant degraded",
         )
@@ -177,7 +172,7 @@ def _g6_tab(paths: data.Paths) -> None:
     result = G6Calibration().analyze(verdicts, items)
     summary = _table(result, "g6_summary")
     if summary.empty:
-        _empty_state(
+        components.empty_state(
             "G6 found no scorable probability signals in the cached verdicts.",
             "judges analyze --gate g6 --variant baseline --variant degraded",
         )
@@ -224,7 +219,7 @@ def _g9_tab(paths: data.Paths) -> None:
     """Show the static G9 taxonomy summary and confusion the judge command writes."""
     summary = data.load_results_table(paths, "g9_summary")
     if summary is None:
-        _empty_state(
+        components.empty_state(
             "G9 asks each judge to classify a failing trajectory into the failure taxonomy "
             "and scores it against the owner's hand labels; label failures on the Label page "
             "first.",
@@ -254,7 +249,7 @@ def _g7_tab(paths: data.Paths) -> None:
     items, verdicts = data.load_injected_items_and_verdicts(paths, _PROFILE)
     has_recompute = bool(items) and bool(verdicts)
     if summary is None and not has_recompute:
-        _empty_state(
+        components.empty_state(
             "G7 measures whether an injected evaluator-directed sentence flips a fail "
             "verdict to pass.",
             "judges judge --gate g7 --variant baseline --variant degraded",

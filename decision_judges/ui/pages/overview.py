@@ -2,8 +2,9 @@
 
 import streamlit as st
 
-from decision_judges.ui import data
+from decision_judges.ui import components, data
 
+_PURPOSE = "What the study measures, who the judges are, and what it has cost so far."
 _STUDY_SUMMARY = (
     "This study evaluates the typed decision models Jev and Laya as evaluation "
     "judges over tau-bench retail agent trajectories, comparing them with a "
@@ -21,7 +22,7 @@ def render() -> None:
     verdicts = data.load_verdicts(paths)
     ledger = data.load_ledger(paths)
 
-    st.title("Decision models as judges")
+    components.page_header("Decision models as judges", _PURPOSE)
     st.write(_STUDY_SUMMARY)
 
     columns = st.columns(4)
@@ -46,3 +47,4 @@ def render() -> None:
 
     st.subheader("Threats to validity")
     st.markdown(data.threats_text(paths))
+    components.footer()

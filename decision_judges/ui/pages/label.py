@@ -7,21 +7,24 @@ from decision_judges.ui import components, data, views
 
 _TARGET = 50
 _WIDGET_KEYS = ("trajectory", "label", "note")
+_PURPOSE = "Assign a failure type to each failed run; labels feed the taxonomy gate."
 
 
 def render() -> None:
     """Render the labeling workflow for failing trajectories in local mode."""
     if not data.is_local():
         st.info("Labeling runs only locally with JUDGES_LOCAL=1.")
+        components.footer()
         return
 
     paths = data.Paths.from_env()
     store = data.labels_store(paths)
     failing = data.failing_trajectories(paths)
 
-    st.title("Label")
+    components.page_header("Label", _PURPOSE)
     if not failing:
         st.caption("No failing trajectories to label.")
+        components.footer()
         return
 
     labeled = store.latest()
@@ -40,6 +43,7 @@ def render() -> None:
         _advance()
         st.toast("Label saved.")
         st.rerun()
+    components.footer()
 
 
 def _select(

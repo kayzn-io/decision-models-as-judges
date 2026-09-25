@@ -2,8 +2,13 @@
 
 import streamlit as st
 
+from decision_judges.ui import components
+
+_PURPOSE = "Stream a judge's verdicts as an agent run unfolds."
+
 
 def render() -> None:
     """Render the live placeholder."""
-    st.title("Live")
+    components.page_header("Live", _PURPOSE)
     st.write("Live judging is coming soon.")
+    components.footer()
