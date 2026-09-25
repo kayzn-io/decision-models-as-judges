@@ -73,7 +73,7 @@ class RunStep(BaseModel):
     status: Callable[[Paths], StepStatus]
     example_input: Callable[[Paths], str]
     example_output: Callable[[Paths], str]
-    run: Callable[[Paths, RunContext], object]
+    run: Callable[[Paths, RunContext], str | None]
 
     def cap_usd(self, study: StudyConfig) -> float | None:
         """Return the summed spend cap across the step's stages, or None when free."""
@@ -424,8 +424,13 @@ def _load_tasks(paths: Paths) -> dict[str, Task]:
     return {task.task_id: task for task in loaded}
 
 
-def _run_agent(paths: Paths, ctx: RunContext) -> None:
-    """Run every retail task under both policy variants, sequentially."""
+def _run_agent(paths: Paths, ctx: RunContext) -> str | None:
+    """Run every retail task under both policy variants, sequentially.
+
+    Return the first variant's ``stopped_reason`` when one reports it, stopping
+    before the second variant because the same setup would fail the same way.
+    Return None when both variants finish without stopping early.
+    """
     from decision_judges.bench import load as bench_load
     from decision_judges.bench import run_agent as run_agent_mod
 
@@ -435,9 +440,9 @@ def _run_agent(paths: Paths, ctx: RunContext) -> None:
     with _openrouter_key(ctx.key):
         for variant in _VARIANTS:
             if ctx.cancel is not None and ctx.cancel.is_cancelled:
-                return
+                return None
             runner = run_agent_mod.build_tau_runner(ctx.study, variant)  # type: ignore[arg-type]
-            run_agent_mod.run_variant(
+            summary = run_agent_mod.run_variant(
                 variant,  # type: ignore[arg-type]
                 tasks,
                 runner,
@@ -447,17 +452,24 @@ def _run_agent(paths: Paths, ctx: RunContext) -> None:
                 on_progress=ctx.on_progress,
                 cancel=ctx.cancel,
             )
+            if summary.stopped_reason is not None:
+                return summary.stopped_reason
+    return None
 
 
-def _run_serialize(paths: Paths, ctx: RunContext) -> None:
-    """Serialize every recorded run into the full and compact judge views."""
+def _run_serialize(paths: Paths, ctx: RunContext) -> str | None:
+    """Serialize every recorded run into the full and compact judge views.
+
+    This step raises on failure or finishes cleanly; it has no early-stop
+    reason, so it returns None.
+    """
     tasks = _load_tasks(paths)
     profiles = [StateProfile.full, StateProfile.compact]
     variants = _variants_present(paths)
     started = utc_now_iso()
     for index, variant in enumerate(variants):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         records, _ = pipeline.load_agent_records(paths.cache_dir / "agent", variant)
         pipeline.serialize_all(records, tasks, paths.cache_dir / "state", profiles)
         if ctx.on_progress is not None:
@@ -470,6 +482,7 @@ def _run_serialize(paths: Paths, ctx: RunContext) -> None:
                     started_at=started,
                 )
             )
+    return None
 
 
 def _run_gate(
@@ -532,17 +545,25 @@ def _run_gate(
     write_findings(paths.results_dir, gate_id, findings)
 
 
-def _run_judge_outcome(paths: Paths, ctx: RunContext) -> None:
-    """Judge G3 outcomes on the full and compact views for both variants."""
+def _run_judge_outcome(paths: Paths, ctx: RunContext) -> str | None:
+    """Judge G3 outcomes on the full and compact views for both variants.
+
+    Gate runs raise or finish; this step reports no early-stop reason and
+    returns None.
+    """
     for variant in _variants_present(paths):
         for profile in ("full", "compact"):
             if ctx.cancel is not None and ctx.cancel.is_cancelled:
-                return
+                return None
             _run_gate(paths, ctx, "g3", profile, variant, list(_G3_JUDGES), _G3_REPEATS)
+    return None
 
 
-def _run_analyze(paths: Paths, ctx: RunContext) -> None:
-    """Reduce cached verdicts into the cascade, calibration, and regression findings."""
+def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
+    """Reduce cached verdicts into the cascade, calibration, and regression findings.
+
+    A read-and-write reduction with no early-stop reason; returns None.
+    """
     from decision_judges.report import write_findings
 
     registry = pipeline.analysis_registry(ctx.study, ctx.pricing)
@@ -552,7 +573,7 @@ def _run_analyze(paths: Paths, ctx: RunContext) -> None:
     gate_ids = ("g5", "g6", "g8")
     for index, gate_id in enumerate(gate_ids):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         items = pipeline.items_for_variants(
             paths.cache_dir / "state", paths.cache_dir / "agent", profile, variants
         )
@@ -571,17 +592,22 @@ def _run_analyze(paths: Paths, ctx: RunContext) -> None:
                     started_at=started,
                 )
             )
+    return None
 
 
-def _run_laya(paths: Paths, ctx: RunContext) -> None:
-    """Judge Laya zero-shot, fine-tune it across folds, and score the local model."""
+def _run_laya(paths: Paths, ctx: RunContext) -> str | None:
+    """Judge Laya zero-shot, fine-tune it across folds, and score the local model.
+
+    Cross-validation returns fold manifests and reports no early-stop reason, so
+    this step returns None.
+    """
     from decision_judges.cli import _resolve_base
     from decision_judges.gates.g3_outcome import G3Outcome
     from decision_judges.training import finetune_laya as training
 
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         _run_gate(paths, ctx, "g3", "compact", variant, ["laya_base"], 1)
 
     variant = "baseline"
@@ -606,37 +632,51 @@ def _run_laya(paths: Paths, ctx: RunContext) -> None:
 
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         _run_gate(paths, ctx, "g3", "compact", variant, ["laya_ft"], 1)
     _run_gate(paths, ctx, "g10", "compact", "baseline", ["laya_base", "laya_ft"], 1)
+    return None
 
 
-def _run_gates(paths: Paths, ctx: RunContext) -> None:
-    """Probe the judges with per-step, robustness, decomposition, and triage gates."""
+def _run_gates(paths: Paths, ctx: RunContext) -> str | None:
+    """Probe the judges with per-step, robustness, decomposition, and triage gates.
+
+    Gate runs raise or finish; this step reports no early-stop reason and
+    returns None.
+    """
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         _run_gate(paths, ctx, "g2", "full", variant, list(_G3_JUDGES), None)
         _run_gate(paths, ctx, "g7", "full", variant, ["llm_strong"], 5)
         _run_gate(paths, ctx, "g4", "full", variant, ["llm_strong"], 1)
         _run_gate(paths, ctx, "g1", "full", variant, ["llm_strong"], 1)
+    return None
 
 
-def _run_label(paths: Paths, ctx: RunContext) -> None:
-    """Score the taxonomy judge against hand labels, when any labels exist."""
+def _run_label(paths: Paths, ctx: RunContext) -> str | None:
+    """Score the taxonomy judge against hand labels, when any labels exist.
+
+    Gate runs raise or finish; this step reports no early-stop reason and
+    returns None.
+    """
     from decision_judges.labels import LabelStore
 
     store = LabelStore.under(paths.data_dir)
     if not store.latest():
-        return
+        return None
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return
+            return None
         _run_gate(paths, ctx, "g9", "full", variant, ["llm_strong"], 1)
+    return None
 
 
-def _run_results(paths: Paths, ctx: RunContext) -> None:
-    """Assemble every finding into the results summary and refresh the README."""
+def _run_results(paths: Paths, ctx: RunContext) -> str | None:
+    """Assemble every finding into the results summary and refresh the README.
+
+    A pure assembly step with no early-stop reason; returns None.
+    """
     from decision_judges.report import render_results, update_readme
 
     body = render_results(paths.results_dir, paths.cache_dir)
@@ -647,6 +687,7 @@ def _run_results(paths: Paths, ctx: RunContext) -> None:
         update_readme(readme, body)
     if ctx.on_progress is not None:
         ctx.on_progress(Progress(step_id="results", done=1, total=1, started_at=utc_now_iso()))
+    return None
 
 
 # --- the eight steps --------------------------------------------------------

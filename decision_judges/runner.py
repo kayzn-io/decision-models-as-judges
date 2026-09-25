@@ -73,6 +73,11 @@ class StepRunner:
         The callable is invoked as ``fn(*args, on_progress=<writer>,
         cancel=<token>, **kwargs)``. Raise :class:`StepAlreadyRunning` when a
         thread for the step is still alive.
+
+        A step callable returns None on a clean finish, or a short reason string
+        when it stopped early without raising; that reason is recorded on the
+        final :class:`Progress` as ``stopped_reason`` with ``finished_at`` set
+        and ``error`` left None.
         """
         with self._lock:
             existing = self._threads.get(step_id)
@@ -91,8 +96,11 @@ class StepRunner:
         def run() -> None:
             started_at = utc_now_iso()
             error: str | None = None
+            stopped_reason: str | None = None
             try:
-                fn(*args, on_progress=on_progress, cancel=token, **kwargs)
+                result = fn(*args, on_progress=on_progress, cancel=token, **kwargs)
+                if isinstance(result, str) and result:
+                    stopped_reason = result
             except BaseException as exc:  # noqa: BLE001 - surfaced via the progress file
                 error = f"{type(exc).__name__}: {exc}"
             final = latest.get(
@@ -103,6 +111,7 @@ class StepRunner:
                     "finished_at": utc_now_iso(),
                     "error": error,
                     "cancelled": token.is_cancelled,
+                    "stopped_reason": stopped_reason,
                 }
             )
             writer.write(final, force=True)

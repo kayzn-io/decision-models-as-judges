@@ -110,3 +110,40 @@ def test_paid_flags_match_the_priced_stages() -> None:
         "label": True,
         "results": False,
     }
+
+
+def test_step_one_returns_first_stop_reason_and_stops_after_one_variant(
+    monkeypatch, tmp_path: Path
+) -> None:
+    from decision_judges.bench import load as bench_load
+    from decision_judges.bench import run_agent as run_agent_mod
+    from decision_judges.bench.run_agent import RunSummary
+    from decision_judges.config import load_pricing
+    from decision_judges.ui.steps import RunContext
+
+    calls: list[str] = []
+
+    monkeypatch.setattr(bench_load, "load_tasks", lambda: [])
+    monkeypatch.setattr(run_agent_mod, "build_tau_runner", lambda study, variant: object())
+
+    def fake_run_variant(variant, *args, **kwargs):
+        calls.append(variant)
+        return RunSummary(
+            variant=variant,
+            completed=0,
+            excluded=0,
+            skipped_existing=0,
+            pass_rate=0.0,
+            stopped_reason="aborted: the first 3 tasks failed with Missing credentials",
+        )
+
+    monkeypatch.setattr(run_agent_mod, "run_variant", fake_run_variant)
+
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    pricing = load_pricing(_FIXTURE / "config" / "pricing.toml")
+    ctx = RunContext(study=study, pricing=pricing)
+
+    result = steps.STEPS[0].run(_paths(tmp_path), ctx)
+
+    assert result == "aborted: the first 3 tasks failed with Missing credentials"
+    assert calls == ["baseline"]

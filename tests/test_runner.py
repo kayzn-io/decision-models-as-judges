@@ -31,6 +31,12 @@ def _boom(*, on_progress, cancel) -> None:
     raise RuntimeError("kaboom")
 
 
+def _stops_early(*, on_progress, cancel) -> str:
+    """A step that reports once then returns a short stop reason."""
+    on_progress(Progress(step_id="x", done=1, total=3, started_at=utc_now_iso()))
+    return "aborted: x"
+
+
 def _loop_until_cancel(*, on_progress, cancel: CancelToken) -> None:
     """A step that reports until it is asked to stop."""
     index = 0
@@ -51,6 +57,29 @@ def test_start_writes_progress_file_ending_with_finished_at(tmp_path: Path) -> N
     assert status.finished_at is not None
     assert status.error is None
     assert status.cancelled is False
+
+
+def test_returned_string_becomes_stopped_reason(tmp_path: Path) -> None:
+    runner = StepRunner(tmp_path)
+    runner.start("step", _stops_early)
+    _wait_until(lambda: not runner.is_running("step"))
+
+    status = runner.status("step")
+    assert status is not None
+    assert status.stopped_reason == "aborted: x"
+    assert status.finished_at is not None
+    assert status.error is None
+    assert status.cancelled is False
+
+
+def test_returned_none_leaves_stopped_reason_none(tmp_path: Path) -> None:
+    runner = StepRunner(tmp_path)
+    runner.start("step", _one_shot)
+    _wait_until(lambda: not runner.is_running("step"))
+
+    status = runner.status("step")
+    assert status is not None
+    assert status.stopped_reason is None
 
 
 def test_exception_surfaces_in_error_and_finishes(tmp_path: Path) -> None:

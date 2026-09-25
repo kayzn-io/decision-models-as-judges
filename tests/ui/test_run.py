@@ -248,3 +248,54 @@ def test_cancelled_step_shows_the_stopped_line(
 
     assert not at.exception
     assert any("Stopped. Your work so far is saved" in text for text in _texts(at))
+
+
+def _plant_stopped(root: Path, step_id: str, reason: str) -> None:
+    """Write a finished progress file that stopped early with a reason."""
+    progress_dir = root / "results" / ".progress"
+    progress_dir.mkdir(parents=True, exist_ok=True)
+    stopped = Progress(
+        step_id=step_id,
+        done=0,
+        total=115,
+        started_at=utc_now_iso(),
+        finished_at=utc_now_iso(),
+        stopped_reason=reason,
+    )
+    (progress_dir / f"{step_id}.json").write_text(
+        stopped.model_dump_json(indent=2), encoding="utf-8"
+    )
+
+
+def test_stopped_step_shows_warning_and_key_guidance(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root, at = _local_app(monkeypatch, tmp_path)
+    _plant_stopped(
+        root,
+        "run-agent",
+        "aborted: the first 3 tasks failed with Missing credentials",
+    )
+
+    at.run()
+
+    assert not at.exception
+    warnings = [w.value for w in at.warning]
+    assert any("Step 1 stopped early" in w for w in warnings)
+    assert any("Missing credentials" in w for w in warnings)
+    assert any("OpenRouter key" in w for w in warnings)
+    assert all("Step 1 done" not in text for text in _texts(at))
+
+
+def test_stopped_step_with_spend_cap_shows_cap_guidance(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root, at = _local_app(monkeypatch, tmp_path)
+    _plant_stopped(root, "run-agent", "the spend cap for this step is reached")
+
+    at.run()
+
+    assert not at.exception
+    warnings = [w.value for w in at.warning]
+    assert any("Step 1 stopped early" in w for w in warnings)
+    assert any("config/study.toml" in w for w in warnings)

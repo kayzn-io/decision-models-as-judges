@@ -148,7 +148,7 @@ def _flash_station(runner: StepRunner, running: RunStep | None) -> flow.Station 
     status = runner.status(previous)
     if status is None or status.finished_at is None:
         return None
-    if status.error or status.cancelled:
+    if status.error or status.cancelled or status.stopped_reason:
         return None
     step = _step_by_id(previous)
     if step is None:
@@ -367,10 +367,14 @@ def _stop_button(step: RunStep, runner: StepRunner) -> None:
 
 
 def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object) -> None:
-    """Render the error, the stopped line, or the success card with any findings."""
+    """Render the error, the stopped-early warning, the stopped line, or success."""
     error = getattr(status, "error", None)
     if error:
         st.error(_plain_error(error))
+        return
+    stopped_reason = getattr(status, "stopped_reason", None)
+    if stopped_reason and stopped_reason != "cancelled":
+        _stopped_early_panel(index, stopped_reason)
         return
     if getattr(status, "cancelled", False):
         st.caption("Stopped. Your work so far is saved; run again to continue.")
@@ -384,6 +388,24 @@ def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object
     findings = _step_findings(step, paths)
     if findings:
         st.caption(findings)
+
+
+def _stopped_early_panel(index: int, reason: str) -> None:
+    """Warn that a step stopped early without an error, and how to proceed."""
+    st.warning(f"Step {index} stopped early\n\n{reason}\n\n{_stop_guidance(reason)}")
+
+
+def _stop_guidance(reason: str) -> str:
+    """Return the one-line next step chosen by what the stop reason mentions."""
+    lowered = reason.lower()
+    if "credentials" in lowered or "api key" in lowered:
+        return "Add a valid OpenRouter key in the sidebar and run again."
+    if "spend cap" in lowered:
+        return (
+            "The spend cap for this step is reached; raise it in config/study.toml "
+            "if you intend to spend more."
+        )
+    return "Run again to retry; finished items are kept."
 
 
 def _produced_text(step: RunStep, status: object) -> str:

@@ -30,6 +30,7 @@ class Progress(BaseModel):
     finished_at: str | None = None
     error: str | None = None
     cancelled: bool = False
+    stopped_reason: str | None = None
 
 
 ProgressCallback = Callable[[Progress], None]
