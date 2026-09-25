@@ -9,7 +9,7 @@ from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.serialize import Injection, StateRecord
 from decision_judges.types import Verdict
-from decision_judges.ui import components, data, views
+from decision_judges.ui import components, data, formatting, views
 
 _DEFAULT_PROFILE = "full"
 _DEFAULT_INJECTION = "none"
@@ -20,8 +20,9 @@ def render() -> None:
     """Render one run's conversation, ground truth, and side-by-side verdicts."""
     paths = data.Paths.from_env()
     records = data.load_agent_records(paths)
-    states = data.load_states(paths)
-    grouped = data.verdicts_by_state(data.load_verdicts(paths))
+    with st.spinner("Reading cached verdicts"):
+        states = data.load_states(paths)
+        grouped = data.verdicts_by_state(data.load_verdicts(paths))
     tasks = data.load_tasks_for_ui(paths)
 
     components.page_header("Trajectories", _PURPOSE)
@@ -59,6 +60,16 @@ def render() -> None:
     components.footer()
 
 
+def _dataframe(frame: pd.DataFrame) -> None:
+    """Render a table with formatted columns and no index."""
+    st.dataframe(
+        frame,
+        column_config=formatting.column_config_for(frame),
+        hide_index=True,
+        use_container_width=True,
+    )
+
+
 def _select_default(label: str, options: list[str], default: str, key: str) -> str:
     """Render a selectbox defaulting to ``default`` when it is among options."""
     index = options.index(default) if default in options else 0
@@ -73,32 +84,38 @@ def _select(
 
     A ``variant``, ``task``, or ``injection`` query parameter preselects the
     matching widget so a link can deep-link into a specific state; the resulting
-    selection is written back to the query parameters.
+    selection is written back to the query parameters. The selectors share one
+    bordered row so they read as a single control group.
     """
     variants = sorted({variant for variant, _ in records})
     desired = views.selection_from_query(
         dict(st.query_params),
         {"variant": variants[0], "task": "", "injection": _DEFAULT_INJECTION},
     )
-    variant = _select_default("Variant", variants, desired["variant"], "variant")
+    with st.container(border=True):
+        variant = _select_default("Variant", variants, desired["variant"], "variant")
 
-    task_ids = sorted({tid for candidate, tid in records if candidate == variant})
-    task_id = _select_default("Task", task_ids, desired["task"], "task")
+        task_ids = sorted({tid for candidate, tid in records if candidate == variant})
+        task_id = _select_default("Task", task_ids, desired["task"], "task")
 
-    profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
-    profile = (
-        _select_default("Profile", profiles, _DEFAULT_PROFILE, "profile")
-        if profiles
-        else _DEFAULT_PROFILE
-    )
+        profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
+        profile = (
+            _select_default("Profile", profiles, _DEFAULT_PROFILE, "profile")
+            if profiles
+            else _DEFAULT_PROFILE
+        )
 
-    injections = sorted(
-        {inj for v, prof, inj, tid in states if v == variant and prof == profile and tid == task_id}
-    )
-    if len(injections) > 1:
-        injection = _select_default("Injection", injections, desired["injection"], "injection")
-    else:
-        injection = injections[0] if injections else _DEFAULT_INJECTION
+        injections = sorted(
+            {
+                inj
+                for v, prof, inj, tid in states
+                if v == variant and prof == profile and tid == task_id
+            }
+        )
+        if len(injections) > 1:
+            injection = _select_default("Injection", injections, desired["injection"], "injection")
+        else:
+            injection = injections[0] if injections else _DEFAULT_INJECTION
 
     _write_query_params(variant, task_id, injection)
     return variant, task_id, profile, injection
@@ -119,30 +136,36 @@ def _conversation(
 ) -> None:
     """Render the trajectory as chat messages with per-step judge scores inline.
 
-    When ``injected`` is non-empty the spliced evaluator-directed sentence is
-    shown as a closing turn tagged ``[injected]`` so the injected text is visible
-    beside the real conversation.
+    The conversation lives in a fixed-height, scrolling container so a long run
+    does not push the ground-truth and verdict panels off screen. Tool results
+    collapse into an expander labeled with the tool name and result length. When
+    ``injected`` is non-empty the spliced evaluator-directed sentence closes the
+    conversation tagged ``[injected]``.
     """
     st.subheader("Conversation")
-    step_index = 0
-    for turn in views.turns(record):
-        if turn.role in ("user", "assistant"):
-            with st.chat_message(turn.role):
-                if turn.content:
+    with st.container(height=600):
+        step_index = 0
+        pending: list[str] = []
+        for turn in views.turns(record):
+            if turn.role in ("user", "assistant"):
+                with st.chat_message(turn.role):
+                    if turn.content:
+                        st.write(turn.content)
+                    for call in turn.tool_calls:
+                        st.code(call)
+                        pending.append(call.split("(", 1)[0])
+                        _step_scores(step_index, step_frames, expected)
+                        step_index += 1
+            elif turn.role == "tool":
+                name = pending.pop(0) if pending else "tool"
+                with st.expander(f"{name} · {len(turn.content)} chars"):
                     st.write(turn.content)
-                for call in turn.tool_calls:
-                    st.code(call)
-                    _step_scores(step_index, step_frames, expected)
-                    step_index += 1
-        elif turn.role == "tool":
-            with st.expander("tool result"):
+            else:
                 st.write(turn.content)
-        else:
-            st.write(turn.content)
-    if injected:
-        with st.chat_message("assistant"):
-            st.write(injected)
-            st.caption("[injected]")
+        if injected:
+            with st.chat_message("assistant"):
+                st.write(injected)
+                st.caption("[injected]")
 
 
 def _step_scores(
@@ -159,15 +182,24 @@ def _step_scores(
         mark = "✓ " if expected[step_index] else "✗ "
     for _, row in frame.iterrows():
         st.caption(
-            f"{mark}{row['judge_id']}: necessary {float(row['necessary']):.0%}, "
-            f"arguments_consistent {float(row['arguments_consistent']):.0%}"
+            f"{mark}{row['judge_id']}: necessary {formatting.pct(float(row['necessary']))}, "
+            f"arguments_consistent {formatting.pct(float(row['arguments_consistent']))}"
         )
 
 
+def _reward_badge(passed: bool) -> None:
+    """Render the run's pass or fail outcome as a labeled badge, text when unsupported."""
+    label = "PASS" if passed else "FAIL"
+    if hasattr(st, "badge"):
+        st.badge(label, color="green" if passed else "red")
+    else:
+        st.write(label)
+
+
 def _ground_truth(record: AgentRecord, task: Task | None) -> None:
-    """Render the reward metric, instruction, expected actions, and outputs."""
+    """Render the reward badge, instruction, expected actions, and outputs."""
     st.subheader("Ground truth")
-    st.metric("Reward", "PASS" if record.reward >= 1.0 else "FAIL")
+    _reward_badge(record.reward >= 1.0)
     if task is None:
         st.caption("Task definitions are not loaded.")
         return
@@ -179,7 +211,7 @@ def _ground_truth(record: AgentRecord, task: Task | None) -> None:
         }
         for action, matched in views.matched_expected_actions(task, record)
     ]
-    st.dataframe(pd.DataFrame(action_rows, columns=["action", "matched"]), hide_index=True)
+    _dataframe(pd.DataFrame(action_rows, columns=["action", "matched"]))
     if task.outputs:
         st.write("Required outputs:")
         for output in task.outputs:
@@ -198,4 +230,4 @@ def _verdicts(state: StateRecord | None, grouped: dict[str, list[Verdict]]) -> N
     if not matching:
         st.caption("No verdicts for this state.")
         return
-    st.dataframe(views.verdict_rows(matching), hide_index=True)
+    _dataframe(views.verdict_rows(matching))

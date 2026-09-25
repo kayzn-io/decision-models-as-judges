@@ -1,0 +1,158 @@
+"""Altair chart builders for the study app.
+
+Each function maps an already-computed DataFrame to a themed Altair chart. The
+module encodes and colors data for display; it computes no metrics.
+"""
+
+from collections.abc import Sequence
+
+import altair as alt
+import pandas as pd
+
+_JEV = "#E0651F"
+_LAYA = "#6B6454"
+_CODE = "#9A9384"
+_OFF_WHITE = "#F1EDE4"
+_JUDGE_COLUMNS = ("judge", "judge_id")
+
+
+def _judge_color(judge: str) -> str:
+    """Return the fixed color for a judge id by its family prefix."""
+    if judge.startswith("jev"):
+        return _JEV
+    if judge.startswith("laya"):
+        return _LAYA
+    if judge == "code":
+        return _CODE
+    return _OFF_WHITE
+
+
+def _judge_scale(values: Sequence[object]) -> alt.Scale:
+    """Return a color scale binding each judge id to its fixed color."""
+    domain = sorted({str(value) for value in values})
+    return alt.Scale(domain=domain, range=[_judge_color(judge) for judge in domain])
+
+
+def _tooltips(df: pd.DataFrame) -> list[alt.Tooltip]:
+    """Return one tooltip per column so every mark is inspectable."""
+    return [alt.Tooltip(str(column)) for column in df.columns]
+
+
+def _color(df: pd.DataFrame, column: str) -> alt.Color:
+    """Return a color encoding, applying the fixed judge scale for judge columns."""
+    if column in _JUDGE_COLUMNS:
+        return alt.Color(f"{column}:N", scale=_judge_scale(df[column].tolist()), title=column)
+    return alt.Color(f"{column}:N", title=column)
+
+
+def bar(df: pd.DataFrame, x: str, y: str, color: str | None = None, title: str = "") -> alt.Chart:
+    """Return a vertical bar chart of ``y`` by ``x``, colored by ``color`` when given."""
+    encodings: dict[str, object] = {
+        "x": alt.X(f"{x}:N", title=x),
+        "y": alt.Y(f"{y}:Q", title=y),
+        "tooltip": _tooltips(df),
+    }
+    if color is not None:
+        encodings["color"] = _color(df, color)
+    return alt.Chart(df, title=title).mark_bar().encode(**encodings)
+
+
+def grouped_bar(df: pd.DataFrame, x: str, y: str, group: str, title: str = "") -> alt.Chart:
+    """Return grouped bars of ``y`` by ``x``, one bar per ``group`` value."""
+    return (
+        alt.Chart(df, title=title)
+        .mark_bar()
+        .encode(
+            x=alt.X(f"{x}:N", title=x),
+            y=alt.Y(f"{y}:Q", title=y),
+            xOffset=alt.XOffset(f"{group}:N"),
+            color=_color(df, group),
+            tooltip=_tooltips(df),
+        )
+    )
+
+
+def frontier(
+    df: pd.DataFrame,
+    x_cost: str,
+    y_accuracy: str,
+    label: str,
+    reference_df: pd.DataFrame | None = None,
+    title: str = "",
+) -> alt.LayerChart | alt.FacetChart:
+    """Return the cascade frontier: a labeled cost-accuracy line with reference points."""
+    base = alt.Chart(df, title=title)
+    line = base.mark_line(point=True, color=_JEV).encode(
+        x=alt.X(f"{x_cost}:Q", title=x_cost),
+        y=alt.Y(f"{y_accuracy}:Q", title=y_accuracy),
+        tooltip=_tooltips(df),
+    )
+    text = base.mark_text(dy=-10, color=_OFF_WHITE).encode(
+        x=alt.X(f"{x_cost}:Q"),
+        y=alt.Y(f"{y_accuracy}:Q"),
+        text=alt.Text(f"{label}:N"),
+    )
+    layers: list[alt.Chart] = [line, text]
+    if reference_df is not None and not reference_df.empty:
+        reference = (
+            alt.Chart(reference_df)
+            .mark_point(size=140, filled=True)
+            .encode(
+                x=alt.X(f"{x_cost}:Q"),
+                y=alt.Y(f"{y_accuracy}:Q"),
+                color=_color(reference_df, "judge"),
+                tooltip=_tooltips(reference_df),
+            )
+        )
+        layers.append(reference)
+    return alt.layer(*layers).interactive()
+
+
+def reliability(df_bins: pd.DataFrame, title: str = "") -> alt.LayerChart | alt.FacetChart:
+    """Return a reliability curve: the diagonal plus bin points sized by count."""
+    diagonal = (
+        alt.Chart(pd.DataFrame({"x": [0.0, 1.0], "y": [0.0, 1.0]}))
+        .mark_line(color=_CODE, strokeDash=[4, 4])
+        .encode(x=alt.X("x:Q", title="mean predicted"), y=alt.Y("y:Q", title="fraction positive"))
+    )
+    points = (
+        alt.Chart(df_bins, title=title)
+        .mark_circle(color=_JEV)
+        .encode(
+            x=alt.X("mean_prob:Q", title="mean predicted"),
+            y=alt.Y("frac_positive:Q", title="fraction positive"),
+            size=alt.Size("count:Q", title="count"),
+            tooltip=_tooltips(df_bins),
+        )
+    )
+    return alt.layer(diagonal, points)
+
+
+def intervals(
+    df: pd.DataFrame,
+    judge: str,
+    lo: str,
+    hi: str,
+    point: str,
+    truth_x: str,
+    title: str = "",
+) -> alt.LayerChart | alt.FacetChart:
+    """Return per-judge horizontal error bars with a vertical rule at the truth."""
+    base = alt.Chart(df, title=title)
+    bars = base.mark_rule(size=3).encode(
+        y=alt.Y(f"{judge}:N", title=judge),
+        x=alt.X(f"{lo}:Q", title="delta"),
+        x2=f"{hi}:Q",
+        color=_color(df, judge),
+        tooltip=_tooltips(df),
+    )
+    dots = base.mark_point(filled=True, size=90).encode(
+        y=alt.Y(f"{judge}:N"),
+        x=alt.X(f"{point}:Q"),
+        color=_color(df, judge),
+        tooltip=_tooltips(df),
+    )
+    truth = base.mark_rule(color=_OFF_WHITE, strokeDash=[6, 4]).encode(
+        x=alt.X(f"mean({truth_x}):Q", title=truth_x)
+    )
+    return alt.layer(bars, dots, truth)

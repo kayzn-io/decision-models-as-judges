@@ -23,8 +23,14 @@ def test_overview_renders_counts_roster_and_threats(app_test: AppTest) -> None:
     roster = at.dataframe[0].value
     assert list(roster["judge"]) == ["code", "llm_cheap", "llm_strong", "jev", "laya"]
 
-    subheaders = [element.value for element in at.subheader]
-    assert "Threats to validity" in subheaders
+    assert any(expander.label == "Threats to validity" for expander in at.expander)
+
+
+def test_overview_renders_frontier_chart_from_results(app_test: AppTest) -> None:
+    at = app_test
+    at.run()
+    assert not at.exception
+    assert at.get("vega_lite_chart"), "expected the cascade frontier chart on the overview"
 
 
 def test_navigation_lists_shared_pages_only_when_not_local() -> None:

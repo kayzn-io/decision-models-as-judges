@@ -28,9 +28,9 @@ def _run(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> AppTest:
     return _app(monkeypatch, tmp_path).run()
 
 
-def _rewards(at: AppTest) -> dict[str, str]:
-    """Return the rendered metrics as a label-to-value mapping."""
-    return {metric.label: metric.value for metric in at.metric}
+def _markdown(at: AppTest) -> str:
+    """Return the concatenated markdown text for badge and link assertions."""
+    return "\n".join(md.value for md in at.markdown)
 
 
 def _captions(at: AppTest) -> str:
@@ -44,7 +44,7 @@ def test_trajectories_default_shows_pass_and_both_judges(
     at = _run(monkeypatch, tmp_path)
     assert not at.exception
 
-    assert _rewards(at)["Reward"] == "PASS"
+    assert "PASS" in _markdown(at)
 
     verdict_frame = next(df.value for df in at.dataframe if "judge_id" in df.value.columns)
     assert set(verdict_frame["judge_id"]) == {"code", "fake"}
@@ -56,7 +56,7 @@ def test_trajectories_retail_1_shows_fail(monkeypatch: pytest.MonkeyPatch, tmp_p
     task_box.set_value("retail-1").run()
 
     assert not at.exception
-    assert _rewards(at)["Reward"] == "FAIL"
+    assert "FAIL" in _markdown(at)
 
 
 def test_trajectories_shows_inline_step_scores_for_retail_0(
