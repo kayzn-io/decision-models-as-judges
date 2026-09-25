@@ -22,7 +22,7 @@ from decision_judges.types import Answer, QuestionKind, Usage, Verdict
 REPO_ROOT = Path(__file__).resolve().parents[1]
 PRICING_FILE = REPO_ROOT / "config" / "pricing.toml"
 
-_FAST_MODEL = "jev-1.13.0"
+_FAST_MODEL = "jev-1.13"
 _SLOW_MODEL = "openai/gpt-5"
 _CHEAP_MODEL = "openai/gpt-4o-mini"
 

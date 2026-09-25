@@ -345,6 +345,28 @@ def test_build_judges_code_fake_does_not_import_typesafe(
     assert seen == []
 
 
+# --- jev client kwargs -----------------------------------------------------
+
+
+def test_jev_client_kwargs_openrouter_reads_env(monkeypatch: pytest.MonkeyPatch) -> None:
+    from decision_judges.config import JevRoute
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-open")
+    kwargs = pipeline.jev_client_kwargs(JevRoute())
+
+    assert kwargs == {"api_key": "sk-open", "base_url": "https://openrouter.ai/api"}
+
+
+def test_jev_client_kwargs_typesafe_uses_typesafe_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    from decision_judges.config import JevRoute
+
+    monkeypatch.setenv("TYPESAFE_API_KEY", "sk-typesafe")
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    kwargs = pipeline.jev_client_kwargs(JevRoute(provider="typesafe"))
+
+    assert kwargs == {"api_key": "sk-typesafe"}
+
+
 # --- repeats parsing -------------------------------------------------------
 
 

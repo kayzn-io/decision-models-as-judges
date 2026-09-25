@@ -14,3 +14,7 @@ Results are published here as evaluation gates complete.
 uv sync
 make check
 ```
+
+### Keys
+
+One `OPENROUTER_API_KEY` covers the agent runs, the LLM judges, and Jev: TypeSafe paused direct signups on 2026-09-22 and serves Jev through OpenRouter. To call TypeSafe directly, set `TYPESAFE_API_KEY` and `[jev_route] provider = "typesafe"` in `config/study.toml`.

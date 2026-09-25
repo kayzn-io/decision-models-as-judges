@@ -7,7 +7,7 @@ agent = "openai/gpt-4.1"
 user_sim = "openai/gpt-4o-mini"
 llm_cheap = "openai/gpt-4o-mini"
 llm_strong = "openai/gpt-5"
-jev = "jev-1.13.0"
+jev = "jev-1.13"
 
 [models.laya]
 repo_id = "convaiinnovations/laya"
@@ -37,3 +37,9 @@ cascade = [0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
 
 [g2]
 repeats = { jev = 5, laya_base = 5, laya_ft = 5, llm_cheap = 1, llm_strong = 1, code = 1 }
+
+# Direct TypeSafe signups are paused; OpenRouter serves Jev with an OpenRouter key.
+[jev_route]
+provider = "openrouter"
+base_url = "https://openrouter.ai/api"
+api_key_env = "OPENROUTER_API_KEY"

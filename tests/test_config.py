@@ -21,7 +21,7 @@ CONFIG_DIR = Path(__file__).resolve().parent.parent / "config"
 def test_load_study_succeeds() -> None:
     study = load_study(CONFIG_DIR / "study.toml")
     assert isinstance(study, StudyConfig)
-    assert study.models.jev == "jev-1.13.0"
+    assert study.models.jev == "jev-1.13"
     assert study.models.laya.repo_id == "convaiinnovations/laya"
     assert study.models.laya.revision
     assert study.repeats >= 1
@@ -29,6 +29,75 @@ def test_load_study_succeeds() -> None:
     assert study.llm_base_url == "https://openrouter.ai/api/v1"
     assert study.thresholds.cascade == [0.50, 0.60, 0.70, 0.80, 0.90, 0.95, 0.99]
     assert "agent" in study.spend_caps
+
+
+def test_load_study_reads_jev_route() -> None:
+    study = load_study(CONFIG_DIR / "study.toml")
+    assert study.jev_route.provider == "openrouter"
+    assert study.jev_route.base_url == "https://openrouter.ai/api"
+    assert study.jev_route.api_key_env == "OPENROUTER_API_KEY"
+
+
+def test_study_without_jev_route_table_uses_defaults(tmp_path: Path) -> None:
+    minimal = tmp_path / "study.toml"
+    minimal.write_text(
+        "\n".join(
+            [
+                "seed = 7",
+                'llm_base_url = "https://openrouter.ai/api/v1"',
+                "",
+                "[models]",
+                'agent = "openai/gpt-4.1"',
+                'user_sim = "openai/gpt-4o-mini"',
+                'llm_cheap = "openai/gpt-4o-mini"',
+                'llm_strong = "openai/gpt-5"',
+                "",
+                "[models.laya]",
+                'revision = "abc"',
+                "",
+                "[concurrency]",
+                "llm = 1",
+                "",
+                "[spend_caps]",
+                "agent = 1.0",
+            ]
+        )
+    )
+    study = load_study(minimal)
+    assert study.jev_route.provider == "openrouter"
+    assert study.jev_route.api_key_env == "OPENROUTER_API_KEY"
+
+
+def test_study_jev_route_typesafe_override(tmp_path: Path) -> None:
+    override = tmp_path / "study.toml"
+    override.write_text(
+        "\n".join(
+            [
+                "seed = 7",
+                'llm_base_url = "https://openrouter.ai/api/v1"',
+                "",
+                "[models]",
+                'agent = "openai/gpt-4.1"',
+                'user_sim = "openai/gpt-4o-mini"',
+                'llm_cheap = "openai/gpt-4o-mini"',
+                'llm_strong = "openai/gpt-5"',
+                "",
+                "[models.laya]",
+                'revision = "abc"',
+                "",
+                "[concurrency]",
+                "llm = 1",
+                "",
+                "[spend_caps]",
+                "agent = 1.0",
+                "",
+                "[jev_route]",
+                'provider = "typesafe"',
+            ]
+        )
+    )
+    study = load_study(override)
+    assert study.jev_route.provider == "typesafe"
 
 
 def test_load_study_reads_g2_repeats() -> None:
@@ -110,15 +179,15 @@ def test_load_pricing_succeeds() -> None:
     pricing = load_pricing(CONFIG_DIR / "pricing.toml")
     assert isinstance(pricing, PricingTable)
     assert pricing.effective_date == date(2026, 9, 24)
-    assert "jev-1.13.0" in pricing.models
+    assert "jev-1.13" in pricing.models
 
 
 def test_cost_arithmetic() -> None:
     pricing = load_pricing(CONFIG_DIR / "pricing.toml")
-    price = pricing.models["jev-1.13.0"]
+    price = pricing.models["jev-1.13"]
     usage = Usage(input_tokens=1_000_000, output_tokens=2_000_000)
     expected = price.input_per_mtok + 2 * price.output_per_mtok
-    assert pricing.cost("jev-1.13.0", usage) == pytest.approx(expected)
+    assert pricing.cost("jev-1.13", usage) == pytest.approx(expected)
 
 
 def test_cost_known_case() -> None:

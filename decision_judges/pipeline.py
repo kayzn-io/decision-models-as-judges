@@ -19,7 +19,7 @@ from pydantic import BaseModel
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
-from decision_judges.config import PricingTable, StudyConfig
+from decision_judges.config import JevRoute, PricingTable, StudyConfig
 from decision_judges.gates.base import Gate, Item
 from decision_judges.gates.g2_steps import (
     G2Steps,
@@ -235,6 +235,18 @@ def judge_specs_from(names: Sequence[str], study: StudyConfig) -> list[JudgeSpec
     return specs
 
 
+def jev_client_kwargs(route: JevRoute) -> dict[str, str | None]:
+    """Return the TypeSafe client keyword arguments for a Jev route.
+
+    The OpenRouter route points the SDK at OpenRouter with an OpenRouter key and
+    a base url; the TypeSafe route reads the TypeSafe key and lets the SDK use
+    its own default base url.
+    """
+    if route.provider == "openrouter":
+        return {"api_key": os.environ.get(route.api_key_env), "base_url": route.base_url}
+    return {"api_key": os.environ.get("TYPESAFE_API_KEY")}
+
+
 def build_judges(
     specs: Sequence[JudgeSpec],
     *,
@@ -266,7 +278,7 @@ def build_judges(
             judges.append(
                 JevJudge(
                     spec.model_id,
-                    TypeSafeClient(),  # type: ignore[arg-type]
+                    TypeSafeClient(**jev_client_kwargs(study.jev_route)),  # type: ignore[arg-type]
                     judge_id=spec.name,
                     prompt_version=prompt_version,
                 )

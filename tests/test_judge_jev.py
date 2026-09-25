@@ -23,6 +23,7 @@ from decision_judges.judges.jev import (
 from decision_judges.types import Question, QuestionKind
 
 FIXTURE = Path(__file__).parent / "fixtures" / "jev_responses" / "ok.json"
+FIXTURE_WITH_COST = Path(__file__).parent / "fixtures" / "jev_responses" / "ok_with_cost.json"
 
 VERDICT_Q = Question(
     id="verdict", kind=QuestionKind.choice, text="Did it pass?", options=["pass", "fail"]
@@ -86,6 +87,16 @@ def test_to_sdk_questions_maps_all_kinds() -> None:
         },
         "completed": {"type": "noul", "instructions": "Completed?"},
     }
+
+
+def test_response_with_id_provider_and_cost_parses() -> None:
+    response = SystemOneResponse.model_validate_json(FIXTURE_WITH_COST.read_text())
+    answers = from_sdk_answers(QUESTIONS, response)
+    by_id = {answer.question_id: answer for answer in answers}
+
+    assert response.usage.input_tokens == 120
+    assert by_id["verdict"].choice == "pass"
+    assert by_id["completed"].noul == 0.95
 
 
 def test_from_sdk_answers_maps_fixture() -> None:

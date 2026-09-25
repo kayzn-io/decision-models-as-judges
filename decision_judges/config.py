@@ -3,6 +3,7 @@
 import tomllib
 from datetime import date
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -25,7 +26,7 @@ class Models(BaseModel):
     user_sim: str
     llm_cheap: str
     llm_strong: str
-    jev: str = "jev-1.13.0"
+    jev: str = "jev-1.13"
     laya: LayaModel
 
 
@@ -51,6 +52,20 @@ class G2Config(BaseModel):
     repeats: dict[str, int] = Field(default_factory=lambda: dict(G2_DEFAULT_REPEATS))
 
 
+class JevRoute(BaseModel):
+    """How the Jev judge reaches the TypeSafe System One API.
+
+    Direct TypeSafe signups are paused, so Jev is served through OpenRouter by
+    default: the TypeSafe SDK is pointed at OpenRouter with an OpenRouter key.
+    Set ``provider = "typesafe"`` to call TypeSafe directly with a
+    ``TYPESAFE_API_KEY``.
+    """
+
+    provider: Literal["openrouter", "typesafe"] = "openrouter"
+    base_url: str = "https://openrouter.ai/api"
+    api_key_env: str = "OPENROUTER_API_KEY"
+
+
 class StudyConfig(BaseModel):
     """Top-level configuration for a study run."""
 
@@ -60,6 +75,7 @@ class StudyConfig(BaseModel):
     spend_caps: dict[str, float]
     thresholds: Thresholds = Field(default_factory=Thresholds)
     g2: G2Config = Field(default_factory=G2Config)
+    jev_route: JevRoute = Field(default_factory=JevRoute)
     seed: int = 7
     llm_base_url: str
 

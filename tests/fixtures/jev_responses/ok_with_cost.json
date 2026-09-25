@@ -1,0 +1,25 @@
+{
+  "id": "gen-abc123",
+  "provider": "OpenRouter",
+  "model": "jev-1.13",
+  "answers": {
+    "verdict": {
+      "type": "choice",
+      "choice": "pass",
+      "confidence": 0.9,
+      "probabilities": {"pass": 0.8, "fail": 0.2}
+    },
+    "urgency": {
+      "type": "score",
+      "score": 1.7,
+      "confidence": 0.85,
+      "legend": {"0": "low", "1": "medium", "2": "high"},
+      "probabilities": {"0": 0.1, "1": 0.1, "2": 0.8}
+    },
+    "completed": {
+      "type": "noul",
+      "noul": 0.95
+    }
+  },
+  "usage": {"input_tokens": 120, "output_tokens": 12, "cost": 0.0000504}
+}
