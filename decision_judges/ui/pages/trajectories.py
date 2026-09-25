@@ -20,7 +20,7 @@ def render() -> None:
     paths = data.Paths.from_env()
     records = data.load_agent_records(paths)
     states = data.load_states(paths)
-    grouped = data.verdicts_by_state(data.load_verdicts(paths))
+    grouped = data.verdicts_by_state([*data.load_verdicts(paths), *data.load_step_verdicts(paths)])
     tasks = data.load_tasks_for_ui(paths)
 
     st.title("Trajectories")
@@ -28,9 +28,10 @@ def render() -> None:
         st.caption("No agent runs are available yet.")
         return
 
-    variant, task_id, profile, injection = _select(records, states)
+    trajectory_states = data.trajectory_states(states)
+    variant, task_id, profile, injection = _select(records, trajectory_states)
     record = records[(variant, task_id)]
-    state = states.get((variant, profile, injection, task_id))
+    state = trajectory_states.get((variant, profile, injection, task_id))
     task = tasks.get(task_id)
 
     if state is not None and state.injection is not Injection.none:
@@ -38,9 +39,13 @@ def render() -> None:
             f"Evaluator-directed '{state.injection.value}' injection is present in this state."
         )
 
+    steps = data.step_states(states, variant, profile, task_id)
+    step_frames = views.step_scores(steps, grouped)
+    expected = views.expected_step_flags(task, record) if task is not None else None
+
     conversation, ground_truth, verdicts = st.columns(3)
     with conversation:
-        _conversation(record)
+        _conversation(record, step_frames, expected)
     with ground_truth:
         _ground_truth(record, task)
     with verdicts:
@@ -82,9 +87,14 @@ def _select(
     return variant, task_id, profile, injection
 
 
-def _conversation(record: AgentRecord) -> None:
-    """Render the trajectory as chat messages with tool results in expanders."""
+def _conversation(
+    record: AgentRecord,
+    step_frames: dict[int, pd.DataFrame],
+    expected: list[bool] | None,
+) -> None:
+    """Render the trajectory as chat messages with per-step judge scores inline."""
     st.subheader("Conversation")
+    step_index = 0
     for turn in views.turns(record):
         if turn.role in ("user", "assistant"):
             with st.chat_message(turn.role):
@@ -92,11 +102,32 @@ def _conversation(record: AgentRecord) -> None:
                     st.write(turn.content)
                 for call in turn.tool_calls:
                     st.code(call)
+                    _step_scores(step_index, step_frames, expected)
+                    step_index += 1
         elif turn.role == "tool":
             with st.expander("tool result"):
                 st.write(turn.content)
         else:
             st.write(turn.content)
+
+
+def _step_scores(
+    step_index: int,
+    step_frames: dict[int, pd.DataFrame],
+    expected: list[bool] | None,
+) -> None:
+    """Render one compact caption per judge under a tool call, when scores exist."""
+    frame = step_frames.get(step_index)
+    if frame is None or frame.empty:
+        return
+    mark = ""
+    if expected is not None and step_index < len(expected):
+        mark = "✓ " if expected[step_index] else "✗ "
+    for _, row in frame.iterrows():
+        st.caption(
+            f"{mark}{row['judge_id']}: necessary {float(row['necessary']):.0%}, "
+            f"arguments_consistent {float(row['arguments_consistent']):.0%}"
+        )
 
 
 def _ground_truth(record: AgentRecord, task: Task | None) -> None:

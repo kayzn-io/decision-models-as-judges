@@ -99,6 +99,12 @@ class BootstrapDelta(NamedTuple):
     hi: float
 
 
+def mean(values: Sequence[float]) -> float:
+    """Return the arithmetic mean of values, or NaN when there are none."""
+    values = list(values)
+    return float(np.mean(values)) if values else float("nan")
+
+
 def accuracy(pred: Sequence[object], truth: Sequence[object]) -> float:
     """Return the fraction of predictions that equal the ground truth."""
     p = _as_array(pred)

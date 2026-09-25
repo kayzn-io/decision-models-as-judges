@@ -5,6 +5,7 @@ from pathlib import Path
 from decision_judges.bench.load import ExpectedAction, Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.metrics import modal_agreement
+from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.types import Answer, QuestionKind, Verdict
 from decision_judges.ui import data, views
 
@@ -193,3 +194,146 @@ def test_verdict_rows_over_fixture_verdicts_has_two_judges() -> None:
     completed = dict(zip(frame["judge_id"], frame["completed"], strict=True))
     assert completed["code"] == 0.5  # one pass at 0.9, one fail at 0.1
     assert completed["fake"] == 0.9  # the fake judge calls both states a pass
+
+
+def _step_state(step_index: int, state_hash: str) -> StateRecord:
+    """Build a per-step state record carrying an index and hash."""
+    return StateRecord(
+        variant="baseline",
+        task_id="retail-0",
+        profile=StateProfile.full,
+        text=f"step {step_index}",
+        token_estimate=1,
+        state_hash=state_hash,
+        step_index=step_index,
+    )
+
+
+def _step_verdict(
+    state_hash: str, repeat: int, *, necessary: float, arguments: float, error: str | None = None
+) -> Verdict:
+    """Build a fake-judge step verdict answering the two nouls, or an error verdict."""
+    answers = (
+        []
+        if error is not None
+        else [
+            Answer(question_id="necessary", kind=QuestionKind.noul, noul=necessary),
+            Answer(question_id="arguments_consistent", kind=QuestionKind.noul, noul=arguments),
+        ]
+    )
+    return Verdict(
+        judge_id="fake",
+        model_id="none",
+        prompt_version="g2",
+        state_hash=state_hash,
+        repeat=repeat,
+        answers=answers,
+        latency_ms=1,
+        error=error,
+    )
+
+
+def test_step_scores_means_repeats_and_errors() -> None:
+    step_states = {0: _step_state(0, "h0"), 1: _step_state(1, "h1")}
+    verdicts_by_hash = {
+        "h0": [
+            _step_verdict("h0", 0, necessary=0.2, arguments=0.6),
+            _step_verdict("h0", 1, necessary=0.4, arguments=0.4),
+        ],
+        "h1": [
+            _step_verdict("h1", 0, necessary=0.8, arguments=0.9),
+            _step_verdict("h1", 1, necessary=1.0, arguments=0.7),
+            _step_verdict("h1", 2, necessary=0.0, arguments=0.0, error="boom"),
+        ],
+    }
+
+    frames = views.step_scores(step_states, verdicts_by_hash)
+
+    assert set(frames) == {0, 1}
+    row0 = frames[0].iloc[0]
+    assert list(frames[0]["judge_id"]) == ["fake"]
+    assert row0["necessary"] == (0.2 + 0.4) / 2
+    assert row0["arguments_consistent"] == (0.6 + 0.4) / 2
+    assert row0["repeats"] == 2
+    assert row0["errors"] == 0
+    row1 = frames[1].iloc[0]
+    assert row1["necessary"] == (0.8 + 1.0) / 2
+    assert row1["arguments_consistent"] == (0.9 + 0.7) / 2
+    assert row1["repeats"] == 3
+    assert row1["errors"] == 1
+
+
+def test_step_scores_empty_frame_when_no_verdicts() -> None:
+    frames = views.step_scores({0: _step_state(0, "h0")}, {})
+    assert frames[0].empty
+    assert list(frames[0].columns) == [
+        "judge_id",
+        "necessary",
+        "arguments_consistent",
+        "repeats",
+        "errors",
+    ]
+
+
+def test_expected_step_flags_marks_expected_calls() -> None:
+    task = Task(
+        task_id="retail-0",
+        instruction="do it",
+        actions=[ExpectedAction(name="get_product_details", kwargs={"product_id": "1656367028"})],
+        outputs=[],
+    )
+    record = _record(
+        [
+            {"role": "system", "content": "policy"},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "call_1",
+                        "function": {
+                            "name": "get_order_details",
+                            "arguments": '{"order_id": "#W0000001"}',
+                        },
+                    }
+                ],
+            },
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "call_2",
+                        "function": {
+                            "name": "get_product_details",
+                            "arguments": '{"product_id": "1656367028"}',
+                        },
+                    }
+                ],
+            },
+        ]
+    )
+
+    assert views.expected_step_flags(task, record) == [False, True]
+
+
+def test_load_states_separates_whole_and_step_states() -> None:
+    states = data.load_states(_paths())
+    keys = set(states)
+
+    assert ("baseline", "full", "none", "retail-0", None) in keys
+    assert ("baseline", "full", "none", "retail-1", None) in keys
+    assert ("baseline", "full", "none", "retail-0", 0) in keys
+    assert ("baseline", "full", "none", "retail-0", 1) in keys
+
+    trajectory = data.trajectory_states(states)
+    assert set(trajectory) == {
+        ("baseline", "full", "none", "retail-0"),
+        ("baseline", "full", "none", "retail-1"),
+    }
+
+    steps = data.step_states(states, "baseline", "full", "retail-0")
+    assert set(steps) == {0, 1}
+    assert steps[0].step_index == 0
+    assert steps[1].step_index == 1
+    assert data.step_states(states, "baseline", "full", "retail-1") == {}

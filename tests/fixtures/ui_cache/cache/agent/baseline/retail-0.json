@@ -37,6 +37,25 @@
       "tool_call_id": "call_1"
     },
     {
+      "content": "",
+      "role": "assistant",
+      "tool_calls": [
+        {
+          "function": {
+            "arguments": "{\"product_id\": \"1656367028\"}",
+            "name": "get_product_details"
+          },
+          "id": "call_2"
+        }
+      ]
+    },
+    {
+      "content": "{\"name\": \"keyboard\", \"available\": true}",
+      "name": "get_product_details",
+      "role": "tool",
+      "tool_call_id": "call_2"
+    },
+    {
       "content": "Your order is confirmed. Anything else?",
       "role": "assistant"
     }

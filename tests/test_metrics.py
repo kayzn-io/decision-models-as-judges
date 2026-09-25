@@ -15,6 +15,7 @@ from decision_judges.metrics import (
     flip_rate,
     isotonic_fit_transform,
     latency_summary,
+    mean,
     modal_agreement,
     net_flip_rate,
     percentile,
@@ -24,6 +25,15 @@ from decision_judges.metrics import (
     spearman,
     temperature_fit,
 )
+
+
+def test_mean_arithmetic() -> None:
+    assert math.isclose(mean([1.0, 2.0, 3.0]), 2.0)
+    assert math.isclose(mean([0.2, 0.4]), 0.3)
+
+
+def test_mean_empty_is_nan() -> None:
+    assert math.isnan(mean([]))
 
 
 def test_accuracy() -> None:

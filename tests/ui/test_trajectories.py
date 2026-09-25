@@ -28,6 +28,11 @@ def _rewards(at: AppTest) -> dict[str, str]:
     return {metric.label: metric.value for metric in at.metric}
 
 
+def _captions(at: AppTest) -> str:
+    """Return the concatenated caption text for substring assertions."""
+    return "\n".join(caption.value for caption in at.caption)
+
+
 def test_trajectories_default_shows_pass_and_both_judges(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -47,3 +52,25 @@ def test_trajectories_retail_1_shows_fail(monkeypatch: pytest.MonkeyPatch, tmp_p
 
     assert not at.exception
     assert _rewards(at)["Reward"] == "FAIL"
+
+
+def test_trajectories_shows_inline_step_scores_for_retail_0(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path)
+    assert not at.exception
+
+    captions = _captions(at)
+    assert "necessary" in captions
+    assert "%" in captions
+
+
+def test_trajectories_no_step_block_for_retail_1(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path)
+    task_box = next(box for box in at.selectbox if box.key == "task")
+    task_box.set_value("retail-1").run()
+
+    assert not at.exception
+    assert "necessary" not in _captions(at)

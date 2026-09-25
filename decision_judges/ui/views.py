@@ -6,17 +6,22 @@ Streamlit page renders. They import no Streamlit so they stay unit-testable.
 
 import json
 from collections import Counter
+from collections.abc import Mapping
 
 import pandas as pd
 from pydantic import BaseModel, Field
 
 from decision_judges.bench.load import ExpectedAction, Task, normalize_action
 from decision_judges.bench.run_agent import AgentRecord
-from decision_judges.metrics import modal_agreement
+from decision_judges.gates.g2_steps import enumerate_steps
+from decision_judges.metrics import mean, modal_agreement
+from decision_judges.serialize import StateRecord
 from decision_judges.types import Verdict
 
 _VERDICT_ID = "verdict"
 _COMPLETED_ID = "completed"
+_NECESSARY_ID = "necessary"
+_ARGS_ID = "arguments_consistent"
 
 
 class Turn(BaseModel):
@@ -190,3 +195,55 @@ def verdict_rows(verdicts: list[Verdict]) -> pd.DataFrame:
         groups.setdefault(verdict.judge_id, []).append(verdict)
     rows = [_verdict_row(judge_id, groups[judge_id]) for judge_id in sorted(groups)]
     return pd.DataFrame(rows, columns=_VERDICT_COLUMNS)
+
+
+_STEP_COLUMNS = ["judge_id", "necessary", "arguments_consistent", "repeats", "errors"]
+
+
+def _noul_for(verdict: Verdict, question_id: str) -> float | None:
+    """Return the noul answer for a question id, or None when it is absent."""
+    for answer in verdict.answers:
+        if answer.question_id == question_id:
+            return answer.noul
+    return None
+
+
+def _step_row(judge_id: str, group: list[Verdict]) -> dict[str, object]:
+    """Reduce one judge's step verdicts into a necessity and consistency row."""
+    necessary = [n for verdict in group if (n := _noul_for(verdict, _NECESSARY_ID)) is not None]
+    arguments = [n for verdict in group if (n := _noul_for(verdict, _ARGS_ID)) is not None]
+    return {
+        "judge_id": judge_id,
+        "necessary": mean(necessary),
+        "arguments_consistent": mean(arguments),
+        "repeats": len(group),
+        "errors": sum(1 for verdict in group if verdict.error is not None),
+    }
+
+
+def step_scores(
+    step_states: Mapping[int, StateRecord],
+    verdicts_by_hash: Mapping[str, list[Verdict]],
+) -> dict[int, pd.DataFrame]:
+    """Return one summary frame per step index over its judges' necessity nouls.
+
+    Each frame carries one row per judge with the mean necessary probability,
+    the mean arguments-consistent probability, the repeat count, and the error
+    count. A step with no verdicts yields an empty frame.
+    """
+    frames: dict[int, pd.DataFrame] = {}
+    for step_index, state in step_states.items():
+        groups: dict[str, list[Verdict]] = {}
+        for verdict in verdicts_by_hash.get(state.state_hash, []):
+            groups.setdefault(verdict.judge_id, []).append(verdict)
+        rows = [_step_row(judge_id, groups[judge_id]) for judge_id in sorted(groups)]
+        frames[step_index] = pd.DataFrame(rows, columns=_STEP_COLUMNS)
+    return frames
+
+
+def expected_step_flags(task: Task, record: AgentRecord) -> list[bool]:
+    """Return whether each enumerated tool call matches a task expected action."""
+    expected = {normalize_action(action.name, action.kwargs) for action in task.actions}
+    return [
+        normalize_action(step.name, step.arguments) in expected for step in enumerate_steps(record)
+    ]

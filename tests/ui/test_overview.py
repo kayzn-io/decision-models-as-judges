@@ -17,7 +17,7 @@ def test_overview_renders_counts_roster_and_threats(app_test: AppTest) -> None:
 
     metrics = _metric_values(at)
     assert metrics["Agent records"] == "2"
-    assert metrics["States"] == "2"
+    assert metrics["States"] == "4"
     assert metrics["Verdicts"] == "4"
 
     roster = at.dataframe[0].value

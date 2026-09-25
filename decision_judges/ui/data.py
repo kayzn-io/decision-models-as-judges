@@ -108,22 +108,60 @@ def load_agent_records(paths: Paths) -> dict[tuple[str, str], AgentRecord]:
 
 
 @st.cache_data(show_spinner=False)
-def _load_states(state_dir: str, _fingerprint: str) -> dict[tuple[str, str, str, str], StateRecord]:
-    """Load serialized state records from a directory."""
-    states: dict[tuple[str, str, str, str], StateRecord] = {}
+def _load_states(
+    state_dir: str, _fingerprint: str
+) -> dict[tuple[str, str, str, str, int | None], StateRecord]:
+    """Load serialized state records from a directory, step states included."""
+    states: dict[tuple[str, str, str, str, int | None], StateRecord] = {}
     for file in _iter_files(Path(state_dir)):
         try:
             state = StateRecord.model_validate_json(file.read_text(encoding="utf-8"))
         except (ValueError, ValidationError):
             continue
-        states[(state.variant, state.profile.value, state.injection.value, state.task_id)] = state
+        key = (
+            state.variant,
+            state.profile.value,
+            state.injection.value,
+            state.task_id,
+            state.step_index,
+        )
+        states[key] = state
     return states
 
 
-def load_states(paths: Paths) -> dict[tuple[str, str, str, str], StateRecord]:
-    """Load state records keyed by ``(variant, profile, injection, task_id)``."""
+def load_states(paths: Paths) -> dict[tuple[str, str, str, str, int | None], StateRecord]:
+    """Load state records keyed by ``(variant, profile, injection, task_id, step_index)``.
+
+    ``step_index`` is ``None`` for whole-trajectory states and an integer for the
+    per-step states the G2 gate serializes, so the two never collide.
+    """
     state_dir = paths.cache_dir / "state"
     return _load_states(str(state_dir), dir_fingerprint(state_dir))
+
+
+def trajectory_states(
+    states: dict[tuple[str, str, str, str, int | None], StateRecord],
+) -> dict[tuple[str, str, str, str], StateRecord]:
+    """Return the whole-trajectory states keyed by ``(variant, profile, injection, task_id)``."""
+    return {
+        (variant, profile, injection, task_id): state
+        for (variant, profile, injection, task_id, step_index), state in states.items()
+        if step_index is None
+    }
+
+
+def step_states(
+    states: dict[tuple[str, str, str, str, int | None], StateRecord],
+    variant: str,
+    profile: str,
+    task_id: str,
+) -> dict[int, StateRecord]:
+    """Return one variant, profile, and task's step states keyed by step index."""
+    result: dict[int, StateRecord] = {}
+    for (v, prof, _injection, tid, step_index), state in states.items():
+        if step_index is not None and v == variant and prof == profile and tid == task_id:
+            result[step_index] = state
+    return result
 
 
 @st.cache_data(show_spinner=False)
@@ -164,6 +202,16 @@ def load_verdicts(paths: Paths) -> list[Verdict]:
     """Load verdicts from the judge cache, skipping quarantined and invalid files."""
     judge_dir = paths.cache_dir / "judge"
     return _load_verdicts(str(judge_dir), dir_fingerprint(judge_dir))
+
+
+def load_step_verdicts(paths: Paths) -> list[Verdict]:
+    """Load per-step verdicts from the step-judge cache, empty when it is absent.
+
+    The G2 gate scores individual tool calls; its verdicts live under
+    ``cache/step_judge`` so the whole-trajectory verdict counts stay unchanged.
+    """
+    step_dir = paths.cache_dir / "step_judge"
+    return _load_verdicts(str(step_dir), dir_fingerprint(step_dir))
 
 
 def verdicts_by_state(verdicts: list[Verdict]) -> dict[str, list[Verdict]]:
