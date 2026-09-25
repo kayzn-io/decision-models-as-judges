@@ -99,12 +99,13 @@ def _dims(compact: bool) -> tuple[int, int, int]:
     return 120, 18, 84
 
 
-def _station_svg(station: Station, count: int, active: bool, compact: bool) -> str:
+def _station_svg(station: Station, count: int, active: bool, compact: bool, flash: bool) -> str:
     """Return one station group: a rounded rect with its count, label, and caption."""
     height, box_y, box_h = _dims(compact)
     center_x = _box_x(_ORDER.index(station)) + _BOX_W // 2
     label = _LABELS[station]
     cls = "station active" if active else "station"
+    count_cls = "count counter" if flash else "count"
     if compact:
         count_y, count_size, label_y, label_size = box_y + 17, 14, height - 3, 11
     else:
@@ -113,7 +114,7 @@ def _station_svg(station: Station, count: int, active: bool, compact: bool) -> s
         f'<g class="{cls}" aria-label="{label}: {count}">',
         f'<rect x="{_box_x(_ORDER.index(station))}" y="{box_y}" '
         f'width="{_BOX_W}" height="{box_h}" rx="6" />',
-        f'<text class="count" x="{center_x}" y="{count_y}" '
+        f'<text class="{count_cls}" x="{center_x}" y="{count_y}" '
         f'text-anchor="middle" font-size="{count_size}">{count}</text>',
         f'<text class="label" x="{center_x}" y="{label_y}" '
         f'text-anchor="middle" font-size="{label_size}">{label}</text>',
@@ -180,18 +181,20 @@ def render_svg(
     running: str | None,
     paid: bool,
     compact: bool,
+    flash: Station | None = None,
 ) -> str:
     """Return the pipeline strip as a standalone SVG string.
 
     The active station is stroked and glows via the ``active`` class, the
     running pipe carries a ``flow`` class with dots colored ``paid`` or ``free``,
-    and compact mode renders a short strip with labels beneath the counts while
-    full mode renders a taller strip with labels inside each station.
+    the ``flash`` station's count gains the ``counter`` class for a one-off
+    flash, and compact mode renders a short strip with labels beneath the counts
+    while full mode renders a taller strip with labels inside each station.
     """
     height, box_y, box_h = _dims(compact)
     center_y = box_y + box_h // 2
     stations = "".join(
-        _station_svg(station, counts.get(station, 0), station == active, compact)
+        _station_svg(station, counts.get(station, 0), station == active, compact, station == flash)
         for station in _ORDER
     )
     return (
@@ -212,12 +215,17 @@ def strip(
     running: str | None = None,
     paid: bool = False,
     compact: bool = True,
+    flash: Station | None = None,
 ) -> None:
     """Inject the motion styles once and render the strip for the current counts.
 
     The SVG is written through ``st.markdown`` with HTML enabled because
     ``st.html`` sanitizes SVG elements away, which would leave the strip blank.
+    ``flash`` marks one station's count so it flashes for a single render right
+    after the step that fills it finishes.
     """
     components.motion_styles()
-    svg = render_svg(counts(paths), active=active, running=running, paid=paid, compact=compact)
+    svg = render_svg(
+        counts(paths), active=active, running=running, paid=paid, compact=compact, flash=flash
+    )
     st.markdown(svg, unsafe_allow_html=True)

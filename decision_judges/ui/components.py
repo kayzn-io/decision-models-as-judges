@@ -148,6 +148,31 @@ def next_link(label: str, path: str, hint: str) -> None:
     st.caption(hint)
 
 
+def _success_check() -> None:
+    """Render a green check badge, or a unicode check in the accent color."""
+    if hasattr(st, "badge"):
+        st.badge("", icon=":material/check_circle:", color="green")
+    else:
+        st.markdown('<span style="color: var(--flow-accent)">\u2713</span>', unsafe_allow_html=True)
+
+
+def success_moment(title: str, produced: str, next_label: str, next_path: str) -> None:
+    """Announce a finished step in a bordered card that animates in once.
+
+    The card carries a ``success-card`` marker the motion stylesheet uses to
+    animate the surrounding border, shows a green check, the title, one line
+    naming what the step produced, and a same-tab link to the next place to
+    look. Under prefers-reduced-motion the card appears with no animation.
+    """
+    motion_styles()
+    with st.container(border=True):
+        st.markdown('<span class="success-card"></span>', unsafe_allow_html=True)
+        _success_check()
+        st.markdown(f"**{title}**")
+        st.markdown(produced)
+        page_link(next_path, next_label)
+
+
 def footer() -> None:
     """Render the divider and the Kayzn attribution and license links."""
     st.divider()

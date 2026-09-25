@@ -198,3 +198,53 @@ def test_run_page_never_renders_the_key(monkeypatch: pytest.MonkeyPatch, tmp_pat
 
     assert not at.exception
     assert all(_FAKE_KEY not in str(text) for text in _texts(at))
+
+
+def test_ui_source_has_no_balloons() -> None:
+    ui_dir = _REPO_ROOT / "decision_judges" / "ui"
+    hits = [
+        path.relative_to(_REPO_ROOT).as_posix()
+        for path in ui_dir.rglob("*.py")
+        if "balloons" in path.read_text(encoding="utf-8")
+    ]
+    assert not hits, f"balloons still present in: {hits}"
+
+
+def test_finished_serialize_shows_done_and_the_produced_line(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    at.button(key="run_serialize").click().run()
+    _await_finished(root, "serialize")
+    at.run()
+
+    assert not at.exception
+    texts = _texts(at)
+    assert any("done" in text.lower() for text in texts)
+    assert any("reading copies" in text for text in texts)
+
+
+def test_cancelled_step_shows_the_stopped_line(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root, at = _local_app(monkeypatch, tmp_path)
+    progress_dir = root / "results" / ".progress"
+    progress_dir.mkdir(parents=True, exist_ok=True)
+    stopped = Progress(
+        step_id="serialize",
+        done=1,
+        total=2,
+        started_at=utc_now_iso(),
+        finished_at=utc_now_iso(),
+        cancelled=True,
+    )
+    (progress_dir / "serialize.json").write_text(
+        stopped.model_dump_json(indent=2), encoding="utf-8"
+    )
+
+    at.run()
+
+    assert not at.exception
+    assert any("Stopped. Your work so far is saved" in text for text in _texts(at))

@@ -79,6 +79,23 @@
   animation: counter-flash 200ms ease-in-out 1;
 }
 
+/* Success card: a finished-step panel scales in and its border warms once.
+   The marker span sits inside an st.container(border=True); the wrapper is
+   selected with :has so the animation lands on the bordered container. */
+.success-card {
+  display: none;
+}
+
+div[data-testid="stVerticalBlockBorderWrapper"]:has(.success-card) {
+  animation: settle 300ms ease-out 1, success-card-border 300ms ease-out 1;
+}
+
+@keyframes success-card-border {
+  0% { border-color: var(--flow-border); }
+  50% { border-color: var(--flow-accent); }
+  100% { border-color: var(--flow-border); }
+}
+
 /* Same-tab in-app links rendered as anchors when a page switch is not available. */
 .in-app-link {
   color: var(--flow-accent);
@@ -140,4 +157,8 @@
   }
   .flow-strip .dot { display: none; }
   .flow-strip .arrowhead { display: inline; }
+  .success-card,
+  div[data-testid="stVerticalBlockBorderWrapper"]:has(.success-card) {
+    animation: none;
+  }
 }

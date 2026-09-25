@@ -18,8 +18,7 @@ from decision_judges.ui.steps import RunContext, RunStep, StepStatus
 
 _PURPOSE = "Eight steps, in order. Each shows what goes in, what comes out, and what it costs."
 _RUNNER_KEY = "run_step_runner"
-_BALLOONS_KEY = "run_first_paid_finished"
-_SETTLE_MARKER = "run_settle_css"
+_LAST_RUNNING_KEY = "run_last_running_id"
 
 _STATION_LABELS = {
     "tasks": "Requests",
@@ -29,6 +28,14 @@ _STATION_LABELS = {
     "findings": "Findings",
 }
 _STATUS_COLORS = {"locked": "gray", "ready": "blue", "partial": "orange", "done": "green"}
+
+# The plain noun each step's output station adds to the produced line.
+_PRODUCED_NOUN = {
+    "conversations": "conversations",
+    "judge_text": "reading copies",
+    "verdicts": "verdicts",
+    "findings": "findings",
+}
 
 # One "Notice:" line per station, telling the learner what to look for in an example.
 _CHECKER_NOTICE = "Notice: the checker's pass or fail is here, and the judges will never see it."
@@ -56,13 +63,6 @@ _VARIANTS = (
 )
 _CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
 
-_SETTLE_CSS = (
-    "<style>.settle{border-left:3px solid #16a34a;padding:0.4rem 0.75rem;"
-    "border-radius:4px;animation:settle-in 0.4s ease-out}"
-    "@keyframes settle-in{from{opacity:0;transform:translateY(4px)}"
-    "to{opacity:1;transform:none}}</style>"
-)
-
 
 def render() -> None:
     """Render the eight study steps as runnable cards in local mode."""
@@ -85,7 +85,6 @@ def render() -> None:
         unsafe_allow_html=True,
     )
     _resume_banner(runner)
-    _settle_style()
 
     running = _running_step(runner)
     flow.strip(
@@ -94,6 +93,7 @@ def render() -> None:
         running=running.pipe if running is not None else None,
         paid=running.paid if running is not None else False,
         compact=False,
+        flash=_flash_station(runner, running),
     )
 
     for index, step in enumerate(steps.STEPS, start=1):
@@ -132,11 +132,36 @@ def _resume_banner(runner: StepRunner) -> None:
             return
 
 
-def _settle_style() -> None:
-    """Inject the settle animation stylesheet once per session."""
-    if not st.session_state.get(_SETTLE_MARKER):
-        st.session_state[_SETTLE_MARKER] = True
-        st.html(_SETTLE_CSS)
+def _flash_station(runner: StepRunner, running: RunStep | None) -> flow.Station | None:
+    """Return the destination station to flash for the one render after a finish.
+
+    The just-finished step is the one that was running on the previous render
+    and is no longer running now, having finished without error or cancellation.
+    The previous running id is remembered in session state so the flash fires
+    exactly once.
+    """
+    previous = st.session_state.get(_LAST_RUNNING_KEY)
+    current = running.id if running is not None else None
+    st.session_state[_LAST_RUNNING_KEY] = current
+    if current is not None or previous is None:
+        return None
+    status = runner.status(previous)
+    if status is None or status.finished_at is None:
+        return None
+    if status.error or status.cancelled:
+        return None
+    step = _step_by_id(previous)
+    if step is None:
+        return None
+    return flow.Station(step.output_station)
+
+
+def _step_by_id(step_id: str) -> RunStep | None:
+    """Return the step with a given id, or None when no step matches."""
+    for step in steps.STEPS:
+        if step.id == step_id:
+            return step
+    return None
 
 
 def _card(
@@ -158,7 +183,7 @@ def _card(
         _pills(step, study, ledger, status)
         _show_me(step, paths)
         _controls(step, paths, study, pricing, key, runner, status, running)
-        _run_state(step, paths, runner)
+        _run_state(index, step, paths, runner)
 
 
 def _two_variants(step: RunStep) -> None:
@@ -291,14 +316,14 @@ def _launch(
         pass
 
 
-def _run_state(step: RunStep, paths: data.Paths, runner: StepRunner) -> None:
+def _run_state(index: int, step: RunStep, paths: data.Paths, runner: StepRunner) -> None:
     """Render the running panel while alive, or the finished panel once done."""
     if runner.is_running(step.id):
         _running_panel(step, runner)
         return
     status = runner.status(step.id)
     if status is not None and status.finished_at is not None:
-        _finished_panel(step, paths, status)
+        _finished_panel(index, step, paths, status)
 
 
 @st.fragment(run_every="1s")
@@ -341,21 +366,34 @@ def _stop_button(step: RunStep, runner: StepRunner) -> None:
         runner.cancel(step.id)
 
 
-def _finished_panel(step: RunStep, paths: data.Paths, status: object) -> None:
-    """Render the error, or the settled success line, findings, and Gates link."""
+def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object) -> None:
+    """Render the error, the stopped line, or the success card with any findings."""
     error = getattr(status, "error", None)
     if error:
         st.error(_plain_error(error))
         return
-    cancelled = getattr(status, "cancelled", False)
-    word = "cancelled" if cancelled else "done"
-    st.markdown(f'<div class="settle">Step {step.title}: {word}.</div>', unsafe_allow_html=True)
+    if getattr(status, "cancelled", False):
+        st.caption("Stopped. Your work so far is saved; run again to continue.")
+        return
+    components.success_moment(
+        f"Step {index} done",
+        _produced_text(step, status),
+        "See the experiments",
+        "/gates",
+    )
     findings = _step_findings(step, paths)
     if findings:
         st.caption(findings)
-    components.page_link("/gates", "See the experiments")
-    if not cancelled:
-        _maybe_balloons(step)
+
+
+def _produced_text(step: RunStep, status: object) -> str:
+    """Name what the step wrote, with its count when the status carries a total."""
+    noun = _PRODUCED_NOUN.get(step.output_station, "results")
+    done = getattr(status, "done", 0) or 0
+    total = getattr(status, "total", 0) or 0
+    if total > 1:
+        return f"Wrote {done:,} of {total:,} {noun}."
+    return f"Wrote the {noun}."
 
 
 def _plain_error(error: str) -> str:
@@ -376,13 +414,6 @@ def _step_findings(step: RunStep, paths: data.Paths) -> str:
             if text:
                 texts.append(text)
     return "\n\n".join(texts)
-
-
-def _maybe_balloons(step: RunStep) -> None:
-    """Celebrate the first paid step to finish in this session, once."""
-    if step.paid and not st.session_state.get(_BALLOONS_KEY):
-        st.session_state[_BALLOONS_KEY] = True
-        st.balloons()
 
 
 def _elapsed(started_at: str, finished_at: str | None) -> str:

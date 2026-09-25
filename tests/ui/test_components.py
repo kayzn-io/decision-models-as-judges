@@ -149,3 +149,41 @@ def test_keyboard_hint_renders_caption() -> None:
     at = AppTest.from_string(script, default_timeout=30).run()
     assert not at.exception
     assert "Press 1 to 8 to pick a label." in _captions(at)
+
+
+_SUCCESS_SCRIPT = (
+    "from decision_judges.ui import components\n"
+    "components.success_moment('Step 3 done', 'Wrote 1,150 of 1,150 verdicts.', "
+    "'See the experiments', '/gates')\n"
+)
+
+
+def test_success_moment_renders_title_produced_and_next_link() -> None:
+    at = AppTest.from_string(_SUCCESS_SCRIPT, default_timeout=30).run()
+    assert not at.exception
+    rendered = _rendered(at)
+    assert "Step 3 done" in rendered
+    assert "Wrote 1,150 of 1,150 verdicts." in rendered
+    anchors = [node.value for node in at.get("html") if "See the experiments" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/gates"' in anchors[0]
+    assert "target" not in anchors[0]
+
+
+def test_success_moment_marks_the_card_for_animation() -> None:
+    at = AppTest.from_string(_SUCCESS_SCRIPT, default_timeout=30).run()
+    assert not at.exception
+    assert 'class="success-card"' in _rendered(at)
+
+
+_MOTION_CSS = (
+    Path(__file__).resolve().parents[2] / "decision_judges" / "ui" / "assets" / "motion.css"
+)
+
+
+def test_motion_css_defines_success_card_and_reduced_motion_override() -> None:
+    css = _MOTION_CSS.read_text(encoding="utf-8")
+    assert ".success-card" in css
+    blocks = css.split("prefers-reduced-motion")
+    assert len(blocks) > 1
+    assert any("success-card" in block for block in blocks[1:])

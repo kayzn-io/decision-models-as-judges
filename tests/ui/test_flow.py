@@ -6,7 +6,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from decision_judges.ui import data
-from decision_judges.ui.flow import Station, counts
+from decision_judges.ui.flow import Station, counts, render_svg
 
 _STRIP_SCRIPT = """
 from decision_judges.ui import data
@@ -43,3 +43,27 @@ def test_strip_renders_the_svg_without_exception(
     rendered = "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
     assert "<title>" in rendered
     assert 'role="img"' in rendered
+
+
+def test_render_svg_flash_marks_the_station_count_with_counter_class() -> None:
+    svg = render_svg(
+        {Station.verdicts: 11},
+        active=None,
+        running=None,
+        paid=False,
+        compact=True,
+        flash=Station.verdicts,
+    )
+    assert 'class="count counter"' in svg
+
+
+def test_render_svg_without_flash_has_no_counter_class() -> None:
+    svg = render_svg(
+        {Station.verdicts: 11},
+        active=None,
+        running=None,
+        paid=False,
+        compact=True,
+        flash=None,
+    )
+    assert "counter" not in svg
