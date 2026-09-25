@@ -27,6 +27,7 @@ _THRESHOLD_HELP = "Escalate to the slow judge when the fast judge's confidence f
 _ISOTONIC_HELP = "Refit each signal with cross-validated isotonic regression and rescore it."
 _PURPOSE = "Results for each evaluation gate, static and interactive."
 
+_G2_MEASURE = "G2 scores every tool call: was it needed, and were its arguments consistent."
 _G3_MEASURE = "G3 scores each run's pass or fail verdict against the outcome truth."
 _G4_MEASURE = "G4 tests whether aggregating six atomic questions beats one broad question."
 _G10_MEASURE = "G10 compares the local decision model against the hosted judges on compact states."
@@ -41,18 +42,23 @@ def render() -> None:
     """Render one tab per gate, static where results exist and interactive elsewhere."""
     paths = data.Paths.from_env()
     components.page_header("Gates", _PURPOSE)
-    outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = st.tabs(
-        [
-            "G3 Outcome",
-            "G4 Decomposition",
-            "G10 Local model",
-            "G5 Cascade",
-            "G6 Calibration",
-            "G8 Regression",
-            "G9 Taxonomy",
-            "G7 Robustness",
-        ]
+    steps, outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = (
+        st.tabs(
+            [
+                "G2 Steps",
+                "G3 Outcome",
+                "G4 Decomposition",
+                "G10 Local model",
+                "G5 Cascade",
+                "G6 Calibration",
+                "G8 Regression",
+                "G9 Taxonomy",
+                "G7 Robustness",
+            ]
+        )
     )
+    with steps:
+        _g2_tab(paths)
     with outcome:
         _g3_tab(paths)
     with decomposition:
@@ -92,6 +98,25 @@ def _table(result: GateResult, name: str) -> pd.DataFrame:
     table = result.tables[name]
     assert isinstance(table, pd.DataFrame)
     return table
+
+
+def _g2_tab(paths: data.Paths) -> None:
+    """Show per-step scoring: AUROC of the necessary-call probability per judge."""
+    st.caption(_G2_MEASURE)
+    frame = data.load_results_table(paths, "g2_summary")
+    if frame is None:
+        components.empty_state(
+            "G2 scores each tool call for necessity and argument consistency.",
+            "judges judge --gate g2 --judges jev,llm_cheap,llm_strong",
+        )
+        return
+    _show_table(frame)
+    if {"judge_id", "auroc"} <= set(frame.columns):
+        _show_chart(
+            charts.bar(
+                frame, x="judge_id", y="auroc", color="judge_id", title="Necessary-call AUROC"
+            )
+        )
 
 
 def _g3_tab(paths: data.Paths) -> None:

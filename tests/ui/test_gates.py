@@ -11,6 +11,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _UI_ROOT = _REPO_ROOT / "tests" / "fixtures" / "ui_cache"
 _SCRIPT = "from decision_judges.ui.pages.gates import render\n\nrender()\n"
 _TAB_LABELS = [
+    "G2 Steps",
     "G3 Outcome",
     "G4 Decomposition",
     "G10 Local model",
