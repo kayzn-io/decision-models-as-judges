@@ -23,7 +23,9 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _UI_DIR = _REPO_ROOT / "decision_judges" / "ui"
 
 _FORBIDDEN = ("numpy", "sklearn", "scipy")
-_THIRD_PARTY_ALLOWLIST = frozenset({"streamlit", "pandas", "matplotlib", "pydantic", "typer"})
+_THIRD_PARTY_ALLOWLIST = frozenset(
+    {"streamlit", "pandas", "matplotlib", "pydantic", "typer", "altair"}
+)
 _STDLIB = frozenset(sys.stdlib_module_names)
 _INTERNAL_ROOT = "decision_judges"
 
