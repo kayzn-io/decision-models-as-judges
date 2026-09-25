@@ -236,19 +236,25 @@ def _content_from(response: Any) -> str:
 class OpenAiClientAdapter:
     """Adapt the openai client to OpenAILike, reading the API key lazily from the env."""
 
-    def __init__(self, base_url: str, api_key_env: str = "OPENROUTER_API_KEY") -> None:
+    def __init__(
+        self,
+        base_url: str,
+        api_key_env: str = "OPENROUTER_API_KEY",
+        *,
+        api_key: str | None = None,
+    ) -> None:
         self._base_url = base_url
         self._api_key_env = api_key_env
+        self._api_key = api_key
         self._client: Any = None
 
     def _ensure_client(self) -> Any:
-        """Build the openai client on first use, reading the key from the env."""
+        """Build the openai client on first use, using the explicit key or the env."""
         if self._client is None:
             import openai
 
-            self._client = openai.OpenAI(
-                base_url=self._base_url, api_key=os.environ[self._api_key_env]
-            )
+            key = self._api_key if self._api_key is not None else os.environ[self._api_key_env]
+            self._client = openai.OpenAI(base_url=self._base_url, api_key=key)
         return self._client
 
     def chat_completions_create(self, **kwargs: Any) -> Any:
