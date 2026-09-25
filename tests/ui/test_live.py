@@ -155,7 +155,7 @@ def test_live_shows_flow_strip_framing_and_next_link(
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
     assert any("shows that difference side by side" in text for text in _texts(at))
-    assert "Next: [Overview](/overview)" in _rendered(at)
+    assert '<a href="/overview" class="in-app-link">Next: Overview</a>' in _rendered(at)
 
 
 def test_live_shows_latency_race_after_judging(

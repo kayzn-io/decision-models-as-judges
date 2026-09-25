@@ -1,11 +1,13 @@
 """Shared Streamlit rendering helpers reused across pages."""
 
-from collections.abc import Sequence
+import urllib.parse
+from collections.abc import Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
 from typing import TYPE_CHECKING
 
 import streamlit as st
+from streamlit.navigation.page import StreamlitPage
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 from decision_judges import __version__
@@ -42,6 +44,72 @@ def motion_styles() -> None:
     st.html(f"<style>{_motion_css()}</style>")
 
 
+_PAGE_REGISTRY: dict[str, StreamlitPage] = {}
+
+
+def register_pages(pages: Mapping[str, StreamlitPage]) -> None:
+    """Record the navigation pages by URL path so links can switch pages in place."""
+    _PAGE_REGISTRY.clear()
+    _PAGE_REGISTRY.update(pages)
+
+
+def _live_page(url_path: str) -> StreamlitPage | None:
+    """Return the registered page for a URL path when this run registered it.
+
+    Liveness is scoped to the current script run: a page counts only when
+    ``st.navigation`` registered its URL path this run, so a per-page test
+    harness that never built the navigation falls back to a plain anchor.
+    """
+    page = _PAGE_REGISTRY.get(url_path)
+    ctx = get_script_run_ctx()
+    if page is None or ctx is None:
+        return None
+    live = {info.get("url_pathname") for info in ctx.pages_manager.get_pages().values()}
+    return page if url_path in live else None
+
+
+def _in_app_anchor(href: str, label: str, *, primary: bool) -> None:
+    """Render a same-tab anchor styled as a link, or as a primary button.
+
+    The anchor is emitted through ``st.html`` rather than ``st.markdown``:
+    Streamlit's markdown renderer forces ``target="_blank"`` on every link,
+    which would open in-app navigation in a new tab. ``st.html`` leaves the
+    markup untouched, so with no target the browser navigates in the same tab.
+    """
+    motion_styles()
+    css_class = "in-app-link primary" if primary else "in-app-link"
+    st.html(f'<a href="{href}" class="{css_class}">{label}</a>')
+
+
+def page_link(
+    path: str,
+    label: str,
+    *,
+    query: Mapping[str, str] | None = None,
+    icon: str | None = None,
+    primary: bool = False,
+) -> None:
+    """Link to another app page in the same tab.
+
+    When the destination page is registered this run, the link switches pages
+    through Streamlit so the sidebar highlights it, carrying any query
+    parameters. Otherwise it falls back to a same-tab anchor, which the per-page
+    test harness relies on since it registers no pages.
+    """
+    page = _live_page(path.lstrip("/"))
+    if page is not None:
+        st.page_link(
+            page,
+            label=label,
+            icon=icon,
+            query_params=dict(query) if query else None,
+        )
+        return
+    href = f"{path}?{urllib.parse.urlencode(dict(query))}" if query else path
+    text = f"{icon} {label}" if icon else label
+    _in_app_anchor(href, text, primary=primary)
+
+
 _REPO = "https://github.com/kayzn-io/decision-models-as-judges"
 _FOOTER = (
     "Built by [Kayzn](https://kayzn.io). Open source under the "
@@ -74,8 +142,8 @@ def flow_context(paths: "data.Paths", station: "Station | None") -> None:
 
 
 def next_link(label: str, path: str, hint: str) -> None:
-    """Render a link to the next page above the footer with a muted hint sentence."""
-    st.markdown(f"Next: [{label}]({path})")
+    """Link to the next page in the same tab, above the footer, with a muted hint."""
+    page_link(path, f"Next: {label}")
     st.caption(hint)
 
 
@@ -96,7 +164,8 @@ def empty_state(what: str, command: str, run_step: int | None = None) -> None:
     if run_step is None:
         st.code(command, language="bash")
         return
-    st.markdown(f"[Run step {run_step} on the Run page](/run) to produce this.")
+    page_link("/run", f"Run step {run_step} on the Run page")
+    st.caption("Run it there to produce this.")
     with st.expander("Command line"):
         st.code(command, language="bash")
 

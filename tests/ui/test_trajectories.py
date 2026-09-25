@@ -136,7 +136,10 @@ def test_trajectories_has_flow_strip_and_next_link(
     at = _run(monkeypatch, tmp_path)
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
-    assert "Next: [Gates](/gates)" in _markdown(at)
+    anchors = [node.value for node in at.get("html") if "Next: Gates" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/gates"' in anchors[0]
+    assert "target" not in anchors[0]
 
 
 def test_trajectories_shows_legend(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

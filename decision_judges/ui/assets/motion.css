@@ -75,6 +75,30 @@
   animation: counter-flash 200ms ease-in-out 1;
 }
 
+/* Same-tab in-app links rendered as anchors when a page switch is not available. */
+.in-app-link {
+  color: var(--flow-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.in-app-link:hover {
+  text-decoration: underline;
+}
+
+.in-app-link.primary {
+  display: inline-block;
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  background: var(--flow-accent);
+  color: var(--flow-offwhite);
+}
+
+.in-app-link.primary:hover {
+  filter: brightness(1.08);
+  text-decoration: none;
+}
+
 @keyframes flow-dots {
   from { offset-distance: 0%; }
   to { offset-distance: 100%; }

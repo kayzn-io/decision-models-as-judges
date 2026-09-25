@@ -7,8 +7,6 @@ the page renders. The gate objects still build Matplotlib figures for the
 README, but the app never displays them.
 """
 
-import urllib.parse
-
 import altair as alt
 import pandas as pd
 import streamlit as st
@@ -157,8 +155,11 @@ def _intro(gate: str, example: str | None) -> None:
     """Render the how-to-read key and an example link at the top of a gate tab."""
     components.how_to_read(_HOW_TO_READ[gate])
     if example is not None:
-        query = urllib.parse.urlencode({"variant": "baseline", "task": example})
-        st.markdown(f"[See one example](/trajectories?{query})")
+        components.page_link(
+            "/trajectories",
+            "See one example",
+            query={"variant": "baseline", "task": example},
+        )
 
 
 def _show_table(frame: pd.DataFrame) -> None:
@@ -486,10 +487,13 @@ def _g7_flip_links(flips: pd.DataFrame) -> None:
 def _flip_link(judge: str, placement: str, variant: str, task_id: str) -> None:
     """Render a Trajectories deep link preselecting the flipped injected state.
 
-    ``st.page_link`` requires a registered ``Page`` object, which the per-page
-    test harness does not provide, so the link is rendered as markdown to the
-    Trajectories URL path with the variant, task, and injection query parameters.
+    The link carries the variant, task, and injection as query parameters, so it
+    renders as a same-tab anchor rather than a Streamlit page switch, which needs
+    a registered ``Page`` the per-page test harness does not provide.
     """
-    query = urllib.parse.urlencode({"variant": variant, "task": task_id, "injection": placement})
     label = f"{judge} · {placement} · {variant}/{task_id}"
-    st.markdown(f"[{label}](/trajectories?{query})")
+    components.page_link(
+        "/trajectories",
+        label,
+        query={"variant": variant, "task": task_id, "injection": placement},
+    )

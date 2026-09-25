@@ -305,7 +305,7 @@ def _finished_panel(step: RunStep, paths: data.Paths, status: object) -> None:
     findings = _step_findings(step, paths)
     if findings:
         st.caption(findings)
-    st.markdown("[See the gates](/gates)")
+    components.page_link("/gates", "See the gates")
     if not cancelled:
         _maybe_balloons(step)
 

@@ -40,10 +40,11 @@ def test_empty_state_with_run_step_points_at_run_page() -> None:
     )
     at = AppTest.from_string(script, default_timeout=30).run()
     assert not at.exception
-    markdown = "\n".join(md.value for md in at.markdown)
-    assert "Run step 4 on the Run page" in markdown
-    assert "/run" in markdown
-    assert "to produce this" in markdown
+    anchors = [node.value for node in at.get("html") if "Run step 4 on the Run page" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/run"' in anchors[0]
+    assert "target" not in anchors[0]
+    assert "to produce this" in _captions(at)
     assert any(expander.label == "Command line" for expander in at.expander)
     assert any("judges analyze --gate g5" in code.value for code in at.code)
 
@@ -71,17 +72,61 @@ def test_how_to_read_renders_rows() -> None:
     assert "share matching ground truth" in markdown
 
 
-def test_next_link_renders_link_and_hint() -> None:
+def test_next_link_renders_same_tab_link_and_hint() -> None:
     script = (
         "from decision_judges.ui import components\n"
         "components.next_link('Gates', '/gates', 'See each gate in turn.')\n"
     )
     at = AppTest.from_string(script, default_timeout=30).run()
     assert not at.exception
-    markdown = "\n".join(md.value for md in at.markdown)
-    assert "Next:" in markdown
-    assert "[Gates](/gates)" in markdown
+    anchors = [node.value for node in at.get("html") if "Next: Gates" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/gates"' in anchors[0]
+    assert "target" not in anchors[0]
     assert "See each gate in turn." in _captions(at)
+
+
+def test_page_link_with_query_renders_anchor_without_target() -> None:
+    script = (
+        "from decision_judges.ui import components\n"
+        "components.page_link('/trajectories', 'See one example', "
+        "query={'variant': 'baseline', 'task': 'retail-0'})\n"
+    )
+    at = AppTest.from_string(script, default_timeout=30).run()
+    assert not at.exception
+    anchors = [node.value for node in at.get("html") if "See one example" in node.value]
+    assert len(anchors) == 1
+    assert "target" not in anchors[0]
+    assert 'href="/trajectories?' in anchors[0]
+    assert "variant=baseline" in anchors[0]
+    assert "task=retail-0" in anchors[0]
+    assert not at.get("page_link")
+
+
+def test_page_link_unregistered_falls_back_to_anchor_without_raising() -> None:
+    script = (
+        "from decision_judges.ui import components\ncomponents.page_link('/run', 'Go to Run')\n"
+    )
+    at = AppTest.from_string(script, default_timeout=30).run()
+    assert not at.exception
+    anchors = [node.value for node in at.get("html") if "Go to Run" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/run"' in anchors[0]
+    assert "target" not in anchors[0]
+    assert not at.get("page_link")
+
+
+def test_page_link_switches_pages_for_registered_page(
+    monkeypatch: pytest.MonkeyPatch, ui_root: Path
+) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    app = str(repo_root / "decision_judges" / "ui" / "app.py")
+    monkeypatch.setenv("JUDGES_ROOT", str(ui_root))
+    monkeypatch.setenv("JUDGES_LOCAL", "1")
+    at = AppTest.from_file(app, default_timeout=60).run()
+    assert not at.exception
+    labels = [link.proto.label for link in at.get("page_link")]
+    assert "Next: Run" in labels
 
 
 def test_why_line_renders_muted_note() -> None:

@@ -130,7 +130,9 @@ def test_g7_tab_shows_summary_and_one_flip_link(
     assert any("final_message" in list(frame["placement"]) for frame in summaries)
 
     links = [
-        md.value for md in at.markdown if "/trajectories?" in md.value and "injection=" in md.value
+        node.value
+        for node in at.get("html")
+        if "/trajectories?" in node.value and "injection=" in node.value
     ]
     assert len(links) == 1
     assert "variant=baseline" in links[0]
@@ -169,7 +171,10 @@ def test_gates_has_flow_strip_and_next_link(
     at = _run(monkeypatch, tmp_path, _UI_ROOT)
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
-    assert "Next: [Label](/label)" in _markdown(at)
+    anchors = [node.value for node in at.get("html") if "Next: Label" in node.value]
+    assert len(anchors) == 1
+    assert 'href="/label"' in anchors[0]
+    assert "target" not in anchors[0]
 
 
 def test_gates_every_tab_has_a_how_to_read_expander(
@@ -186,9 +191,10 @@ def test_gates_show_one_example_link_per_tab(
 ) -> None:
     at = _run(monkeypatch, tmp_path, _UI_ROOT)
     assert not at.exception
-    examples = [md.value for md in at.markdown if "See one example" in md.value]
+    examples = [node.value for node in at.get("html") if "See one example" in node.value]
     assert len(examples) == len(_TAB_LABELS)
     assert all("task=retail-0" in link for link in examples)
+    assert all("target" not in link for link in examples)
 
 
 def test_g5_caption_mentions_cost(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

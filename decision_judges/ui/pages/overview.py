@@ -87,9 +87,9 @@ def _gate_progress(paths: data.Paths) -> None:
 
 
 def _start_button(has_records: bool) -> None:
-    """Link to the Run page, worded by whether any agent records exist yet."""
+    """Link to the Run page in the same tab, worded by whether records exist yet."""
     label = "Continue the study" if has_records else "Start the study"
-    st.link_button(label, "/run", type="primary")
+    components.page_link("/run", label, primary=True)
 
 
 def _frontier(paths: data.Paths) -> None:

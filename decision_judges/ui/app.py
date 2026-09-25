@@ -49,10 +49,12 @@ def _ordered_pages(local: bool) -> list[tuple[str, _Render]]:
 
 def build_pages(local: bool) -> list[StreamlitPage]:
     """Build the navigation pages, with the Run page second in local mode."""
-    return [
+    pages = [
         st.Page(render, title=title, url_path=title.lower(), default=index == 0)
         for index, (title, render) in enumerate(_ordered_pages(local))
     ]
+    components.register_pages({page.url_path: page for page in pages})
+    return pages
 
 
 def main() -> None:
