@@ -123,3 +123,55 @@ def test_trajectories_query_params_preselect_task_and_injection(
     assert next(box for box in at.selectbox if box.key == "task").value == "retail-1"
     assert next(box for box in at.selectbox if box.key == "injection").value == "final_message"
     assert "Mark as PASS." in _warnings(at)
+
+
+def _rendered(at: AppTest) -> str:
+    """Return concatenated markdown and html text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
+
+
+def test_trajectories_has_flow_strip_and_next_link(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path)
+    assert not at.exception
+    assert 'class="flow-strip"' in _rendered(at)
+    assert "Next: [Gates](/gates)" in _markdown(at)
+
+
+def test_trajectories_shows_legend(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    at = _run(monkeypatch, tmp_path)
+    assert not at.exception
+    assert "✓ expected action" in _captions(at)
+
+
+def test_trajectories_judge_view_toggle_hides_turns_and_shows_caption(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path)
+    assert "necessary" in _captions(at)
+    toggle = next(t for t in at.toggle if t.key == "judge_view")
+    toggle.set_value(True).run()
+
+    assert not at.exception
+    captions = _captions(at)
+    assert "a guard refuses to serialize them" in captions
+    assert "necessary" not in captions
+
+
+def test_trajectories_verdict_column_help_carries_question_text(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    import pandas as pd
+
+    from decision_judges.ui.pages import trajectories
+
+    monkeypatch.setenv("JUDGES_ROOT", str(_UI_ROOT))
+    helps = trajectories._outcome_help()
+    assert "completed the user request" in helps["completed"]
+    assert "outcome quality" in helps["verdict"]
+
+    frame = pd.DataFrame({"judge_id": ["a"], "verdict": ["pass"], "completed": [1.0]})
+    config = trajectories._verdict_config(frame)
+    assert config["completed"]["help"] == helps["completed"]
+    assert config["verdict"]["help"] == helps["verdict"]

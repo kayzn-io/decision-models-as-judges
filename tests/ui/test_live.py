@@ -138,3 +138,37 @@ def test_live_never_renders_the_key(monkeypatch: pytest.MonkeyPatch, tmp_path: P
 
     assert not at.exception
     assert all(_FAKE_KEY not in str(text) for text in _texts(at))
+
+
+def _rendered(at: AppTest) -> str:
+    """Return concatenated markdown and html text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
+
+
+def test_live_shows_flow_strip_framing_and_next_link(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _disable_laya(monkeypatch)
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    assert 'class="flow-strip"' in _rendered(at)
+    assert any("shows that difference side by side" in text for text in _texts(at))
+    assert "Next: [Overview](/overview)" in _rendered(at)
+
+
+def test_live_shows_latency_race_after_judging(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _disable_laya(monkeypatch)
+    monkeypatch.setattr(
+        "decision_judges.ui.live.build_live_judges", _fake_build("llm_strong", "jev")
+    )
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.button(key="live_judge").click().run()
+
+    assert not at.exception
+    assert any("Response time by judge" in text for text in _texts(at))

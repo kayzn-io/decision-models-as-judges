@@ -2,6 +2,7 @@
 
 from collections.abc import Mapping
 
+import pandas as pd
 import streamlit as st
 
 from decision_judges.bench.load import Task
@@ -10,8 +11,15 @@ from decision_judges.config import PricingTable, StudyConfig
 from decision_judges.serialize import StateRecord
 from decision_judges.types import Verdict
 from decision_judges.ui import charts, components, data, live
+from decision_judges.ui.flow import Station
 
 _PURPOSE = "Run Jev, Laya, and an LLM judge on one run, side by side, on your own keys."
+_WHY = "It lets you watch each judge decide on a run of your choosing, live."
+_NEXT_HINT = "Back to the start."
+_FRAMING = (
+    "The text judge explains itself in prose; the decision models return only "
+    "probabilities. This page shows that difference side by side."
+)
 _OPENROUTER_KEY = "live_openrouter_key"
 _TYPESAFE_KEY = "live_typesafe_key"
 _COUNT_KEY = "live_call_count"
@@ -35,11 +43,13 @@ def render() -> None:
     tasks = data.load_tasks_for_ui(paths)
     trajectory_states = data.trajectory_states(data.load_states(paths))
 
-    components.page_header("Live", _PURPOSE)
+    components.page_header("Live", _PURPOSE, why=_WHY)
+    components.flow_context(paths, Station.verdicts)
     keys = _sidebar_keys()
 
     if not records:
         st.caption("No agent runs are available to judge.")
+        components.next_link("Overview", "/overview", _NEXT_HINT)
         components.footer()
         return
 
@@ -49,7 +59,9 @@ def render() -> None:
     _judge_controls(
         study, pricing, tasks, records, keys, trajectory_states, variant, task_id, state
     )
+    st.caption(_FRAMING)
     _render_results(pricing, state)
+    components.next_link("Overview", "/overview", _NEXT_HINT)
     components.footer()
 
 
@@ -181,6 +193,21 @@ def _render_results(pricing: PricingTable, state: StateRecord | None) -> None:
     for column, (judge_id, verdict) in zip(columns, entries, strict=True):
         with column:
             _render_verdict(pricing, judge_id, verdict)
+    _latency_race(entries)
+
+
+def _latency_race(entries: list[tuple[str, Verdict]]) -> None:
+    """Render a per-judge latency bar so the speed gap between judges is visible."""
+    rows = [
+        {"judge": judge_id, "latency_ms": verdict.latency_ms}
+        for judge_id, verdict in entries
+        if verdict.error is None
+    ]
+    if not rows:
+        return
+    st.caption("Response time by judge")
+    frame = pd.DataFrame(rows, columns=["judge", "latency_ms"])
+    st.altair_chart(charts.bar(frame, "judge", "latency_ms"), use_container_width=True)
 
 
 def _render_verdict(pricing: PricingTable, judge_id: str, verdict: Verdict) -> None:

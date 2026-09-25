@@ -54,3 +54,29 @@ def test_overview_shows_frontier_headline(app_test: AppTest) -> None:
     assert not at.exception
     captions = "\n".join(caption.value for caption in at.caption)
     assert "further right costs more, higher is more accurate" in captions
+
+
+def _rendered(at: AppTest) -> str:
+    """Return concatenated markdown and html text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
+
+
+def test_overview_has_flow_strip_and_next_link(app_test: AppTest) -> None:
+    at = app_test
+    at.run()
+    assert not at.exception
+    rendered = _rendered(at)
+    assert 'class="flow-strip"' in rendered
+    markdown = "\n".join(md.value for md in at.markdown)
+    assert "Next: [Run](/run)" in markdown
+
+
+def test_overview_shows_gate_progress_and_continue_button(app_test: AppTest) -> None:
+    at = app_test
+    at.run()
+    assert not at.exception
+    captions = "\n".join(caption.value for caption in at.caption)
+    assert "4 of 10 gates have results." in captions
+    buttons = at.get("link_button")
+    assert any(button.label == "Continue the study" for button in buttons)
+    assert all(button.url == "/run" for button in buttons)

@@ -5,6 +5,8 @@ JSON line, so appends never rewrite prior lines and a crash mid-write leaves at
 most one partial trailing line that ``load`` skips.
 """
 
+from collections import Counter
+from collections.abc import Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -122,3 +124,9 @@ class LabelStore:
     def progress(self, target: int = 50) -> tuple[int, int]:
         """Return the count of distinct labeled pairs and the target."""
         return len(self.latest()), target
+
+
+def label_counts(labels: Sequence[Label]) -> list[tuple[str, int]]:
+    """Return each used taxonomy label as a title and its count, in taxonomy order."""
+    counter = Counter(label.label for label in labels)
+    return [(label_title(name), counter[name]) for name in TAXONOMY if counter[name]]

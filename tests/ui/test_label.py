@@ -117,3 +117,39 @@ def test_label_save_appends_line_and_updates_progress(
     assert record["labeler"] == "owner"
 
     assert "1 of 50 labeled" in _texts(at)
+
+
+def _rendered(at: AppTest) -> str:
+    """Return concatenated markdown and html text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
+
+
+def test_label_has_flow_strip_and_next_link(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    assert not at.exception
+    assert 'class="flow-strip"' in _rendered(at)
+    assert "Next: [Live](/live)" in _texts(at)
+
+
+def test_label_intro_visible_before_first_label(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    assert not at.exception
+    assert any(expander.label == "Before you label" for expander in at.expander)
+    assert "first cause in the conversation" in _texts(at)
+
+
+def test_label_tally_appears_after_saving(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    assert not at.get("vega_lite_chart")
+
+    at.radio[0].set_value("skipped_confirmation").run()
+    at.button[0].click().run()
+    assert not at.exception
+    assert at.get("vega_lite_chart")

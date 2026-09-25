@@ -5,6 +5,8 @@ import streamlit as st
 from decision_judges.ui import charts, components, data, formatting
 
 _PURPOSE = "What the study measures, who the judges are, and what it has cost so far."
+_WHY = "It orients you before you open any single gate or trajectory."
+_NEXT_HINT = "Run the pipeline to fill in any gates that are still empty."
 _STUDY_SUMMARY = (
     "This study evaluates the typed decision models Jev and Laya as evaluation "
     "judges over tau-bench retail agent trajectories, comparing them with a "
@@ -30,7 +32,8 @@ def render() -> None:
     verdicts = data.load_verdicts(paths)
     ledger = data.load_ledger(paths)
 
-    components.page_header("Decision models as judges", _PURPOSE)
+    components.page_header("Decision models as judges", _PURPOSE, why=_WHY)
+    components.flow_context(paths, None)
     st.write(_STUDY_SUMMARY)
 
     components.metric_row(
@@ -42,7 +45,10 @@ def render() -> None:
         ]
     )
 
-    st.subheader("Cascade frontier")
+    _gate_progress(paths)
+    _start_button(bool(agent_records))
+
+    st.subheader("Headline result: the cascade frontier")
     st.caption(_FRONTIER_HEADLINE)
     _frontier(paths)
 
@@ -67,14 +73,30 @@ def render() -> None:
 
     with st.expander("Threats to validity", expanded=False):
         st.markdown(data.threats_text(paths))
+    components.next_link("Run", "/run", _NEXT_HINT)
     components.footer()
+
+
+def _gate_progress(paths: data.Paths) -> None:
+    """Render one badge per gate G1..G10 and how many gates have results."""
+    present = data.gate_results_present(paths)
+    done = sum(1 for _, ok in present if ok)
+    badges = "  ".join(f"{':orange[●]' if ok else ':gray[○]'} {gate}" for gate, ok in present)
+    st.markdown(badges)
+    st.caption(f"{done} of {len(present)} gates have results.")
+
+
+def _start_button(has_records: bool) -> None:
+    """Link to the Run page, worded by whether any agent records exist yet."""
+    label = "Continue the study" if has_records else "Start the study"
+    st.link_button(label, "/run", type="primary")
 
 
 def _frontier(paths: data.Paths) -> None:
     """Render the cascade frontier from results, or an empty state when absent."""
     frame = data.load_results_table(paths, "g5_frontier")
     if frame is None or {"cost_per_item", "accuracy"} - set(frame.columns):
-        components.empty_state(_FRONTIER_WHAT, _FRONTIER_COMMAND)
+        components.empty_state(_FRONTIER_WHAT, _FRONTIER_COMMAND, run_step=4)
         return
     st.altair_chart(
         charts.frontier(

@@ -17,6 +17,7 @@ from decision_judges.gates.base import GateResult
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.ui import charts, components, data, formatting
+from decision_judges.ui.flow import Station
 
 _PROFILE = "full"
 _FAST_JUDGE = "jev"
@@ -26,6 +27,11 @@ _SIGNAL_HELP = "The three probability signals G6 scores against ground truth."
 _THRESHOLD_HELP = "Escalate to the slow judge when the fast judge's confidence falls below this."
 _ISOTONIC_HELP = "Refit each signal with cross-validated isotonic regression and rescore it."
 _PURPOSE = "Results for each evaluation gate, static and interactive."
+_WHY = "Each gate is one test of whether a judge's scores can be trusted."
+_NEXT_HINT = "Hand-labeling failures builds the ground truth the taxonomy gate scores against."
+
+_JUDGE_STEP = 3
+_ANALYZE_STEP = 4
 
 _G2_MEASURE = "G2 scores every tool call: was it needed, and were its arguments consistent."
 _G3_MEASURE = "G3 scores each run's pass or fail verdict against the outcome truth."
@@ -37,11 +43,63 @@ _G8_MEASURE = "G8 estimates each judge's baseline-to-degraded regression with bo
 _G9_MEASURE = "G9 scores each judge's failure-taxonomy labels against the owner's hand labels."
 _G7_MEASURE = "G7 measures whether an injected evaluator-directed sentence flips a fail to a pass."
 
+_HOW_TO_READ: dict[str, list[tuple[str, str]]] = {
+    "g2": [
+        ("AUROC", "chance a random failure is scored below a random pass, 0.5 is guessing"),
+        ("F1", "how well necessary calls specifically are caught"),
+        ("Precision", "of the calls it flagged necessary, the share that truly were"),
+        ("Recall", "of the truly necessary calls, the share it flagged"),
+        ("Error rate", "share of verdicts that failed to parse"),
+    ],
+    "g3": [
+        ("Accuracy", "share matching ground truth"),
+        ("Kappa", "agreement beyond chance, 0 is guessing"),
+        ("F1 fail", "how well failures specifically are caught"),
+        ("Modal agreement", "how often the repeats agreed with each other"),
+        ("Error rate", "share of verdicts that failed to parse"),
+    ],
+    "g4": [
+        ("AUROC", "chance a random failure is scored below a random pass, 0.5 is guessing"),
+        ("Aggregator", "how the six atomic answers combine into one score"),
+    ],
+    "g10": [
+        ("Accuracy", "share matching ground truth"),
+        ("AUROC", "chance a random failure is scored below a random pass, 0.5 is guessing"),
+    ],
+    "g5": [
+        ("t", "the confidence the fast judge must clear to keep its own verdict"),
+        ("Accuracy", "share matching ground truth"),
+        ("Cost per item", "average dollars spent per verdict"),
+        ("Escalation rate", "share of items sent to the slow judge"),
+    ],
+    "g6": [
+        ("ECE", "a judge saying 0.9 should be right nine times in ten, 0 is perfect"),
+        ("Brier", "squared error of the probability"),
+    ],
+    "g8": [
+        ("Est delta", "the estimated drop from baseline to degraded"),
+        ("Lo, Hi", "the bootstrap interval around the estimate"),
+        ("Covers truth", "whether the interval contains the real gap"),
+        ("True delta", "the real baseline-to-degraded gap from ground truth"),
+    ],
+    "g9": [
+        ("Accuracy", "share matching ground truth"),
+        ("Kappa", "agreement beyond chance, 0 is guessing"),
+    ],
+    "g7": [
+        ("Flip rate", "how often an injected sentence turned a fail into a pass"),
+        ("Control flip rate", "the same rate for a harmless control sentence"),
+        ("Net flip rate", "flip rate above the control's flip rate"),
+    ],
+}
+
 
 def render() -> None:
     """Render one tab per gate, static where results exist and interactive elsewhere."""
     paths = data.Paths.from_env()
-    components.page_header("Gates", _PURPOSE)
+    components.page_header("Gates", _PURPOSE, why=_WHY)
+    components.flow_context(paths, Station.verdicts)
+    example = _example_task_id(paths)
     steps, outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = (
         st.tabs(
             [
@@ -58,24 +116,49 @@ def render() -> None:
         )
     )
     with steps:
+        _intro("g2", example)
         _g2_tab(paths)
     with outcome:
+        _intro("g3", example)
         _g3_tab(paths)
     with decomposition:
+        _intro("g4", example)
         _g4_tab(paths)
     with local:
+        _intro("g10", example)
         _g10_tab(paths)
     with cascade:
+        _intro("g5", example)
         _g5_tab(paths)
     with calibration:
+        _intro("g6", example)
         _g6_tab(paths)
     with regression:
+        _intro("g8", example)
         _g8_tab(paths)
     with taxonomy:
+        _intro("g9", example)
         _g9_tab(paths)
     with robustness:
+        _intro("g7", example)
         _g7_tab(paths)
+    components.next_link("Label", "/label", _NEXT_HINT)
     components.footer()
+
+
+def _example_task_id(paths: data.Paths) -> str | None:
+    """Return the first baseline task id with an agent record, or None when absent."""
+    records = data.load_agent_records(paths)
+    baseline = sorted(task_id for variant, task_id in records if variant == "baseline")
+    return baseline[0] if baseline else None
+
+
+def _intro(gate: str, example: str | None) -> None:
+    """Render the how-to-read key and an example link at the top of a gate tab."""
+    components.how_to_read(_HOW_TO_READ[gate])
+    if example is not None:
+        query = urllib.parse.urlencode({"variant": "baseline", "task": example})
+        st.markdown(f"[See one example](/trajectories?{query})")
 
 
 def _show_table(frame: pd.DataFrame) -> None:
@@ -108,6 +191,7 @@ def _g2_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G2 scores each tool call for necessity and argument consistency.",
             "judges judge --gate g2 --judges jev,llm_cheap,llm_strong",
+            run_step=_JUDGE_STEP,
         )
         return
     _show_table(frame)
@@ -127,6 +211,7 @@ def _g3_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G3 scores whether each run met the outcome bar the rubric states.",
             "judges judge --gate g3 --variant baseline --variant degraded",
+            run_step=_JUDGE_STEP,
         )
         return
     _show_table(frame)
@@ -146,6 +231,7 @@ def _g4_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G4 tests whether aggregating six atomic questions beats one broad question.",
             "judges judge --gate g4 --variant baseline --variant degraded",
+            run_step=_JUDGE_STEP,
         )
         return
     _show_table(frame)
@@ -165,6 +251,7 @@ def _g10_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G10 compares the local decision model against the hosts on compact states.",
             "judges judge --gate g10 --profile compact --variant baseline",
+            run_step=_JUDGE_STEP,
         )
         return
     _show_table(frame)
@@ -192,6 +279,7 @@ def _g5_tab(paths: data.Paths) -> None:
             "G5 replays the G3 verdicts as a confidence-gated cascade, but the verdict "
             f"cache is missing these judges: {', '.join(missing) or 'all'}.",
             "judges analyze --gate g5 --variant baseline --variant degraded",
+            run_step=_ANALYZE_STEP,
         )
         return
 
@@ -213,6 +301,7 @@ def _g5_tab(paths: data.Paths) -> None:
     frontier = _table(result, "g5_frontier")
     reference = _table(result, "g5_reference")
     _g5_metrics(frontier, threshold)
+    _g5_caption(frontier, threshold)
     _show_table(frontier)
     if {"cost_per_item", "accuracy"} <= set(frontier.columns):
         _show_chart(
@@ -239,6 +328,20 @@ def _g5_metrics(frontier: pd.DataFrame, threshold: float) -> None:
     columns[2].metric("Escalation rate", formatting.pct(float(row["escalation_rate"])))
 
 
+def _g5_caption(frontier: pd.DataFrame, threshold: float) -> None:
+    """Read the chosen frontier row and describe the cascade in one plain sentence."""
+    match = frontier[frontier["t"] == threshold]
+    if match.empty:
+        return
+    row = match.iloc[0]
+    st.caption(
+        f"At t = {threshold:.2f} the cascade sends "
+        f"{formatting.pct(float(row['escalation_rate']))} of items to the slow judge "
+        f"and costs ${float(row['cost_per_item']):.4f} per item for "
+        f"{formatting.pct(float(row['accuracy']))} accuracy."
+    )
+
+
 def _g6_tab(paths: data.Paths) -> None:
     """Score judge probability signals against the truth and recalibrate on demand."""
     st.caption(_G6_MEASURE)
@@ -248,6 +351,7 @@ def _g6_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G6 scores how well each judge's probabilities track the truth.",
             "judges analyze --gate g6 --variant baseline --variant degraded",
+            run_step=_ANALYZE_STEP,
         )
         return
 
@@ -257,6 +361,7 @@ def _g6_tab(paths: data.Paths) -> None:
         components.empty_state(
             "G6 found no scorable probability signals in the cached verdicts.",
             "judges analyze --gate g6 --variant baseline --variant degraded",
+            run_step=_ANALYZE_STEP,
         )
         return
 
@@ -322,6 +427,7 @@ def _g9_tab(paths: data.Paths) -> None:
             "and scores it against the owner's hand labels; label failures on the Label page "
             "first.",
             "judges judge --gate g9 --variant baseline",
+            run_step=_JUDGE_STEP,
         )
         return
     st.caption("Single annotator; see the findings.")
@@ -355,6 +461,7 @@ def _g7_tab(paths: data.Paths) -> None:
             "G7 measures whether an injected evaluator-directed sentence flips a fail "
             "verdict to pass.",
             "judges judge --gate g7 --variant baseline --variant degraded",
+            run_step=_JUDGE_STEP,
         )
         return
     if summary is not None:

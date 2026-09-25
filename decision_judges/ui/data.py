@@ -240,6 +240,16 @@ def load_chart_path(paths: Paths, name: str) -> Path | None:
     return path if path.is_file() else None
 
 
+_GATE_IDS: tuple[str, ...] = tuple(f"g{index}" for index in range(1, 11))
+
+
+def gate_results_present(paths: Paths) -> list[tuple[str, bool]]:
+    """Return each gate id G1..G10 paired with whether its summary CSV exists."""
+    return [
+        (gate.upper(), (paths.results_dir / f"{gate}_summary.csv").is_file()) for gate in _GATE_IDS
+    ]
+
+
 @st.cache_data(show_spinner=False)
 def _load_items_and_verdicts(
     cache_dir: str, profile: str, _fingerprint: str

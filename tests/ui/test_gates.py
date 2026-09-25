@@ -129,7 +129,9 @@ def test_g7_tab_shows_summary_and_one_flip_link(
     summaries = [df.value for df in at.dataframe if "placement" in df.value.columns]
     assert any("final_message" in list(frame["placement"]) for frame in summaries)
 
-    links = [md.value for md in at.markdown if "/trajectories?" in md.value]
+    links = [
+        md.value for md in at.markdown if "/trajectories?" in md.value and "injection=" in md.value
+    ]
     assert len(links) == 1
     assert "variant=baseline" in links[0]
     assert "task=retail-1" in links[0]
@@ -154,3 +156,44 @@ def test_empty_tree_shows_empty_states_without_exception(
     assert not at.exception
     assert [tab.label for tab in at.tabs] == _TAB_LABELS
     assert at.code, "empty gate tabs should show the CLI command that fills them"
+
+
+def _rendered(at: AppTest) -> str:
+    """Return concatenated markdown and html text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("markdown"), *at.get("html")])
+
+
+def test_gates_has_flow_strip_and_next_link(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, _UI_ROOT)
+    assert not at.exception
+    assert 'class="flow-strip"' in _rendered(at)
+    assert "Next: [Label](/label)" in _markdown(at)
+
+
+def test_gates_every_tab_has_a_how_to_read_expander(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, _UI_ROOT)
+    assert not at.exception
+    how_to_read = [e for e in at.expander if e.label == "How to read this"]
+    assert len(how_to_read) == len(_TAB_LABELS)
+
+
+def test_gates_show_one_example_link_per_tab(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, _UI_ROOT)
+    assert not at.exception
+    examples = [md.value for md in at.markdown if "See one example" in md.value]
+    assert len(examples) == len(_TAB_LABELS)
+    assert all("task=retail-0" in link for link in examples)
+
+
+def test_g5_caption_mentions_cost(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    tree = _relabeled_tree(_UI_ROOT, tmp_path / "tree", {"code": "jev", "fake": "llm_strong"})
+    at = _run(monkeypatch, tmp_path, tree)
+    assert not at.exception
+    captions = [c.value for c in at.caption]
+    assert any("the cascade sends" in caption and "$" in caption for caption in captions)

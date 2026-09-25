@@ -3,12 +3,17 @@
 from collections.abc import Sequence
 from functools import lru_cache
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import streamlit as st
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 from decision_judges import __version__
 from decision_judges.ui.views import Turn
+
+if TYPE_CHECKING:
+    from decision_judges.ui import data
+    from decision_judges.ui.flow import Station
 
 _ASSETS = Path(__file__).parent / "assets"
 LOGO = _ASSETS / "kayzn-logo.png"
@@ -44,12 +49,34 @@ _FOOTER = (
 )
 
 
-def page_header(title: str, purpose: str, breadcrumb: Sequence[str] = ()) -> None:
-    """Render a page title, a one-line muted purpose, and an optional breadcrumb."""
+def page_header(
+    title: str, purpose: str, breadcrumb: Sequence[str] = (), why: str | None = None
+) -> None:
+    """Render a page title, a one-line muted purpose, an optional why line and breadcrumb."""
     st.title(title)
     st.caption(purpose)
+    if why:
+        why_line(why)
     if breadcrumb:
         st.caption(" / ".join(breadcrumb))
+
+
+def why_line(text: str) -> None:
+    """Render a muted one-line note on why the current page exists."""
+    st.caption(f"Why this page exists: {text}")
+
+
+def flow_context(paths: "data.Paths", station: "Station | None") -> None:
+    """Render the compact pipeline strip with one station marked active."""
+    from decision_judges.ui import flow
+
+    flow.strip(paths, active=station, compact=True)
+
+
+def next_link(label: str, path: str, hint: str) -> None:
+    """Render a link to the next page above the footer with a muted hint sentence."""
+    st.markdown(f"Next: [{label}]({path})")
+    st.caption(hint)
 
 
 def footer() -> None:
@@ -58,10 +85,33 @@ def footer() -> None:
     st.markdown(_FOOTER)
 
 
-def empty_state(what: str, command: str) -> None:
-    """State what a view will show and the command that produces it."""
+def empty_state(what: str, command: str, run_step: int | None = None) -> None:
+    """State what a view will show and how to produce it.
+
+    Without a run step the CLI command sits inline. With one, the view points to
+    the matching step on the Run page and folds the command into an expander so
+    it stays available without competing with the primary call to action.
+    """
     st.caption(what)
-    st.code(command, language="bash")
+    if run_step is None:
+        st.code(command, language="bash")
+        return
+    st.markdown(f"[Run step {run_step} on the Run page](/run) to produce this.")
+    with st.expander("Command line"):
+        st.code(command, language="bash")
+
+
+def how_to_read(rows: Sequence[tuple[str, str]]) -> None:
+    """Show a plain-word key to a table's columns in a collapsible panel."""
+    with st.expander("How to read this"):
+        lines = ["| Column | Meaning |", "| --- | --- |"]
+        lines += [f"| {name} | {meaning} |" for name, meaning in rows]
+        st.markdown("\n".join(lines))
+
+
+def keyboard_hint(text: str) -> None:
+    """Render a small caption describing an optional keyboard shortcut."""
+    st.caption(text)
 
 
 def metric_row(items: Sequence[tuple[str, str]]) -> None:

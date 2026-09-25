@@ -1,19 +1,34 @@
 """Trajectories page: one run's conversation beside its ground truth and verdicts."""
 
 import json
+from typing import Any
 
 import pandas as pd
 import streamlit as st
 
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
+from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.serialize import Injection, StateRecord
 from decision_judges.types import Verdict
 from decision_judges.ui import components, data, formatting, views
+from decision_judges.ui.flow import Station
 
 _DEFAULT_PROFILE = "full"
 _DEFAULT_INJECTION = "none"
 _PURPOSE = "Read one agent run beside its ground truth and every judge's verdict."
+_WHY = "Seeing one run end to end makes the aggregate gate numbers concrete."
+_NEXT_HINT = "The gates turn many runs like this one into one score per judge."
+_JUDGE_VIEW = "Show only what the judge saw"
+_JUDGE_VIEW_CAPTION = (
+    "The judge never sees the reward or the expected actions; a guard refuses to serialize them."
+)
+_LEGEND = (
+    "✓ expected action, ✗ not among the expected actions; percentages are each "
+    "judge's probability that the call was necessary and that its arguments were "
+    "consistent."
+)
+_HELP_QUESTIONS = ("verdict", "completed")
 
 
 def render() -> None:
@@ -25,9 +40,11 @@ def render() -> None:
         grouped = data.verdicts_by_state(data.load_verdicts(paths))
     tasks = data.load_tasks_for_ui(paths)
 
-    components.page_header("Trajectories", _PURPOSE)
+    components.page_header("Trajectories", _PURPOSE, why=_WHY)
+    components.flow_context(paths, Station.judge_text)
     if not records:
         st.caption("No agent runs are available yet.")
+        components.next_link("Gates", "/gates", _NEXT_HINT)
         components.footer()
         return
 
@@ -50,23 +67,53 @@ def render() -> None:
     step_frames = views.step_scores(steps, grouped)
     expected = views.expected_step_flags(task, record) if task is not None else None
 
+    judge_view = st.toggle(_JUDGE_VIEW, value=False, key="judge_view")
     conversation, ground_truth = st.columns([3, 2])
     with conversation:
-        _conversation(record, step_frames, expected, sentence)
+        if judge_view:
+            _judge_view(state)
+        else:
+            _conversation(record, step_frames, expected, sentence)
+            if any(not frame.empty for frame in step_frames.values()):
+                st.caption(_LEGEND)
     with ground_truth:
         _ground_truth(record, task)
     _verdicts(state, grouped)
+    components.next_link("Gates", "/gates", _NEXT_HINT)
     components.footer()
 
 
-def _dataframe(frame: pd.DataFrame) -> None:
-    """Render a table with formatted columns and no index."""
-    st.dataframe(
-        frame,
-        column_config=formatting.column_config_for(frame),
-        hide_index=True,
-        use_container_width=True,
-    )
+def _judge_view(state: StateRecord | None) -> None:
+    """Render the serialized text the judge reads, with a note on what it omits."""
+    st.subheader("Conversation")
+    if state is None:
+        st.caption("No serialized state for this selection.")
+        return
+    with st.container(height=600):
+        st.text(state.text)
+    st.caption(_JUDGE_VIEW_CAPTION)
+
+
+def _outcome_help() -> dict[str, str]:
+    """Return the outcome question texts keyed by id, for verdict-table tooltips."""
+    return {
+        question.id: question.text
+        for question in G3Outcome().questions()
+        if question.id in _HELP_QUESTIONS
+    }
+
+
+def _verdict_config(frame: pd.DataFrame) -> dict[str, Any]:
+    """Return the verdict-table column config with the question texts as help."""
+    config: dict[str, Any] = dict(formatting.column_config_for(frame))
+    helps = _outcome_help()
+    if "verdict" in frame.columns:
+        config["verdict"] = st.column_config.TextColumn("Verdict", help=helps.get("verdict"))
+    if "completed" in frame.columns:
+        config["completed"] = st.column_config.NumberColumn(
+            "Completed", format="%.3f", width="small", help=helps.get("completed")
+        )
+    return config
 
 
 def _actions_table(frame: pd.DataFrame) -> None:
@@ -279,4 +326,10 @@ def _verdicts(state: StateRecord | None, grouped: dict[str, list[Verdict]]) -> N
     if not matching:
         st.caption("No verdicts for this state.")
         return
-    _dataframe(views.verdict_rows(matching))
+    frame = views.verdict_rows(matching)
+    st.dataframe(
+        frame,
+        column_config=_verdict_config(frame),
+        hide_index=True,
+        use_container_width=True,
+    )
