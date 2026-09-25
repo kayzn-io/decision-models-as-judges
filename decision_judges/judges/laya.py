@@ -118,6 +118,8 @@ def answer_for(question: Question, probs: Sequence[float]) -> Answer:
 class LayaJudge:
     """Answers typed questions with a local Laya decision model."""
 
+    paid = False
+
     def __init__(
         self,
         model: LayaModelLike,

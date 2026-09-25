@@ -20,7 +20,6 @@ from decision_judges.spend import Reservation, Spend
 from decision_judges.types import Question, Verdict
 
 _OUTPUT_TOKEN_ESTIMATE = 500
-_UNPRICED_MODEL_ID = "none"
 
 
 class Item(BaseModel):
@@ -174,8 +173,8 @@ class Gate(ABC):
         return verdict
 
     def _reserve(self, judge: Judge, item: Item, spend: Spend) -> Reservation | None:
-        """Reserve estimated spend for a priced judge, or nothing for an unpriced one."""
-        if judge.model_id == _UNPRICED_MODEL_ID:
+        """Reserve estimated spend for a paid judge, or nothing for a local one."""
+        if not judge.paid:
             return None
         est_input, est_output = self._estimate(item)
         return spend.reserve(self.stage, judge.model_id, est_input, est_output)

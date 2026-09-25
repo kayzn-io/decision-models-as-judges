@@ -22,6 +22,9 @@ class Judge(Protocol):
     judge_id: str
     model_id: str
     prompt_version: str
+    paid: bool
+    """True when each call bills a provider and must be reserved against the stage
+    cap; false for judges that run locally or deterministically."""
 
     def judge(self, state: HasStateText, questions: Sequence[Question], repeat: int) -> Verdict: ...
 

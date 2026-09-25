@@ -102,10 +102,12 @@ class FakeJudge:
         decide: Callable[[str, int], tuple[str | None, str | None]],
         *,
         usage: Usage | None = None,
+        paid: bool = True,
     ) -> None:
         self.judge_id = judge_id
         self.model_id = model_id
         self.prompt_version = prompt_version
+        self.paid = paid
         self._decide = decide
         self._usage = usage
         self.calls: list[tuple[str, int]] = []
@@ -132,8 +134,8 @@ def _spend(tmp_path: Path, caps: dict[str, float]) -> Spend:
 def test_run_calls_each_judge_items_times_repeats_then_zero_on_warm(tmp_path: Path) -> None:
     truth = {"h0": "pass", "h1": "fail", "h2": "pass"}
     items = [_item(h, label) for h, label in truth.items()]
-    ja = FakeJudge("a", "none", "pv-a", _perfect(truth))
-    jb = FakeJudge("b", "none", "pv-b", _perfect(truth))
+    ja = FakeJudge("a", "none", "pv-a", _perfect(truth), paid=False)
+    jb = FakeJudge("b", "none", "pv-b", _perfect(truth), paid=False)
     cache = Cache(tmp_path / "cache")
     spend = _spend(tmp_path, {"g3": 0.0})
     gate = G3Outcome()
@@ -144,8 +146,8 @@ def test_run_calls_each_judge_items_times_repeats_then_zero_on_warm(tmp_path: Pa
     assert len(ja.calls) == 6
     assert len(jb.calls) == 6
 
-    ja2 = FakeJudge("a", "none", "pv-a", _perfect(truth))
-    jb2 = FakeJudge("b", "none", "pv-b", _perfect(truth))
+    ja2 = FakeJudge("a", "none", "pv-a", _perfect(truth), paid=False)
+    jb2 = FakeJudge("b", "none", "pv-b", _perfect(truth), paid=False)
     warm = gate.run(items, [ja2, jb2], cache, spend, repeats=2)
 
     assert len(warm) == 12
@@ -156,8 +158,8 @@ def test_run_calls_each_judge_items_times_repeats_then_zero_on_warm(tmp_path: Pa
 def test_run_verdict_order_is_deterministic(tmp_path: Path) -> None:
     truth = {"h2": "pass", "h0": "fail", "h1": "pass"}
     items = [_item(h, label) for h, label in truth.items()]
-    ja = FakeJudge("b", "none", "pv", _perfect(truth))
-    jb = FakeJudge("a", "none", "pv", _perfect(truth))
+    ja = FakeJudge("b", "none", "pv", _perfect(truth), paid=False)
+    jb = FakeJudge("a", "none", "pv", _perfect(truth), paid=False)
     cache = Cache(tmp_path / "cache")
     spend = _spend(tmp_path, {"g3": 0.0})
 
@@ -189,7 +191,7 @@ def test_priced_judge_reserves_and_settles_per_miss(tmp_path: Path) -> None:
 def test_code_style_judge_records_no_spend(tmp_path: Path) -> None:
     truth = {"h0": "pass", "h1": "fail", "h2": "pass"}
     items = [_item(h, label) for h, label in truth.items()]
-    judge = FakeJudge("code", "none", "code-1", _perfect(truth))
+    judge = FakeJudge("code", "none", "code-1", _perfect(truth), paid=False)
     cache = Cache(tmp_path / "cache")
     spend = _spend(tmp_path, {"g3": 0.0})
 
@@ -223,8 +225,8 @@ def test_spend_cap_exceeded_propagates_and_cancels_cleanly(tmp_path: Path) -> No
 def test_per_judge_repeats_mapping_is_honored(tmp_path: Path) -> None:
     truth = {"h0": "pass", "h1": "fail", "h2": "pass"}
     items = [_item(h, label) for h, label in truth.items()]
-    jev = FakeJudge("jev", "none", "pv-jev", _perfect(truth))
-    llm = FakeJudge("llm", "none", "pv-llm", _perfect(truth))
+    jev = FakeJudge("jev", "none", "pv-jev", _perfect(truth), paid=False)
+    llm = FakeJudge("llm", "none", "pv-llm", _perfect(truth), paid=False)
     cache = Cache(tmp_path / "cache")
     spend = _spend(tmp_path, {"g3": 0.0})
 

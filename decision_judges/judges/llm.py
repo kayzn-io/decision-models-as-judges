@@ -268,6 +268,7 @@ class LlmJudge:
     judge_id: str
     model_id: str
     prompt_version: str
+    paid = True
 
     def __init__(
         self,

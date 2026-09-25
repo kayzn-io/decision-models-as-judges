@@ -237,6 +237,7 @@ class _RaisingJudge:
     judge_id = "raiser"
     model_id = "none"
     prompt_version = "pv"
+    paid = False
 
     def judge(self, state: HasStateText, questions: Sequence[Question], repeat: int) -> Verdict:  # noqa: ARG002
         raise ValueError("cannot answer failure_type")

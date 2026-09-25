@@ -91,6 +91,7 @@ class CodeJudge:
     judge_id = "code"
     model_id = "none"
     prompt_version = "code-1"
+    paid = False
 
     def __init__(self, tasks: Mapping[str, Task], records: Mapping[str, AgentRecord]) -> None:
         self._tasks = tasks

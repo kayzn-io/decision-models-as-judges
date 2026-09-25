@@ -136,6 +136,8 @@ def from_sdk_answers(questions: Sequence[Question], response: SystemOneResponse)
 class JevJudge:
     """A judge that answers typed questions through the TypeSafe decision API."""
 
+    paid = True
+
     def __init__(
         self,
         model_id: str,

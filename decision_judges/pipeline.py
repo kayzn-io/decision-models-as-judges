@@ -201,6 +201,7 @@ class FakeJudge:
     """
 
     model_id = _UNPRICED_MODEL_ID
+    paid = False
 
     def __init__(self, *, judge_id: str = "fake", prompt_version: str = "fake-1") -> None:
         self.judge_id = judge_id

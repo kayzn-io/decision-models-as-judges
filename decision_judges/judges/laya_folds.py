@@ -62,6 +62,7 @@ class FoldRoutedLayaJudge:
     """Route each state to the fine-tuned Laya checkpoint that held its task out."""
 
     judge_id = "laya_ft"
+    paid = False
 
     def __init__(
         self,
