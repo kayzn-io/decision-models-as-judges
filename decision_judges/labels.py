@@ -1,0 +1,91 @@
+"""Human taxonomy labels for failing trajectories and a JSONL store.
+
+The store is append-only and intended for a single writer: each label is one
+JSON line, so appends never rewrite prior lines and a crash mid-write leaves at
+most one partial trailing line that ``load`` skips.
+"""
+
+from datetime import UTC, datetime
+from pathlib import Path
+
+from pydantic import BaseModel, Field, field_validator
+
+TAXONOMY: tuple[str, ...] = (
+    "wrong_or_missing_action",
+    "unrequested_write",
+    "skipped_confirmation",
+    "identity_not_verified",
+    "wrong_arguments",
+    "premature_end",
+    "policy_misapplied",
+    "other",
+)
+
+_STORE_RELATIVE = Path("labels") / "taxonomy.jsonl"
+
+
+def _now_iso() -> str:
+    """Return the current UTC time as an ISO 8601 string."""
+    return datetime.now(UTC).isoformat()
+
+
+class Label(BaseModel):
+    """One human label attached to a ``(variant, task_id)`` trajectory."""
+
+    variant: str
+    task_id: str
+    label: str
+    note: str = ""
+    labeler: str = "owner"
+    created_at: str = Field(default_factory=_now_iso)
+
+    @field_validator("label")
+    @classmethod
+    def _known_label(cls, value: str) -> str:
+        """Reject a label that is not one of the taxonomy members."""
+        if value not in TAXONOMY:
+            raise ValueError(f"unknown label: {value!r}")
+        return value
+
+
+class LabelStore:
+    """A JSONL-backed store of labels rooted at one file path."""
+
+    def __init__(self, path: Path) -> None:
+        self.path = path
+
+    @classmethod
+    def under(cls, data_dir: Path) -> "LabelStore":
+        """Return a store at the default path under a data directory."""
+        return cls(data_dir / _STORE_RELATIVE)
+
+    def append(self, label: Label) -> None:
+        """Append one label as a JSON line, creating the file when absent."""
+        self.path.parent.mkdir(parents=True, exist_ok=True)
+        with self.path.open("a", encoding="utf-8") as handle:
+            handle.write(label.model_dump_json() + "\n")
+            handle.flush()
+
+    def load(self) -> list[Label]:
+        """Return every stored label in file order, skipping blank lines."""
+        if not self.path.is_file():
+            return []
+        labels: list[Label] = []
+        for line in self.path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                labels.append(Label.model_validate_json(line))
+        return labels
+
+    def latest(self) -> dict[tuple[str, str], Label]:
+        """Return the newest label per ``(variant, task_id)`` by ``created_at``."""
+        newest: dict[tuple[str, str], Label] = {}
+        for label in self.load():
+            key = (label.variant, label.task_id)
+            current = newest.get(key)
+            if current is None or label.created_at >= current.created_at:
+                newest[key] = label
+        return newest
+
+    def progress(self, target: int = 50) -> tuple[int, int]:
+        """Return the count of distinct labeled pairs and the target."""
+        return len(self.latest()), target

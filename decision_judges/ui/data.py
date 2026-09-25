@@ -21,6 +21,7 @@ from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.config import PricingTable, StudyConfig, load_pricing, load_study
 from decision_judges.gates.base import Gate, Item
+from decision_judges.labels import LabelStore
 from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.spend import Ledger
 from decision_judges.types import Verdict
@@ -360,6 +361,21 @@ def total_spend(ledger: Ledger | None) -> float:
 def is_local() -> bool:
     """Return whether the app runs in local mode that enables writing pages."""
     return os.environ.get("JUDGES_LOCAL") == "1"
+
+
+def labels_store(paths: Paths) -> LabelStore:
+    """Return the writable label store under the data directory.
+
+    This is deliberately uncached: the store writes, so callers need the live
+    file rather than a memoized snapshot.
+    """
+    return LabelStore.under(paths.data_dir)
+
+
+def failing_trajectories(paths: Paths) -> list[tuple[str, str]]:
+    """Return the ``(variant, task_id)`` pairs of runs that did not fully pass."""
+    records = load_agent_records(paths)
+    return sorted(key for key, record in records.items() if record.reward < 1.0)
 
 
 def frontier_chart(paths: Paths) -> Path | None:
