@@ -11,6 +11,7 @@ from datetime import datetime
 
 import streamlit as st
 
+from decision_judges.bench.run_agent import MissingCredentials
 from decision_judges.runner import StepAlreadyRunning, StepRunner
 from decision_judges.ui import components, data, flow, keys, steps
 from decision_judges.ui.steps import RunContext, RunStep, StepStatus
@@ -344,7 +345,7 @@ def _finished_panel(step: RunStep, paths: data.Paths, status: object) -> None:
     """Render the error, or the settled success line, findings, and Gates link."""
     error = getattr(status, "error", None)
     if error:
-        st.error(error)
+        st.error(_plain_error(error))
         return
     cancelled = getattr(status, "cancelled", False)
     word = "cancelled" if cancelled else "done"
@@ -355,6 +356,14 @@ def _finished_panel(step: RunStep, paths: data.Paths, status: object) -> None:
     components.page_link("/gates", "See the experiments")
     if not cancelled:
         _maybe_balloons(step)
+
+
+def _plain_error(error: str) -> str:
+    """Return a missing-credentials error without its exception type prefix."""
+    prefix = f"{MissingCredentials.__name__}: "
+    if error.startswith(prefix):
+        return error[len(prefix) :]
+    return error
 
 
 def _step_findings(step: RunStep, paths: data.Paths) -> str:

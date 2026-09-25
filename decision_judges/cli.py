@@ -339,7 +339,11 @@ def run_agent(
     tasks = bench_load.load_tasks()
     runner = run_agent_mod.build_tau_runner(study_config, checked_variant)
     concurrency = study_config.concurrency.get("llm", 4)
-    summary = run_agent_mod.run_variant(
-        checked_variant, tasks, runner, spend, out_dir, concurrency=concurrency
-    )
+    try:
+        summary = run_agent_mod.run_variant(
+            checked_variant, tasks, runner, spend, out_dir, concurrency=concurrency
+        )
+    except run_agent_mod.MissingCredentials as exc:
+        typer.echo(str(exc))
+        raise typer.Exit(code=2) from exc
     typer.echo(summary.model_dump_json())

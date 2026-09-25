@@ -34,9 +34,11 @@ Package facts (tau-bench @ git 59a200c):
 
 import json
 import os
+import re
 import threading
 from collections.abc import Sequence
 from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -68,6 +70,47 @@ CONFIRMATION_RULE = (
 # over-estimate that settlement later corrects to the observed usage.
 EST_INPUT_TOKENS = 60_000
 EST_OUTPUT_TOKENS = 4_000
+
+
+class MissingCredentials(RuntimeError):
+    """Raised before any task runs when the API key is missing or empty."""
+
+
+_CONFIG_MARKERS = ("credentials", "api key", "authentication", "missing credentials")
+_TRANSIENT_MARKERS = (
+    "timeout",
+    "timed out",
+    "connection",
+    "internalservererror",
+    "serviceunavailable",
+    "ratelimit",
+    "rate limit",
+)
+
+
+def _classify_text(text: str) -> Literal["config", "transient", "task"]:
+    """Classify failure text: config first, then transient, otherwise task."""
+    lowered = text.lower()
+    if any(marker in lowered for marker in _CONFIG_MARKERS) or re.search(r"\b(401|403)\b", lowered):
+        return "config"
+    if re.search(r"\b(429|5\d\d)\b", lowered) or any(
+        marker in lowered for marker in _TRANSIENT_MARKERS
+    ):
+        return "transient"
+    return "task"
+
+
+def classify_failure(exc: BaseException) -> Literal["config", "transient", "task"]:
+    """Return the class of a run failure.
+
+    'config' marks a missing or bad credential or authorization failure, which a
+    rerun with a working key fixes. 'transient' marks a timeout, dropped
+    connection, rate limit, or server error, which a later rerun may clear.
+    'task' marks a genuine task-level failure such as an environment exception.
+    Only 'task' failures are recorded as exclusions; the rest leave the task
+    pending for the next run.
+    """
+    return _classify_text(f"{type(exc).__name__}: {exc}")
 
 
 class RawRunResult(BaseModel):
@@ -104,6 +147,8 @@ class RunSummary(BaseModel):
     skipped_existing: int
     pass_rate: float
     stopped_reason: str | None = None
+    failed_transient: int = 0
+    failed_config: int = 0
 
 
 class TaskRunner(Protocol):
@@ -159,9 +204,18 @@ class _TauRunner:
         self._provider = "openai"
         self._temperature = 0.0
         self._base_url = study.llm_base_url
+        self._key_env = "OPENROUTER_API_KEY"
         self.policy = WIKI if variant == "baseline" else degraded_policy(WIKI)
         os.environ["OPENAI_BASE_URL"] = self._base_url
         os.environ["OPENAI_API_BASE"] = self._base_url
+
+    def preflight(self) -> None:
+        """Fail before any task when the API key is missing, naming how to set it."""
+        if not os.environ.get(self._key_env):
+            raise MissingCredentials(
+                f"{self._key_env} is not set. Set it in the app sidebar or run "
+                f"export {self._key_env}=... before this step."
+            )
 
     def __call__(self, task_index: int, policy: str) -> RawRunResult:
         from tau_bench.agents.tool_calling_agent import ToolCallingAgent
@@ -206,13 +260,26 @@ def _record_path(out_dir: Path, variant: Variant, task_id: str) -> Path:
 
 
 def _load_existing(path: Path) -> AgentRecord | None:
-    """Return the record already at path if it validates, else None."""
+    """Return the record at path when it counts as done, else None.
+
+    A completed record (``excluded is False``) always counts. An excluded record
+    counts only when its stored reason classifies as a 'task' failure, a genuine
+    task-level exclusion. A record excluded for a 'config' or 'transient' reason
+    does not count, so a rerun with a working key or a cleared outage runs that
+    task again instead of treating the earlier failure as permanent.
+    """
     if not path.is_file():
         return None
     try:
-        return AgentRecord.model_validate_json(path.read_text())
+        record = AgentRecord.model_validate_json(path.read_text())
     except (ValueError, OSError):
         return None
+    if not record.excluded:
+        return record
+    reason = record.exclusion_reason or ""
+    if reason and _classify_text(reason) == "task":
+        return record
+    return None
 
 
 def _write_record(path: Path, record: AgentRecord) -> None:
@@ -270,6 +337,26 @@ def _excluded_record(
     )
 
 
+@dataclass
+class _RunOutcome:
+    """The outcome of one task: its written record, if any, and failure class."""
+
+    task_id: str
+    record: AgentRecord | None
+    failure_class: Literal["config", "transient", "task"] | None
+    message: str
+    reward: float
+
+
+def _progress_label(outcome: _RunOutcome) -> str:
+    """Return the short progress label for one task outcome."""
+    if outcome.failure_class == "task":
+        return "excluded"
+    if outcome.failure_class is not None:
+        return outcome.failure_class
+    return "pass" if outcome.reward >= 1.0 else "fail"
+
+
 def run_variant(
     variant: Variant,
     tasks: list[Task],
@@ -284,13 +371,18 @@ def run_variant(
 ) -> RunSummary:
     """Run every not-yet-recorded task under one policy variant, resumably.
 
-    Reserve spend before each run, run tasks concurrently, settle with the
-    runner's reported token estimate, and write each record atomically. A
-    runner exception excludes that task and logs it; a spend cap stops
-    scheduling new tasks while in-flight ones finish. When ``on_progress`` is
-    given, a snapshot is reported as each task completes; when ``cancel`` is
-    set, no new tasks are scheduled, in-flight tasks finish, and the summary
-    records a ``cancelled`` stop.
+    Before any task is submitted, an optional ``preflight`` hook on the runner
+    may raise :class:`MissingCredentials` to stop the run before it spends
+    anything. Reserve spend before each run, run tasks concurrently, settle with
+    the runner's reported token estimate, and write each record atomically.
+
+    A task-level failure excludes that task and logs it. A 'config' or
+    'transient' failure is not written to disk: it is counted in the summary and
+    leaves the task pending for the next run. When the first three completed
+    tasks all fail for a 'config' or 'transient' reason, scheduling stops and the
+    summary records an aborted stop so a broken setup ends in seconds. A spend
+    cap stops scheduling new tasks while in-flight ones finish; a cancel token
+    does the same and records a cancelled stop.
     """
     (out_dir / variant).mkdir(parents=True, exist_ok=True)
 
@@ -302,19 +394,28 @@ def run_variant(
         else:
             pending.append(task)
 
+    preflight = getattr(runner, "preflight", None)
+    if pending and preflight is not None:
+        preflight()
+
     lock = threading.Lock()
 
-    def _run_task(task: Task, reservation: Reservation) -> AgentRecord:
+    def _run_task(task: Task, reservation: Reservation) -> _RunOutcome:
         path = _record_path(out_dir, variant, task.task_id)
         try:
             raw = runner(_task_index(task.task_id), runner.policy)
-        except Exception as exc:  # noqa: BLE001 - any failure excludes one task
+        except Exception as exc:  # noqa: BLE001 - classified, not always excluded
+            failure = classify_failure(exc)
+            message = f"{type(exc).__name__}: {exc}"
             with lock:
                 spend.cancel(reservation)
-                _append_exclusion(out_dir, variant, task.task_id, f"{type(exc).__name__}: {exc}")
+            if failure != "task":
+                return _RunOutcome(task.task_id, None, failure, message, 0.0)
+            with lock:
+                _append_exclusion(out_dir, variant, task.task_id, message)
             record = _excluded_record(variant, task, runner, exc)
             _write_record(path, record)
-            return record
+            return _RunOutcome(task.task_id, record, "task", message, 0.0)
         with lock:
             spend.settle(
                 reservation,
@@ -322,20 +423,23 @@ def run_variant(
             )
         record = _completed_record(variant, task, runner, raw)
         _write_record(path, record)
-        return record
+        return _RunOutcome(task.task_id, record, None, "", raw.reward)
 
     total = len(pending)
     started_at = utc_now_iso()
     stopped_reason: str | None = None
-    records: list[AgentRecord] = []
+    outcomes: list[_RunOutcome] = []
 
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
         queue = list(pending)
         index = 0
-        in_flight: set[Future[AgentRecord]] = set()
+        aborted = False
+        in_flight: set[Future[_RunOutcome]] = set()
 
         def submit_more() -> None:
             nonlocal index, stopped_reason
+            if aborted:
+                return
             while len(in_flight) < concurrency and index < len(queue):
                 if cancel is not None and cancel.is_cancelled:
                     stopped_reason = stopped_reason or "cancelled"
@@ -357,29 +461,34 @@ def run_variant(
             done, _ = wait(in_flight, return_when=FIRST_COMPLETED)
             for future in done:
                 in_flight.discard(future)
-                record = future.result()
-                records.append(record)
+                outcome = future.result()
+                outcomes.append(outcome)
+                if (
+                    not aborted
+                    and len(outcomes) >= 3
+                    and all(item.failure_class in ("config", "transient") for item in outcomes[:3])
+                ):
+                    aborted = True
+                    stopped_reason = f"aborted: the first 3 tasks failed with {outcomes[0].message}"
                 if on_progress is not None:
-                    if record.excluded:
-                        label = "excluded"
-                    else:
-                        label = "pass" if record.reward >= 1.0 else "fail"
                     on_progress(
                         Progress(
                             step_id=stage,
-                            done=len(records),
+                            done=len(outcomes),
                             total=total,
                             spent_usd=spend.spent(stage),
                             cap_usd=spend.cap(stage),
-                            last_item=f"{record.task_id} · {label}",
+                            last_item=f"{outcome.task_id} · {_progress_label(outcome)}",
                             started_at=started_at,
                         )
                     )
             submit_more()
 
-    completed = sum(1 for record in records if not record.excluded)
-    excluded = sum(1 for record in records if record.excluded)
-    rewards = [record.reward for record in records if not record.excluded]
+    completed = sum(1 for o in outcomes if o.record is not None and not o.record.excluded)
+    excluded = sum(1 for o in outcomes if o.record is not None and o.record.excluded)
+    failed_config = sum(1 for o in outcomes if o.failure_class == "config")
+    failed_transient = sum(1 for o in outcomes if o.failure_class == "transient")
+    rewards = [o.reward for o in outcomes if o.record is not None and not o.record.excluded]
     pass_rate = sum(rewards) / len(rewards) if rewards else 0.0
     return RunSummary(
         variant=variant,
@@ -388,4 +497,6 @@ def run_variant(
         skipped_existing=skipped,
         pass_rate=pass_rate,
         stopped_reason=stopped_reason,
+        failed_transient=failed_transient,
+        failed_config=failed_config,
     )
