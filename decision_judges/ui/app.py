@@ -18,13 +18,14 @@ _Render = Callable[[], None]
 _SHARED_PAGES: list[tuple[str, _Render]] = [
     ("Overview", overview.render),
     ("Trajectories", trajectories.render),
-    ("Gates", gates.render),
+    ("Experiments", gates.render),
 ]
 _LOCAL_PAGES: list[tuple[str, _Render]] = [
     ("Label", label.render),
     ("Live", live.render),
 ]
 _RUN_PAGE: tuple[str, _Render] = ("Run", run.render)
+_URL_PATHS = {"Experiments": "gates"}
 
 
 def page_specs(local: bool) -> list[str]:
@@ -50,7 +51,9 @@ def _ordered_pages(local: bool) -> list[tuple[str, _Render]]:
 def build_pages(local: bool) -> list[StreamlitPage]:
     """Build the navigation pages, with the Run page second in local mode."""
     pages = [
-        st.Page(render, title=title, url_path=title.lower(), default=index == 0)
+        st.Page(
+            render, title=title, url_path=_URL_PATHS.get(title, title.lower()), default=index == 0
+        )
         for index, (title, render) in enumerate(_ordered_pages(local))
     ]
     components.register_pages({page.url_path: page for page in pages})

@@ -94,11 +94,13 @@ def page_link(
 
     When the destination page is registered this run, the link switches pages
     through Streamlit so the sidebar highlights it, carrying any query
-    parameters. Otherwise it falls back to a same-tab anchor, which the per-page
-    test harness relies on since it registers no pages.
+    parameters. A primary call to action always renders as the styled same-tab
+    anchor, since Streamlit's page link has no button styling. The anchor is
+    also the fallback when no page is registered, which the per-page test
+    harness relies on.
     """
     page = _live_page(path.lstrip("/"))
-    if page is not None:
+    if page is not None and not primary:
         st.page_link(
             page,
             label=label,

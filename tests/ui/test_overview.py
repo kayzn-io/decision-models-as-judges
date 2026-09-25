@@ -138,13 +138,13 @@ def test_overview_details_expander_holds_the_roster(app_test: AppTest) -> None:
 
 
 def test_navigation_lists_shared_pages_only_when_not_local() -> None:
-    assert page_specs(False) == ["Overview", "Trajectories", "Gates"]
+    assert page_specs(False) == ["Overview", "Trajectories", "Experiments"]
     assert "Label" not in page_specs(False)
     assert "Live" not in page_specs(False)
 
 
 def test_navigation_adds_local_pages_when_local() -> None:
-    assert page_specs(True) == ["Overview", "Run", "Trajectories", "Gates", "Label", "Live"]
+    assert page_specs(True) == ["Overview", "Run", "Trajectories", "Experiments", "Label", "Live"]
 
 
 def test_mode_caption_by_mode() -> None:
