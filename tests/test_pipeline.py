@@ -9,12 +9,17 @@ import pytest
 from decision_judges import pipeline
 from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
-from decision_judges.config import StudyConfig, load_study
+from decision_judges.config import StudyConfig, load_pricing, load_study
+from decision_judges.gates.g5_cascade import G5Cascade
+from decision_judges.gates.g6_calibration import G6Calibration
+from decision_judges.gates.g8_regression import G8Regression
 from decision_judges.serialize import StateProfile, StateRecord
+from decision_judges.types import Verdict
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FIXTURE = Path(__file__).resolve().parent / "fixtures" / "tasks_sample.json"
 STUDY_FILE = REPO_ROOT / "config" / "study.toml"
+PRICING_FILE = REPO_ROOT / "config" / "pricing.toml"
 RUBRIC_FILE = REPO_ROOT / "config" / "rubrics" / "g3_outcome.md"
 
 
@@ -252,11 +257,166 @@ def test_parse_repeats_rejects_mixed() -> None:
 # --- gate registry ---------------------------------------------------------
 
 
-def test_gate_registry_contains_g3() -> None:
+def test_gate_registry_contains_judging_gates() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g3", "g10"}
+    assert set(registry) == {"g3", "g4", "g10"}
     assert registry["g3"]().gate_id == "g3"
+    assert registry["g4"]().gate_id == "g4"
     assert registry["g10"]().gate_id == "g10"
+
+
+# --- analysis registry -----------------------------------------------------
+
+
+def test_analysis_registry_keys_and_types() -> None:
+    study = _study()
+    pricing = load_pricing(PRICING_FILE)
+
+    registry = pipeline.analysis_registry(study, pricing)
+
+    assert set(registry) == {"g5", "g6", "g8"}
+    assert isinstance(registry["g5"], G5Cascade)
+    assert isinstance(registry["g6"], G6Calibration)
+    assert isinstance(registry["g8"], G8Regression)
+    assert registry["g5"].gate_id == "g5"
+    assert registry["g6"].gate_id == "g6"
+    assert registry["g8"].gate_id == "g8"
+
+
+# --- load_verdicts ---------------------------------------------------------
+
+
+def _verdict(state_hash: str, *, judge_id: str = "code") -> Verdict:
+    """Build a minimal valid verdict for a state hash."""
+    return Verdict(
+        judge_id=judge_id,
+        model_id="none",
+        prompt_version="pv",
+        state_hash=state_hash,
+        repeat=0,
+        answers=[],
+        latency_ms=1,
+    )
+
+
+def test_load_verdicts_skips_quarantine_and_invalid(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "judge"
+    shard = cache_dir / "ab"
+    shard.mkdir(parents=True)
+    (shard / "good.json").write_text(_verdict("hash-a").model_dump_json(), encoding="utf-8")
+    (shard / "broken.json").write_text("{ not valid", encoding="utf-8")
+    quarantine = cache_dir / "_quarantine"
+    quarantine.mkdir(parents=True)
+    (quarantine / "bad.json").write_text(_verdict("hash-b").model_dump_json(), encoding="utf-8")
+
+    verdicts, warnings = pipeline.load_verdicts(cache_dir)
+
+    assert [verdict.state_hash for verdict in verdicts] == ["hash-a"]
+    assert len(warnings) == 1
+    assert "broken.json" in warnings[0]
+
+
+def test_load_verdicts_filters_by_judge_id(tmp_path: Path) -> None:
+    cache_dir = tmp_path / "judge"
+    shard = cache_dir / "ab"
+    shard.mkdir(parents=True)
+    (shard / "one.json").write_text(
+        _verdict("hash-a", judge_id="code").model_dump_json(), encoding="utf-8"
+    )
+    (shard / "two.json").write_text(
+        _verdict("hash-b", judge_id="fake").model_dump_json(), encoding="utf-8"
+    )
+
+    verdicts, warnings = pipeline.load_verdicts(cache_dir, judge_ids={"code"})
+
+    assert [verdict.judge_id for verdict in verdicts] == ["code"]
+    assert warnings == []
+
+
+def test_load_verdicts_missing_dir_is_empty(tmp_path: Path) -> None:
+    verdicts, warnings = pipeline.load_verdicts(tmp_path / "absent")
+
+    assert verdicts == []
+    assert warnings == []
+
+
+# --- read_states and items_for_variants ------------------------------------
+
+
+def _record_v(task_id: str, reward: float, variant: str) -> AgentRecord:
+    """Build an agent record under a chosen variant."""
+    return _record(task_id, reward).model_copy(update={"variant": variant})
+
+
+def _seed_variant(agent_dir: Path, state_dir: Path, variant: str) -> None:
+    """Write two agent records and their full states for one variant."""
+    records = {
+        "retail-0": _record_v("retail-0", 1.0, variant),
+        "retail-1": _record_v("retail-1", 0.0, variant),
+    }
+    variant_dir = agent_dir / variant
+    variant_dir.mkdir(parents=True, exist_ok=True)
+    for task_id, record in records.items():
+        (variant_dir / f"{task_id}.json").write_text(record.model_dump_json(), encoding="utf-8")
+    pipeline.serialize_all(records, _tasks(), state_dir, [StateProfile.full])
+
+
+def test_read_states_keys_by_task_id(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    _seed_variant(agent_dir, state_dir, "baseline")
+
+    states = pipeline.read_states(state_dir, "baseline", StateProfile.full)
+
+    assert set(states) == {"retail-0", "retail-1"}
+    assert states["retail-0"].task_id == "retail-0"
+
+
+def test_read_states_missing_dir_is_empty(tmp_path: Path) -> None:
+    assert pipeline.read_states(tmp_path / "state", "degraded", StateProfile.full) == {}
+
+
+def test_items_for_variants_concatenates_both(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    _seed_variant(agent_dir, state_dir, "baseline")
+    _seed_variant(agent_dir, state_dir, "degraded")
+
+    items = pipeline.items_for_variants(
+        state_dir, agent_dir, StateProfile.full, ["baseline", "degraded"]
+    )
+
+    assert len(items) == 4
+    assert {item.state.variant for item in items} == {"baseline", "degraded"}
+
+
+def test_items_for_variants_skips_absent_variant(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    _seed_variant(agent_dir, state_dir, "baseline")
+
+    items = pipeline.items_for_variants(
+        state_dir, agent_dir, StateProfile.full, ["baseline", "degraded"]
+    )
+
+    assert {item.state.variant for item in items} == {"baseline"}
+
+
+# --- filter_verdicts_to_items ----------------------------------------------
+
+
+def test_filter_verdicts_to_items_keeps_matching() -> None:
+    states = [_state("retail-0"), _state("retail-1")]
+    records = {
+        "retail-0": _record("retail-0", 1.0),
+        "retail-1": _record("retail-1", 0.0),
+    }
+    items = pipeline.items_from_states(states, records)
+    verdicts = [_verdict("hash-retail-0"), _verdict("unmatched")]
+
+    kept = pipeline.filter_verdicts_to_items(verdicts, items)
+
+    assert [verdict.state_hash for verdict in kept] == ["hash-retail-0"]
 
 
 # --- run_gate and analyze_gate end to end (offline, fake judge) ------------

@@ -19,9 +19,13 @@ from pydantic import BaseModel
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
-from decision_judges.config import StudyConfig
+from decision_judges.config import PricingTable, StudyConfig
 from decision_judges.gates.base import Gate, Item
 from decision_judges.gates.g3_outcome import G3Outcome
+from decision_judges.gates.g4_decomposition import G4Decomposition
+from decision_judges.gates.g5_cascade import G5Cascade
+from decision_judges.gates.g6_calibration import G6Calibration
+from decision_judges.gates.g8_regression import G8Regression
 from decision_judges.gates.g10_local_model import G10LocalModel
 from decision_judges.judges.base import HasStateText, Judge, build_verdict, timed
 from decision_judges.judges.code import CodeJudge
@@ -35,6 +39,7 @@ _PASS = "pass"
 _FAIL = "fail"
 _UNPRICED_MODEL_ID = "none"
 _KNOWN_JUDGES = ("code", "llm_cheap", "llm_strong", "jev", "fake")
+_QUARANTINE = "_quarantine"
 
 
 # --- record loading and serialization --------------------------------------
@@ -273,8 +278,90 @@ def parse_repeats(values: Sequence[str], *, default: int = 1) -> Mapping[str, in
 
 
 def gate_registry() -> dict[str, type[Gate]]:
-    """Return the gates the judge command can run, keyed by gate id."""
-    return {"g3": G3Outcome, "g10": G10LocalModel}
+    """Return the gates the judge command can run, keyed by gate id.
+
+    These gates make their own judge calls and have zero-argument constructors,
+    so the CLI can build them without study or pricing context.
+    """
+    return {"g3": G3Outcome, "g4": G4Decomposition, "g10": G10LocalModel}
+
+
+def analysis_registry(study: StudyConfig, pricing: PricingTable) -> dict[str, Gate]:
+    """Return analysis-only gates, constructed from the study and pricing.
+
+    These gates reuse cached G3 verdicts rather than judging, so they are built
+    as ready instances configured from the study seed and thresholds.
+    """
+    return {
+        "g5": G5Cascade(pricing, study.thresholds.cascade),
+        "g6": G6Calibration(seed=study.seed),
+        "g8": G8Regression(seed=study.seed),
+    }
+
+
+def read_states(state_dir: Path, variant: str, profile: StateProfile) -> dict[str, StateRecord]:
+    """Read serialized states for a variant and profile, keyed by task id.
+
+    A missing directory yields an empty mapping so callers can decide how to
+    report the absence.
+    """
+    directory = Path(state_dir) / variant / profile.value
+    states: dict[str, StateRecord] = {}
+    if not directory.is_dir():
+        return states
+    for path in sorted(directory.glob("*.json")):
+        record = StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
+        states[record.task_id] = record
+    return states
+
+
+def items_for_variants(
+    state_dir: Path,
+    agent_dir: Path,
+    profile: StateProfile,
+    variants: Sequence[str],
+) -> list[Item]:
+    """Build items across variants by pairing each variant's states with its records."""
+    items: list[Item] = []
+    for variant in variants:
+        records, _ = load_agent_records(agent_dir, variant)
+        states = read_states(state_dir, variant, profile)
+        items.extend(items_from_states(list(states.values()), records))
+    return items
+
+
+def load_verdicts(
+    cache_dir: Path, *, judge_ids: set[str] | None = None
+) -> tuple[list[Verdict], list[str]]:
+    """Load every cached verdict under a directory, skipping quarantine and bad files.
+
+    Files under the quarantine directory are ignored. Files that fail to parse
+    or validate are skipped and named in the returned warnings. When
+    ``judge_ids`` is given, only verdicts from those judges are kept.
+    """
+    cache_dir = Path(cache_dir)
+    verdicts: list[Verdict] = []
+    warnings: list[str] = []
+    if not cache_dir.is_dir():
+        return verdicts, warnings
+    for path in sorted(cache_dir.rglob("*.json")):
+        if _QUARANTINE in path.parts:
+            continue
+        try:
+            verdict = Verdict.model_validate_json(path.read_text(encoding="utf-8"))
+        except (ValueError, OSError) as exc:
+            warnings.append(f"{path.name}: {exc}")
+            continue
+        if judge_ids is not None and verdict.judge_id not in judge_ids:
+            continue
+        verdicts.append(verdict)
+    return verdicts, warnings
+
+
+def filter_verdicts_to_items(verdicts: Sequence[Verdict], items: Sequence[Item]) -> list[Verdict]:
+    """Keep verdicts whose state hash matches one of the items' states."""
+    hashes = {item.state.state_hash for item in items}
+    return [verdict for verdict in verdicts if verdict.state_hash in hashes]
 
 
 def gate_rubric_path(gate: Gate) -> Path:

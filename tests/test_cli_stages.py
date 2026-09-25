@@ -164,6 +164,104 @@ def test_cli_judge_unknown_gate_lists_registry(tmp_path: Path) -> None:
     assert "g3" in result.output
 
 
+def test_cli_judge_analysis_gate_mentions_analyze(tmp_path: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(app, ["judge", "--gate", "g5"])
+
+    assert result.exit_code != 0
+    assert "analyze" in result.output.lower()
+
+
+# --- analyze ---------------------------------------------------------------
+
+
+def _analyze_args(tmp_path: Path, agent_dir: Path, state_dir: Path, gate: str) -> list[str]:
+    """Build analyze invocation arguments for one baseline variant."""
+    return [
+        "analyze",
+        "--gate",
+        gate,
+        "--profile",
+        "full",
+        "--variant",
+        "baseline",
+        "--agent-dir",
+        str(agent_dir),
+        "--state-dir",
+        str(state_dir),
+        "--cache-dir",
+        str(tmp_path / "cache" / "judge"),
+        "--results-dir",
+        str(tmp_path / "results"),
+        "--study",
+        str(STUDY_FILE),
+        "--pricing",
+        str(PRICING_FILE),
+    ]
+
+
+def _warm_g3_cache(tmp_path: Path) -> tuple[Path, Path]:
+    """Serialize states and run the g3 judge to fill the verdict cache."""
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    runner = CliRunner()
+    judged = runner.invoke(app, _judge_args(tmp_path, agent_dir, state_dir))
+    assert judged.exit_code == 0, judged.output
+    return agent_dir, state_dir
+
+
+def test_cli_analyze_g6_writes_summary(tmp_path: Path) -> None:
+    agent_dir, state_dir = _warm_g3_cache(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(app, _analyze_args(tmp_path, agent_dir, state_dir, "g6"))
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "results" / "g6_summary.md").is_file()
+
+
+def test_cli_analyze_g8_single_variant_note(tmp_path: Path) -> None:
+    agent_dir, state_dir = _warm_g3_cache(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(app, _analyze_args(tmp_path, agent_dir, state_dir, "g8"))
+
+    assert result.exit_code == 0, result.output
+    assert "baseline" in result.output and "degraded" in result.output
+
+
+def test_cli_analyze_g5_zero_coverage(tmp_path: Path) -> None:
+    agent_dir, state_dir = _warm_g3_cache(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(app, _analyze_args(tmp_path, agent_dir, state_dir, "g5"))
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "results" / "g5_coverage.md").is_file()
+
+
+def test_cli_analyze_rejects_non_analysis_gate(tmp_path: Path) -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        app,
+        ["analyze", "--gate", "g3", "--study", str(STUDY_FILE), "--pricing", str(PRICING_FILE)],
+    )
+
+    assert result.exit_code != 0
+    assert "g5" in result.output
+    assert "g6" in result.output
+    assert "g8" in result.output
+
+
+def test_cli_analyze_no_verdicts_message(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    runner = CliRunner()
+
+    result = runner.invoke(app, _analyze_args(tmp_path, agent_dir, state_dir, "g6"))
+
+    assert result.exit_code == 0, result.output
+    assert "judge" in result.output.lower()
+
+
 # --- results ---------------------------------------------------------------
 
 

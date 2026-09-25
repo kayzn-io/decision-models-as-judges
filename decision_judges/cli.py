@@ -60,14 +60,9 @@ def _parse_variants(values: list[str] | None) -> list[str]:
 
 def _read_states(state_dir: Path, variant: str, profile: StateProfile) -> list[StateRecord]:
     """Read serialized states for a variant and profile, or fail clearly."""
-    directory = state_dir / variant / profile.value
-    states: list[StateRecord] = []
-    if directory.is_dir():
-        states = [
-            StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
-            for path in sorted(directory.glob("*.json"))
-        ]
+    states = list(pipeline.read_states(state_dir, variant, profile).values())
     if not states:
+        directory = state_dir / variant / profile.value
         raise typer.BadParameter(f"no serialized states under {directory}; run 'serialize' first")
     return states
 
@@ -134,7 +129,10 @@ def judge(
     """Run a gate's judges over serialized states and analyze the verdicts."""
     registry = pipeline.gate_registry()
     if gate not in registry:
-        raise typer.BadParameter(f"unknown gate {gate!r}; known: {', '.join(sorted(registry))}")
+        raise typer.BadParameter(
+            f"unknown gate {gate!r}; known: {', '.join(sorted(registry))}. "
+            "Analysis-only gates g5, g6, and g8 are run with 'judges analyze'."
+        )
     if variant not in _VARIANTS:
         raise typer.BadParameter("variant must be 'baseline' or 'degraded'")
     try:
@@ -176,6 +174,54 @@ def judge(
     findings = pipeline.analyze_gate(gate_impl, verdicts, items, results_dir)
     typer.echo(findings)
     typer.echo(f"{gate} spend: ${spend.spent(gate_impl.stage):.6f}")
+
+
+@app.command()
+def analyze(
+    gate: Annotated[str, typer.Option("--gate")],
+    profile: Annotated[str, typer.Option("--profile")] = "full",
+    variant: Annotated[list[str] | None, typer.Option("--variant")] = None,
+    agent_dir: Annotated[Path, typer.Option("--agent-dir")] = Path("cache/agent"),
+    state_dir: Annotated[Path, typer.Option("--state-dir")] = Path("cache/state"),
+    cache_dir: Annotated[Path, typer.Option("--cache-dir")] = Path("cache/judge"),
+    results_dir: Annotated[Path, typer.Option("--results-dir")] = Path("results"),
+    study: Annotated[Path, typer.Option("--study")] = Path("config/study.toml"),
+    pricing: Annotated[Path, typer.Option("--pricing")] = Path("config/pricing.toml"),
+) -> None:
+    """Analyze cached verdicts through a gate that reuses them, writing results."""
+    study_config = load_study(study)
+    pricing_table = load_pricing(pricing)
+    registry = pipeline.analysis_registry(study_config, pricing_table)
+    if gate not in registry:
+        raise typer.BadParameter(
+            f"unknown analysis gate {gate!r}; known: {', '.join(sorted(registry))}"
+        )
+    try:
+        state_profile = StateProfile(profile)
+    except ValueError as exc:
+        raise typer.BadParameter(str(exc)) from exc
+
+    present: list[str] = []
+    for name in _parse_variants(variant):
+        if (agent_dir / name).is_dir():
+            present.append(name)
+        else:
+            typer.echo(f"skipping {name}: no agent records under {agent_dir / name}")
+
+    gate_impl = registry[gate]
+    items = pipeline.items_for_variants(state_dir, agent_dir, state_profile, present)
+    all_verdicts, warnings = pipeline.load_verdicts(cache_dir)
+    for warning in warnings:
+        typer.echo(f"skipped verdict {warning}")
+    verdicts = pipeline.filter_verdicts_to_items(all_verdicts, items)
+    if not verdicts:
+        typer.echo(
+            f"no cached verdicts match under {cache_dir}; "
+            "run 'judges judge --gate g3' first to populate the verdict cache"
+        )
+        return
+    findings = pipeline.analyze_gate(gate_impl, verdicts, items, results_dir)
+    typer.echo(findings)
 
 
 def _read_compact_states(state_dir: Path, variant: str) -> dict[str, StateRecord]:
