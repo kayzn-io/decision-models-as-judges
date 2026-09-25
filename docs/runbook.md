@@ -1,7 +1,9 @@
 # Running the study end to end
 
-This runbook walks through producing every result from scratch, the spend cap
-each stage runs under, and the files each command writes. Spend figures are the
+The app's Run page (`make ui`, then Run) performs every step below with a live
+view of progress and spend; this runbook lists the equivalent commands for
+scripting or for running a single stage by hand, the spend cap each stage runs
+under, and the files each command writes. Spend figures are the
 caps enforced before each paid call, taken from `config/study.toml`; a stage
 stops rather than exceed its cap.
 
