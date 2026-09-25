@@ -24,6 +24,7 @@ from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import brier, ece, reliability_bins
+from decision_judges.progress import CancelToken, ProgressCallback
 from decision_judges.serialize import StateProfile
 from decision_judges.spend import Spend
 from decision_judges.types import Answer, Question, Verdict
@@ -211,6 +212,8 @@ class G6Calibration(Gate):
         spend: Spend,
         *,
         repeats: Mapping[str, int] | int,
+        on_progress: ProgressCallback | None = None,
+        cancel: CancelToken | None = None,
     ) -> list[Verdict]:
         """Raise, since G6 analyzes existing G3 verdicts rather than judging."""
         raise NotImplementedError("G6 is analysis-only over G3 verdicts")

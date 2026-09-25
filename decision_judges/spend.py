@@ -140,6 +140,10 @@ class Spend:
         """Release a reservation without recording any spend."""
         self._release(reservation)
 
+    def cap(self, stage: str) -> float | None:
+        """Return the configured spend cap for a stage, or None when uncapped."""
+        return self._caps.get(stage)
+
     def spent(self, stage: str) -> float:
         """Return the settled spend recorded for a stage."""
         return self._ledger.per_stage.get(stage, 0.0)

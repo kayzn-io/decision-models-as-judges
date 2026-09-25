@@ -41,6 +41,7 @@ from decision_judges.judges.base import HasStateText, Judge, build_verdict, time
 from decision_judges.judges.code import CodeJudge
 from decision_judges.judges.llm import LlmJudge, OpenAiClientAdapter
 from decision_judges.labels import LabelStore
+from decision_judges.progress import CancelToken, ProgressCallback
 from decision_judges.report import write_chart, write_table
 from decision_judges.serialize import (
     Injection,
@@ -644,9 +645,14 @@ def run_gate(
     cache: Cache,
     spend: Spend,
     repeats: Mapping[str, int] | int,
+    *,
+    on_progress: ProgressCallback | None = None,
+    cancel: CancelToken | None = None,
 ) -> list[Verdict]:
     """Judge every item, keeping the CLI free of gate internals."""
-    return gate.run(items, judges, cache, spend, repeats=repeats)
+    return gate.run(
+        items, judges, cache, spend, repeats=repeats, on_progress=on_progress, cancel=cancel
+    )
 
 
 def verdicts_for_analysis(

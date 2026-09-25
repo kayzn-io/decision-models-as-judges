@@ -23,6 +23,7 @@ from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import accuracy
+from decision_judges.progress import CancelToken, ProgressCallback
 from decision_judges.serialize import StateProfile
 from decision_judges.spend import Spend
 from decision_judges.types import Question, Verdict
@@ -167,6 +168,8 @@ class G5Cascade(Gate):
         spend: Spend,
         *,
         repeats: Mapping[str, int] | int,
+        on_progress: ProgressCallback | None = None,
+        cancel: CancelToken | None = None,
     ) -> list[Verdict]:
         """Refuse to run: G5 analyzes existing G3 verdicts and makes no calls."""
         raise NotImplementedError("G5 analyzes G3 verdicts and makes no judge calls")

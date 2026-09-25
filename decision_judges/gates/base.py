@@ -15,11 +15,22 @@ from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache, cache_key
 from decision_judges.judges.base import Judge, build_verdict
+from decision_judges.progress import CancelToken, Progress, ProgressCallback, utc_now_iso
 from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.spend import Reservation, Spend
 from decision_judges.types import Question, Verdict
 
 _OUTPUT_TOKEN_ESTIMATE = 500
+
+
+def _verdict_label(verdict: Verdict) -> str:
+    """Return a short human label for a verdict: its choice, or 'error'."""
+    if verdict.error is not None:
+        return "error"
+    for answer in verdict.answers:
+        if answer.choice is not None:
+            return answer.choice
+    return "ok"
 
 
 class Item(BaseModel):
@@ -98,13 +109,17 @@ class Gate(ABC):
         spend: Spend,
         *,
         repeats: Mapping[str, int] | int,
+        on_progress: ProgressCallback | None = None,
+        cancel: CancelToken | None = None,
     ) -> list[Verdict]:
         """Judge every item with every judge, caching hits and metering paid calls.
 
         Each judge answers each item a number of times given by ``repeats`` (per
         judge id when a mapping, otherwise shared). Calls run in a deterministic
         order sorted by judge id, state hash, and repeat, and the verdicts are
-        returned in that order.
+        returned in that order. When ``on_progress`` is given, a snapshot is
+        reported after each call; when ``cancel`` is set mid-plan, the loop stops
+        cleanly and returns the verdicts produced so far.
         """
         questions = self.questions()
         plan = sorted(
@@ -116,10 +131,29 @@ class Gate(ABC):
             ),
             key=lambda entry: (entry[0].judge_id, entry[1].state.state_hash, entry[2]),
         )
-        return [
-            self._call_or_error(judge, item, repeat, questions, cache, spend)
-            for judge, item, repeat in plan
-        ]
+        total = len(plan)
+        started_at = utc_now_iso()
+        verdicts: list[Verdict] = []
+        for judge, item, repeat in plan:
+            if cancel is not None and cancel.is_cancelled:
+                break
+            verdict = self._call_or_error(judge, item, repeat, questions, cache, spend)
+            verdicts.append(verdict)
+            if on_progress is not None:
+                on_progress(
+                    Progress(
+                        step_id=self.gate_id,
+                        done=len(verdicts),
+                        total=total,
+                        spent_usd=spend.spent(self.stage),
+                        cap_usd=spend.cap(self.stage),
+                        last_item=(
+                            f"{item.state.task_id} · {judge.judge_id} · {_verdict_label(verdict)}"
+                        ),
+                        started_at=started_at,
+                    )
+                )
+        return verdicts
 
     def _call_or_error(
         self,

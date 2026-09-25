@@ -22,6 +22,7 @@ from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome, _verdict_choice
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import bootstrap_delta
+from decision_judges.progress import CancelToken, ProgressCallback
 from decision_judges.serialize import StateProfile
 from decision_judges.spend import Spend
 from decision_judges.types import Question, Verdict
@@ -160,6 +161,8 @@ class G8Regression(Gate):
         spend: Spend,
         *,
         repeats: Mapping[str, int] | int,
+        on_progress: ProgressCallback | None = None,
+        cancel: CancelToken | None = None,
     ) -> list[Verdict]:
         """Reject direct execution; G8 analyzes verdicts the G3 gate produces."""
         raise NotImplementedError("g8 analyzes existing g3 verdicts and does not judge")

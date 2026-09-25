@@ -36,7 +36,7 @@ import json
 import os
 import threading
 from collections.abc import Sequence
-from concurrent.futures import Future, ThreadPoolExecutor
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
 from pathlib import Path
 from typing import Literal, Protocol
 
@@ -44,6 +44,7 @@ from pydantic import BaseModel
 
 from decision_judges.bench.load import Task
 from decision_judges.config import StudyConfig
+from decision_judges.progress import CancelToken, Progress, ProgressCallback, utc_now_iso
 from decision_judges.spend import Reservation, Spend, SpendCapExceeded
 from decision_judges.types import Usage
 
@@ -278,13 +279,18 @@ def run_variant(
     *,
     concurrency: int,
     stage: str = "agent",
+    on_progress: ProgressCallback | None = None,
+    cancel: CancelToken | None = None,
 ) -> RunSummary:
     """Run every not-yet-recorded task under one policy variant, resumably.
 
     Reserve spend before each run, run tasks concurrently, settle with the
     runner's reported token estimate, and write each record atomically. A
     runner exception excludes that task and logs it; a spend cap stops
-    scheduling new tasks while in-flight ones finish.
+    scheduling new tasks while in-flight ones finish. When ``on_progress`` is
+    given, a snapshot is reported as each task completes; when ``cancel`` is
+    set, no new tasks are scheduled, in-flight tasks finish, and the summary
+    records a ``cancelled`` stop.
     """
     (out_dir / variant).mkdir(parents=True, exist_ok=True)
 
@@ -318,20 +324,58 @@ def run_variant(
         _write_record(path, record)
         return record
 
+    total = len(pending)
+    started_at = utc_now_iso()
     stopped_reason: str | None = None
-    futures: list[Future[AgentRecord]] = []
+    records: list[AgentRecord] = []
+
     with ThreadPoolExecutor(max_workers=concurrency) as executor:
-        for task in pending:
-            try:
-                with lock:
-                    reservation = spend.reserve(
-                        stage, runner.agent_model, EST_INPUT_TOKENS, EST_OUTPUT_TOKENS
+        queue = list(pending)
+        index = 0
+        in_flight: set[Future[AgentRecord]] = set()
+
+        def submit_more() -> None:
+            nonlocal index, stopped_reason
+            while len(in_flight) < concurrency and index < len(queue):
+                if cancel is not None and cancel.is_cancelled:
+                    stopped_reason = stopped_reason or "cancelled"
+                    return
+                task = queue[index]
+                try:
+                    with lock:
+                        reservation = spend.reserve(
+                            stage, runner.agent_model, EST_INPUT_TOKENS, EST_OUTPUT_TOKENS
+                        )
+                except SpendCapExceeded as exc:
+                    stopped_reason = stopped_reason or str(exc)
+                    return
+                index += 1
+                in_flight.add(executor.submit(_run_task, task, reservation))
+
+        submit_more()
+        while in_flight:
+            done, _ = wait(in_flight, return_when=FIRST_COMPLETED)
+            for future in done:
+                in_flight.discard(future)
+                record = future.result()
+                records.append(record)
+                if on_progress is not None:
+                    if record.excluded:
+                        label = "excluded"
+                    else:
+                        label = "pass" if record.reward >= 1.0 else "fail"
+                    on_progress(
+                        Progress(
+                            step_id=stage,
+                            done=len(records),
+                            total=total,
+                            spent_usd=spend.spent(stage),
+                            cap_usd=spend.cap(stage),
+                            last_item=f"{record.task_id} · {label}",
+                            started_at=started_at,
+                        )
                     )
-            except SpendCapExceeded as exc:
-                stopped_reason = str(exc)
-                break
-            futures.append(executor.submit(_run_task, task, reservation))
-        records = [future.result() for future in futures]
+            submit_more()
 
     completed = sum(1 for record in records if not record.excluded)
     excluded = sum(1 for record in records if record.excluded)

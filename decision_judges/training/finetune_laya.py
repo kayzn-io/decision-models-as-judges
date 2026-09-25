@@ -14,7 +14,7 @@ import math
 import random
 import shutil
 from collections import defaultdict
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -23,12 +23,16 @@ from pydantic import BaseModel
 from decision_judges.judges.laya_model import LayaDecisionModel
 from decision_judges.judges.laya_vendor import rl_common
 from decision_judges.metrics import ece
+from decision_judges.progress import CancelToken, Progress, ProgressCallback, utc_now_iso
 from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.training.folds import assign_folds, train_test_split
 from decision_judges.types import Question, QuestionKind
 
 # Calibration temperatures are searched on this grid and clamped to [0.5, 5.0].
 TEMP_GRID: tuple[float, ...] = (0.5, 0.75, 1.0, 1.25, 1.5, 2.0, 2.5, 3.0, 4.0, 5.0)
+
+# Reports (step, total_steps, loss) after each optimization step.
+StepCallback = Callable[[int, int, float], None]
 
 
 class TrainingExample(BaseModel):
@@ -223,13 +227,18 @@ def fine_tune(
     seed: int,
     device: str = "cpu",
     max_steps: int | None = None,
+    on_step: StepCallback | None = None,
+    cancel: CancelToken | None = None,
 ) -> Path:
     """Fine-tune the decision model on labelled examples and save a checkpoint.
 
     Loads the base checkpoint, encodes each example, and trains encoder and head
     with AdamW to maximize the proper-scoring reward of the masked softmax
     against one-hot targets. The saved directory reloads strictly through
-    :meth:`LayaDecisionModel.from_pretrained`.
+    :meth:`LayaDecisionModel.from_pretrained`. When ``on_step`` is given it
+    receives the step number, total steps, and loss after each step; when
+    ``cancel`` is set the loop stops between steps and still saves the
+    checkpoint reached.
     """
     import torch
     from torch.optim import AdamW
@@ -246,13 +255,20 @@ def fine_tune(
     model.train()
     optimizer = AdamW(model.parameters(), lr=learning_rate)
     torch_device = torch.device(device)
+    total_steps = max_steps if max_steps is not None else epochs * len(_batches(groups, batch_size))
     steps = 0
     for _ in range(epochs):
         for batch in _batches(groups, batch_size):
-            _step(model, optimizer, batch, pad_id, torch_device)
+            if cancel is not None and cancel.is_cancelled:
+                break
+            loss = _step(model, optimizer, batch, pad_id, torch_device)
             steps += 1
+            if on_step is not None:
+                on_step(steps, total_steps, loss)
             if max_steps is not None and steps >= max_steps:
                 break
+        if cancel is not None and cancel.is_cancelled:
+            break
         if max_steps is not None and steps >= max_steps:
             break
 
@@ -349,12 +365,17 @@ def run_cross_validation(
     batch_size: int,
     device: str,
     max_steps: int | None = None,
+    on_progress: ProgressCallback | None = None,
+    cancel: CancelToken | None = None,
 ) -> list[Manifest]:
     """Fine-tune one checkpoint per fold, calibrating on that fold's held-out ids.
 
     Each fold trains on the other folds and fits temperatures on its own test
     ids, so a task never calibrates a model that trained on it. Writes one
-    ``laya-g3-fold{f}`` directory with weights and a manifest per fold.
+    ``laya-g3-fold{f}`` directory with weights and a manifest per fold. When
+    ``on_progress`` is given it receives a per-step snapshot during training and
+    a per-fold snapshot after each fold; when ``cancel`` is set the loop stops
+    between folds and steps, keeping the folds already written.
     """
     base_dir = Path(base_dir)
     out_root = Path(out_root)
@@ -362,9 +383,12 @@ def run_cross_validation(
     base_hash = _checkpoint_hash(base_dir)
     assignments = assign_folds(list(states.keys()), k, seed)
     question_list = list(questions)
+    started_at = utc_now_iso()
 
     manifests: list[Manifest] = []
     for fold in range(k):
+        if cancel is not None and cancel.is_cancelled:
+            break
         train_ids, test_ids = train_test_split(assignments, fold)
         train_examples = build_training_examples(
             {task_id: states[task_id] for task_id in train_ids}, rewards, question_list
@@ -373,6 +397,19 @@ def run_cross_validation(
             {task_id: states[task_id] for task_id in test_ids}, rewards, question_list
         )
         out_dir = out_root / f"laya-g3-fold{fold}"
+
+        def _on_step(step: int, total: int, loss: float, current_fold: int = fold) -> None:
+            if on_progress is not None:
+                on_progress(
+                    Progress(
+                        step_id="finetune",
+                        done=step,
+                        total=total,
+                        last_item=f"fold {current_fold} step {step} loss {loss:.3f}",
+                        started_at=started_at,
+                    )
+                )
+
         fine_tune(
             base_dir,
             train_examples,
@@ -383,6 +420,8 @@ def run_cross_validation(
             seed=seed,
             device=device,
             max_steps=max_steps,
+            on_step=_on_step,
+            cancel=cancel,
         )
         temperatures = fit_temperatures(out_dir, test_examples)
         manifest = Manifest(
@@ -401,6 +440,16 @@ def run_cross_validation(
         )
         write_manifest(out_dir, manifest)
         manifests.append(manifest)
+        if on_progress is not None:
+            on_progress(
+                Progress(
+                    step_id="finetune",
+                    done=fold + 1,
+                    total=k,
+                    last_item=f"fold {fold} complete",
+                    started_at=started_at,
+                )
+            )
     return manifests
 
 
