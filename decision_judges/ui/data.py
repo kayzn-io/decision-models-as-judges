@@ -257,6 +257,38 @@ def load_items_and_verdicts(paths: Paths, profile: str) -> tuple[list[Item], lis
     return _load_items_and_verdicts(str(paths.cache_dir), profile, dir_fingerprint(paths.cache_dir))
 
 
+@st.cache_data(show_spinner=False)
+def _load_injected_items_and_verdicts(
+    cache_dir: str, profile: str, _fingerprint: str
+) -> tuple[list[Item], list[Verdict]]:
+    """Build whole-trajectory and injected items and the verdicts that judge them."""
+    base = Path(cache_dir)
+    state_profile = StateProfile(profile)
+    items = pipeline.items_for_variants(
+        base / "state", base / "agent", state_profile, list(_VARIANTS)
+    )
+    for variant in _VARIANTS:
+        records, _ = pipeline.load_agent_records(base / "agent", variant)
+        injected = pipeline.read_injected_states(base / "state", variant, state_profile)
+        items.extend(pipeline.items_from_states(list(injected.values()), records))
+    verdicts, _ = pipeline.load_verdicts(base / "judge")
+    return items, pipeline.filter_verdicts_to_items(verdicts, items)
+
+
+def load_injected_items_and_verdicts(
+    paths: Paths, profile: str
+) -> tuple[list[Item], list[Verdict]]:
+    """Return whole and injected items and their verdicts for the robustness gate.
+
+    The items union the whole-trajectory states across both variants with the
+    injected copies of the failing runs, so the G7 gate can compare each judge's
+    original verdict against its verdicts on the injected copies.
+    """
+    return _load_injected_items_and_verdicts(
+        str(paths.cache_dir), profile, dir_fingerprint(paths.cache_dir)
+    )
+
+
 def analysis_gates(paths: Paths) -> dict[str, Gate]:
     """Return the analysis-only gates constructed from the study and pricing."""
     study, pricing = load_study_and_pricing(paths)

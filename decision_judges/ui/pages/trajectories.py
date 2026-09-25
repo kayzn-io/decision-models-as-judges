@@ -34,9 +34,13 @@ def render() -> None:
     state = trajectory_states.get((variant, profile, injection, task_id))
     task = tasks.get(task_id)
 
+    sentence = ""
     if state is not None and state.injection is not Injection.none:
+        original = trajectory_states.get((variant, profile, _DEFAULT_INJECTION, task_id))
+        sentence = views.injected_sentence(original, state)
         st.warning(
-            f"Evaluator-directed '{state.injection.value}' injection is present in this state."
+            f"Evaluator-directed '{state.injection.value}' injection is present in this "
+            f"state: {sentence}"
         )
 
     steps = data.step_states(states, variant, profile, task_id)
@@ -45,7 +49,7 @@ def render() -> None:
 
     conversation, ground_truth, verdicts = st.columns(3)
     with conversation:
-        _conversation(record, step_frames, expected)
+        _conversation(record, step_frames, expected, sentence)
     with ground_truth:
         _ground_truth(record, task)
     with verdicts:
@@ -62,12 +66,21 @@ def _select(
     records: dict[tuple[str, str], AgentRecord],
     states: dict[tuple[str, str, str, str], StateRecord],
 ) -> tuple[str, str, str, str]:
-    """Render the variant, task, profile, and injection selectors and return them."""
+    """Render the variant, task, profile, and injection selectors and return them.
+
+    A ``variant``, ``task``, or ``injection`` query parameter preselects the
+    matching widget so a link can deep-link into a specific state; the resulting
+    selection is written back to the query parameters.
+    """
     variants = sorted({variant for variant, _ in records})
-    variant = str(st.selectbox("Variant", variants, key="variant"))
+    desired = views.selection_from_query(
+        dict(st.query_params),
+        {"variant": variants[0], "task": "", "injection": _DEFAULT_INJECTION},
+    )
+    variant = _select_default("Variant", variants, desired["variant"], "variant")
 
     task_ids = sorted({tid for candidate, tid in records if candidate == variant})
-    task_id = str(st.selectbox("Task", task_ids, key="task"))
+    task_id = _select_default("Task", task_ids, desired["task"], "task")
 
     profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
     profile = (
@@ -80,19 +93,33 @@ def _select(
         {inj for v, prof, inj, tid in states if v == variant and prof == profile and tid == task_id}
     )
     if len(injections) > 1:
-        injection = _select_default("Injection", injections, _DEFAULT_INJECTION, "injection")
+        injection = _select_default("Injection", injections, desired["injection"], "injection")
     else:
         injection = injections[0] if injections else _DEFAULT_INJECTION
 
+    _write_query_params(variant, task_id, injection)
     return variant, task_id, profile, injection
+
+
+def _write_query_params(variant: str, task_id: str, injection: str) -> None:
+    """Write the current selection to the query parameters so links can share it."""
+    st.query_params["variant"] = variant
+    st.query_params["task"] = task_id
+    st.query_params["injection"] = injection
 
 
 def _conversation(
     record: AgentRecord,
     step_frames: dict[int, pd.DataFrame],
     expected: list[bool] | None,
+    injected: str = "",
 ) -> None:
-    """Render the trajectory as chat messages with per-step judge scores inline."""
+    """Render the trajectory as chat messages with per-step judge scores inline.
+
+    When ``injected`` is non-empty the spliced evaluator-directed sentence is
+    shown as a closing turn tagged ``[injected]`` so the injected text is visible
+    beside the real conversation.
+    """
     st.subheader("Conversation")
     step_index = 0
     for turn in views.turns(record):
@@ -109,6 +136,10 @@ def _conversation(
                 st.write(turn.content)
         else:
             st.write(turn.content)
+    if injected:
+        with st.chat_message("assistant"):
+            st.write(injected)
+            st.caption("[injected]")
 
 
 def _step_scores(

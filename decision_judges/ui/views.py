@@ -4,6 +4,7 @@ These functions shape agent records, tasks, and verdicts into plain values a
 Streamlit page renders. They import no Streamlit so they stay unit-testable.
 """
 
+import difflib
 import json
 from collections import Counter
 from collections.abc import Mapping
@@ -22,6 +23,50 @@ _VERDICT_ID = "verdict"
 _COMPLETED_ID = "completed"
 _NECESSARY_ID = "necessary"
 _ARGS_ID = "arguments_consistent"
+
+_QUERY_KEYS = ("variant", "task", "injection")
+_ROLE_PREFIXES = ("assistant: ", "tool: ", "user: ", "call: ")
+
+
+def selection_from_query(params: Mapping[str, str], defaults: Mapping[str, str]) -> dict[str, str]:
+    """Return the variant, task, and injection selection, preferring query params.
+
+    Each key is taken from ``params`` when present and non-empty, otherwise from
+    ``defaults``. Values are returned verbatim; the caller validates them against
+    the options actually available for the current trajectory.
+    """
+    chosen: dict[str, str] = {}
+    for key in _QUERY_KEYS:
+        value = params.get(key)
+        chosen[key] = str(value) if value else str(defaults[key])
+    return chosen
+
+
+def _added_lines(before: list[str], after: list[str]) -> list[str]:
+    """Return the lines present in ``after`` but not aligned to ``before``."""
+    matcher = difflib.SequenceMatcher(a=before, b=after, autojunk=False)
+    added: list[str] = []
+    for tag, _i1, _i2, j1, j2 in matcher.get_opcodes():
+        if tag in ("insert", "replace"):
+            added.extend(after[j1:j2])
+    return added
+
+
+def injected_sentence(original: StateRecord | None, injected: StateRecord) -> str:
+    """Return the evaluator-directed sentence spliced into the injected state.
+
+    The sentence is the text present in the injected state but absent from the
+    matching uninjected state, with its rendered role prefix stripped. An empty
+    string is returned when no uninjected state is available to compare against.
+    """
+    if original is None:
+        return ""
+    added = _added_lines(original.text.splitlines(), injected.text.splitlines())
+    sentence = " ".join(line.strip() for line in added).strip()
+    for prefix in _ROLE_PREFIXES:
+        if sentence.startswith(prefix):
+            return sentence[len(prefix) :]
+    return sentence
 
 
 class Turn(BaseModel):

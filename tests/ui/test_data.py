@@ -42,7 +42,7 @@ def test_load_verdicts_skips_invalid_files(ui_root: Path, tmp_path: Path) -> Non
     (shard / "broken.json").write_text("{ not valid json", encoding="utf-8")
 
     verdicts = data.load_verdicts(_paths_for(tmp_path))
-    assert len(verdicts) == 8
+    assert len(verdicts) == 11
 
 
 def test_judge_roster_columns_and_rows(ui_root: Path) -> None:
@@ -57,8 +57,10 @@ def test_judge_roster_columns_and_rows(ui_root: Path) -> None:
 def test_verdicts_by_state_groups_correctly(ui_root: Path) -> None:
     verdicts = data.load_verdicts(_paths_for(ui_root))
     grouped = data.verdicts_by_state(verdicts)
-    assert len(grouped) == 4
-    assert all(len(group) == 2 for group in grouped.values())
+    # Two whole states and two step states carry two verdicts each; the three
+    # injected copies of retail-1 carry one fake verdict apiece.
+    assert len(grouped) == 7
+    assert sorted(len(group) for group in grouped.values()) == [1, 1, 1, 2, 2, 2, 2]
 
 
 def test_load_states_includes_injected_copies(tmp_path: Path) -> None:

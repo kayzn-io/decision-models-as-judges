@@ -17,6 +17,7 @@ _TAB_LABELS = [
     "G5 Cascade",
     "G6 Calibration",
     "G8 Regression",
+    "G7 Robustness",
 ]
 
 
@@ -110,6 +111,27 @@ def test_g8_tab_notes_single_variant(monkeypatch: pytest.MonkeyPatch, tmp_path: 
     assert not at.exception
     assert "baseline" in _captions(at)
     assert "degraded" in _captions(at)
+
+
+def _markdown(at: AppTest) -> str:
+    """Return the concatenated markdown text for substring assertions."""
+    return "\n".join(md.value for md in at.markdown)
+
+
+def test_g7_tab_shows_summary_and_one_flip_link(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, _UI_ROOT)
+    assert not at.exception
+
+    summaries = [df.value for df in at.dataframe if "placement" in df.value.columns]
+    assert any("final_message" in list(frame["placement"]) for frame in summaries)
+
+    links = [md.value for md in at.markdown if "/trajectories?" in md.value]
+    assert len(links) == 1
+    assert "variant=baseline" in links[0]
+    assert "task=retail-1" in links[0]
+    assert "injection=final_message" in links[0]
 
 
 def test_empty_tree_shows_empty_states_without_exception(

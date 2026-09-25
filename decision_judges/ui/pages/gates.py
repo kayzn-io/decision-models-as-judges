@@ -5,6 +5,8 @@ already wrote under ``results``; interactive tabs load cached items and verdicts
 and hand them to the gate objects, which return the tables and figures shown.
 """
 
+import urllib.parse
+
 import pandas as pd
 import streamlit as st
 from matplotlib.figure import Figure
@@ -12,6 +14,7 @@ from matplotlib.figure import Figure
 from decision_judges.gates.base import GateResult
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
+from decision_judges.gates.g7_robustness import G7Robustness
 from decision_judges.ui import data
 
 _PROFILE = "full"
@@ -25,7 +28,7 @@ def render() -> None:
     paths = data.Paths.from_env()
     st.title("Gates")
     st.write("Static gate summaries beside interactive cascade, calibration, and regression views.")
-    outcome, decomposition, local, cascade, calibration, regression = st.tabs(
+    outcome, decomposition, local, cascade, calibration, regression, robustness = st.tabs(
         [
             "G3 Outcome",
             "G4 Decomposition",
@@ -33,6 +36,7 @@ def render() -> None:
             "G5 Cascade",
             "G6 Calibration",
             "G8 Regression",
+            "G7 Robustness",
         ]
     )
     with outcome:
@@ -47,6 +51,8 @@ def render() -> None:
         _g6_tab(paths)
     with regression:
         _g8_tab(paths)
+    with robustness:
+        _g7_tab(paths)
 
 
 def _empty_state(what: str, command: str) -> None:
@@ -209,3 +215,50 @@ def _g8_tab(paths: data.Paths) -> None:
         return
     st.dataframe(summary, hide_index=True)
     st.pyplot(_figure(result, "g8_intervals"))
+
+
+def _g7_tab(paths: data.Paths) -> None:
+    """Show the written robustness results and recompute flips from cached verdicts.
+
+    G7 is a judged gate rather than an analysis gate, so its summary and flips
+    come from the tables the judge command writes. When cached items and
+    verdicts are present the gate also recomputes the flip-rate chart, and each
+    flipped trajectory links into the Trajectories page at the injected state.
+    """
+    summary = data.load_results_table(paths, "g7_summary")
+    flips = data.load_results_table(paths, "g7_flips")
+    items, verdicts = data.load_injected_items_and_verdicts(paths, _PROFILE)
+    has_recompute = bool(items) and bool(verdicts)
+    if summary is None and not has_recompute:
+        _empty_state(
+            "G7 measures whether an injected evaluator-directed sentence flips a fail "
+            "verdict to pass.",
+            "judges judge --gate g7 --variant baseline --variant degraded",
+        )
+        return
+    if summary is not None:
+        st.dataframe(summary, hide_index=True)
+    if flips is not None and not flips.empty:
+        _g7_flip_links(flips)
+    if has_recompute:
+        result = G7Robustness().analyze(verdicts, items)
+        st.pyplot(_figure(result, "g7_flip_rates"))
+
+
+def _g7_flip_links(flips: pd.DataFrame) -> None:
+    """Render one deep link per flipped trajectory into the Trajectories page."""
+    st.write("Flipped trajectories")
+    for row in flips.itertuples(index=False):
+        _flip_link(str(row.judge), str(row.placement), str(row.variant), str(row.task_id))
+
+
+def _flip_link(judge: str, placement: str, variant: str, task_id: str) -> None:
+    """Render a Trajectories deep link preselecting the flipped injected state.
+
+    ``st.page_link`` requires a registered ``Page`` object, which the per-page
+    test harness does not provide, so the link is rendered as markdown to the
+    Trajectories URL path with the variant, task, and injection query parameters.
+    """
+    query = urllib.parse.urlencode({"variant": variant, "task": task_id, "injection": placement})
+    label = f"{judge} · {placement} · {variant}/{task_id}"
+    st.markdown(f"[{label}](/trajectories?{query})")
