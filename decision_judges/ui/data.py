@@ -16,12 +16,16 @@ import pandas as pd
 import streamlit as st
 from pydantic import ValidationError
 
+from decision_judges import pipeline
 from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.config import PricingTable, StudyConfig, load_pricing, load_study
-from decision_judges.serialize import StateRecord
+from decision_judges.gates.base import Gate, Item
+from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.spend import Ledger
 from decision_judges.types import Verdict
+
+_VARIANTS = ("baseline", "degraded")
 
 _QUARANTINE = "_quarantine"
 _MISSING_PRICE = ""
@@ -168,6 +172,53 @@ def verdicts_by_state(verdicts: list[Verdict]) -> dict[str, list[Verdict]]:
     for verdict in verdicts:
         grouped.setdefault(verdict.state_hash, []).append(verdict)
     return grouped
+
+
+@st.cache_data(show_spinner=False)
+def _load_results_table(results_dir: str, name: str, _fingerprint: str) -> pd.DataFrame | None:
+    """Read a results table CSV by name, returning None when it is absent or invalid."""
+    path = Path(results_dir) / f"{name}.csv"
+    if not path.is_file():
+        return None
+    try:
+        return pd.read_csv(path)
+    except (ValueError, OSError):
+        return None
+
+
+def load_results_table(paths: Paths, name: str) -> pd.DataFrame | None:
+    """Return the named results table as a DataFrame, or None when it is absent."""
+    return _load_results_table(str(paths.results_dir), name, dir_fingerprint(paths.results_dir))
+
+
+def load_chart_path(paths: Paths, name: str) -> Path | None:
+    """Return the path to the named results chart PNG, or None when it is absent."""
+    path = paths.results_dir / f"{name}.png"
+    return path if path.is_file() else None
+
+
+@st.cache_data(show_spinner=False)
+def _load_items_and_verdicts(
+    cache_dir: str, profile: str, _fingerprint: str
+) -> tuple[list[Item], list[Verdict]]:
+    """Build items across both variants and the verdicts that judge them."""
+    base = Path(cache_dir)
+    items = pipeline.items_for_variants(
+        base / "state", base / "agent", StateProfile(profile), list(_VARIANTS)
+    )
+    verdicts, _ = pipeline.load_verdicts(base / "judge")
+    return items, pipeline.filter_verdicts_to_items(verdicts, items)
+
+
+def load_items_and_verdicts(paths: Paths, profile: str) -> tuple[list[Item], list[Verdict]]:
+    """Return items across both variants and the verdicts the interactive gates reduce."""
+    return _load_items_and_verdicts(str(paths.cache_dir), profile, dir_fingerprint(paths.cache_dir))
+
+
+def analysis_gates(paths: Paths) -> dict[str, Gate]:
+    """Return the analysis-only gates constructed from the study and pricing."""
+    study, pricing = load_study_and_pricing(paths)
+    return pipeline.analysis_registry(study, pricing)
 
 
 @st.cache_data(show_spinner=False)

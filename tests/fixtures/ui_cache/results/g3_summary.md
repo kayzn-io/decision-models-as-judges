@@ -1,0 +1,4 @@
+| judge_id   | profile   |   n_items |   accuracy |   kappa |   f1_fail |   modal_agreement |   error_rate |   mean_input_tokens |   latency_p50 |   latency_p95 |
+|:-----------|:----------|----------:|-----------:|--------:|----------:|------------------:|-------------:|--------------------:|--------------:|--------------:|
+| code       | full      |         2 |        1   |       1 |         1 |                 1 |            0 |                   0 |             1 |             1 |
+| fake       | full      |         2 |        0.5 |       0 |         0 |                 1 |            0 |                   0 |             1 |             1 |
