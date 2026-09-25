@@ -40,11 +40,11 @@ def test_navigation_lists_shared_pages_only_when_not_local() -> None:
 
 
 def test_navigation_adds_local_pages_when_local() -> None:
-    assert page_specs(True) == ["Overview", "Trajectories", "Gates", "Label", "Live"]
+    assert page_specs(True) == ["Overview", "Run", "Trajectories", "Gates", "Label", "Live"]
 
 
 def test_mode_caption_by_mode() -> None:
-    assert mode_caption(True) == "Local mode: labeling and live judging enabled"
+    assert mode_caption(True) == "Local mode: run the study, label failures, and judge live"
     assert mode_caption(False) is None
 
 

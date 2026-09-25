@@ -28,17 +28,14 @@ _RUN_PAGE: tuple[str, _Render] = ("Run", run.render)
 
 
 def page_specs(local: bool) -> list[str]:
-    """Return the shared page titles, adding the local-only pages when local."""
-    titles = [title for title, _ in _SHARED_PAGES]
-    if local:
-        titles += [title for title, _ in _LOCAL_PAGES]
-    return titles
+    """Return the navigation page titles in display order for the given mode."""
+    return [title for title, _ in _ordered_pages(local)]
 
 
 def mode_caption(local: bool) -> str | None:
     """Return the sidebar mode caption, or None when there is nothing to say."""
     if local:
-        return "Local mode: labeling and live judging enabled"
+        return "Local mode: run the study, label failures, and judge live"
     return None
 
 
