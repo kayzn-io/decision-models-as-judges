@@ -15,17 +15,18 @@ from decision_judges.ui.flow import Station
 
 _TARGET = 50
 _WIDGET_KEYS = ("trajectory", "label", "note")
-_PURPOSE = "Assign a failure type to each failed run; labels feed the taxonomy gate."
-_WHY = "Your labels are the ground truth the taxonomy gate scores every judge against."
-_NEXT_HINT = "Live judging shows how the judges decide on a run of your choosing."
+_PURPOSE = "Pick why each failed conversation failed; your labels feed the failure-type experiment."
+_WHY = "Your labels are the truth the failure-type experiment scores every judge against."
+_NEXT_HINT = "Watching the judges shows how they decide on a conversation you choose."
 _INTRO_FLAG = "label_intro_dismissed"
 _INTRO = (
     "Consistent labels are hard: two people often read the same failure differently, "
-    "so the taxonomy only holds if one rule is applied every time.\n\n"
+    "so the failure types only hold if one rule is applied every time.\n\n"
     "The rule: choose the first cause in the conversation that made the outcome wrong, "
     "not the last symptom.\n\n"
-    "These labels are the ground truth the taxonomy gate scores every judge against."
+    "These labels are the truth the failure-type experiment scores every judge against."
 )
+_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
 _KEY_HINT = "Press 1 to 8 to pick a label; the buttons work without it too."
 # Progressive enhancement: the number keys click the matching radio input when the
 # browser runs the script, and the radio stays fully usable when it does not.
@@ -54,11 +55,17 @@ def render() -> None:
     store = data.labels_store(paths)
     failing = data.failing_trajectories(paths)
 
-    components.page_header("Label", _PURPOSE, why=_WHY)
+    components.page_header("Judge it yourself", _PURPOSE, why=_WHY)
+    st.markdown(
+        "Read one failed "
+        + components.term("conversation", _CONVERSATION_TERM)
+        + " and pick the failure type you see.",
+        unsafe_allow_html=True,
+    )
     components.flow_context(paths, Station.findings)
     if not failing:
-        st.caption("No failing trajectories to label.")
-        components.next_link("Live", "/live", _NEXT_HINT)
+        st.caption("No failed conversations to label.")
+        components.next_link("Watch the judges work", "/live", _NEXT_HINT)
         components.footer()
         return
 
@@ -88,7 +95,7 @@ def render() -> None:
         _advance()
         st.toast("Label saved.")
         st.rerun()
-    components.next_link("Live", "/live", _NEXT_HINT)
+    components.next_link("Watch the judges work", "/live", _NEXT_HINT)
     components.footer()
 
 
@@ -115,7 +122,7 @@ def _select(
     unlabeled = [pair for pair in failing if pair not in labeled]
     default = unlabeled[0] if unlabeled else failing[0]
     options = [f"{variant} · {task_id}" for variant, task_id in failing]
-    choice = st.selectbox("Trajectory", options, index=failing.index(default), key="trajectory")
+    choice = st.selectbox("Conversation", options, index=failing.index(default), key="trajectory")
     return failing[options.index(str(choice))]
 
 

@@ -152,6 +152,28 @@ codeFont = "monospace"
 chartCategoricalColors = ["#E0651F", "#F1EDE4", "#9A9384"]
 ```
 
+## Vocabulary
+
+The interface is written for a reader who has never seen the code. Every internal
+word is replaced by a plain one, and each term is defined with a hover tooltip
+the first time it appears on a page (see `components.term`).
+
+| Term in the UI | What it means | Internal word it replaces |
+| --- | --- | --- |
+| conversation | a full exchange between the simulated customer and the agent | trajectory, run |
+| customer request | one of the 115 scripted requests | task |
+| what the judge reads | the text version of a conversation with the answer removed | state, judge text |
+| verdict | one judge's answers to the questions about one conversation | none (new term) |
+| judge | anything that reads a conversation and answers the questions: a small program, a text model, or a decision model | none (new term) |
+| decision model | a model that picks from fixed answers and returns probabilities instead of writing text: Jev, Laya | none (new term) |
+| finding | a short written result for one experiment | none (new term) |
+| experiment | one measured question about the judges | gate (in UI text; ids like G3 stay in tables and file names) |
+| confidence | how sure a judge says it is, 0 to 1 | none (new term) |
+| calibration | whether that number means what it says | none (new term) |
+
+Rule: define a term with a tooltip the first time it appears on a page, then use
+the plain word without the tooltip afterward.
+
 ## Decisions
 
 | Decision | Alternative considered | Why |

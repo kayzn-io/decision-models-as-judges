@@ -28,6 +28,10 @@
   fill: var(--flow-muted);
 }
 
+.flow-strip .station .caption {
+  fill: var(--flow-muted);
+}
+
 .flow-strip .station.active rect {
   stroke: var(--flow-accent);
   stroke-width: 2;
@@ -97,6 +101,13 @@
 .in-app-link.primary:hover {
   filter: brightness(1.08);
   text-decoration: none;
+}
+
+/* Inline vocabulary term: the plain word with its meaning on hover. */
+.term {
+  text-decoration: none;
+  border-bottom: 1px dotted var(--flow-muted);
+  cursor: help;
 }
 
 @keyframes flow-dots {

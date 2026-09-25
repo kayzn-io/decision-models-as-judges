@@ -14,12 +14,15 @@ from decision_judges.ui import charts, components, data, live
 from decision_judges.ui import keys as session_key
 from decision_judges.ui.flow import Station
 
-_PURPOSE = "Run Jev, Laya, and an LLM judge on one run, side by side, on your own keys."
-_WHY = "It lets you watch each judge decide on a run of your choosing, live."
+_PURPOSE = "Run three judges on one conversation, side by side, on your own keys."
+_WHY = "It lets you watch each judge decide on a conversation you choose, live."
 _NEXT_HINT = "Back to the start."
 _FRAMING = (
     "The text judge explains itself in prose; the decision models return only "
     "probabilities. This page shows that difference side by side."
+)
+_DECISION_MODEL_TERM = (
+    "a model that picks from fixed answers and returns probabilities instead of writing text"
 )
 _TYPESAFE_KEY = "live_typesafe_key"
 _COUNT_KEY = "live_call_count"
@@ -43,7 +46,11 @@ def render() -> None:
     tasks = data.load_tasks_for_ui(paths)
     trajectory_states = data.trajectory_states(data.load_states(paths))
 
-    components.page_header("Live", _PURPOSE, why=_WHY)
+    components.page_header("Watch the judges work", _PURPOSE, why=_WHY)
+    st.markdown(
+        "Laya and Jev are each a " + components.term("decision model", _DECISION_MODEL_TERM) + ".",
+        unsafe_allow_html=True,
+    )
     components.flow_context(paths, Station.verdicts)
     keys = _sidebar_keys()
 
@@ -93,7 +100,7 @@ def _controls(
             variant = str(st.selectbox("Variant", variants, key="live_variant"))
         task_ids = sorted({tid for candidate, tid in records if candidate == variant})
         with columns[1]:
-            task_id = str(st.selectbox("Task", task_ids, key="live_task"))
+            task_id = str(st.selectbox("Request", task_ids, key="live_task"))
         profiles = sorted(
             {
                 prof
@@ -104,8 +111,8 @@ def _controls(
         with columns[2]:
             profile = str(st.selectbox("Profile", profiles or ["full"], key="live_profile"))
     st.caption(
-        f"Jev and the LLM judge read the {profile!r} state; Laya always uses the "
-        f"{_LAYA_PROFILE!r} state it was trained on."
+        f"Jev and the text model read the {profile!r} reading copy; Laya always uses the "
+        f"{_LAYA_PROFILE!r} reading copy it was trained on."
     )
     return variant, task_id, profile
 
@@ -131,7 +138,7 @@ def _judge_controls(
     if not key_present:
         st.caption("Add your OpenRouter key in the sidebar to judge.")
     if state is None:
-        st.caption("No serialized state for this selection.")
+        st.caption("No reading copy for this selection.")
     if not within_cap:
         st.caption(f"Session limit of {live.LIVE_CALL_CAP} live judgements reached.")
 

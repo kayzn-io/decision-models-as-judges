@@ -176,10 +176,10 @@ def _needs_conversations(paths: Paths) -> str | None:
 
 
 def _needs_states(paths: Paths) -> str | None:
-    """Require serialized states before judging."""
+    """Require the reading copy before judging."""
     if _whole_state_files(paths):
         return None
-    return "Needs serialized text: run step 2 first."
+    return "Needs the reading copy: run step 2 first."
 
 
 def _needs_verdicts(paths: Paths) -> str | None:
@@ -230,7 +230,7 @@ def _agent_counts(paths: Paths) -> StepStatus:
 def _serialize_counts(paths: Paths) -> StepStatus:
     done = len(_whole_state_files(paths))
     total = len(_agent_records(paths)) * 2
-    return _state_for(done, total, f"{done} of {total} states written")
+    return _state_for(done, total, f"{done} of {total} reading copies written")
 
 
 def _verdict_counts(paths: Paths) -> StepStatus:
@@ -355,21 +355,30 @@ def _example(real: Callable[[Paths], str], sample: str) -> Callable[[Paths], str
     return example
 
 
-_SAMPLE_TASK = (
-    "Sample task: the customer asks to exchange one delivered item and change the "
-    "shipping address on a pending order, in a single conversation."
+_SAMPLE_CAPTION = "# example (your own appears here after the step runs)"
+_SAMPLE_REQUEST = (
+    f"{_SAMPLE_CAPTION}\n"
+    "The customer wants to exchange a delivered keyboard for the same model in a "
+    "different color, and asks to confirm the price difference before anything is "
+    "charged."
 )
 _SAMPLE_CONVERSATION = (
-    "system: Retail support policy applies.\n"
-    "user: I need to exchange my keyboard and update my address.\n"
-    "assistant: calls: find_user_id_by_name_zip\n"
-    'tool: {"user_id": "sample_user"}'
+    f"{_SAMPLE_CAPTION}\n"
+    "customer: I want to exchange my keyboard for the black version.\n"
+    "agent: Happy to help. Can you confirm your name and zip code?\n"
+    'call: find_user_id_by_name_zip(name="Sam Lee", zip="94107")\n'
+    'tool result: {"user_id": "sam_lee_8843"}\n'
+    "agent: Found it. The black version is the same price, so there is no charge. Confirm?\n"
+    "checker: pass"
 )
-_SAMPLE_STATE = (
-    "Sample state: a plain-text rendering of the run with the benchmark's reward "
-    "removed, so the judge decides from the agent's behavior alone."
+_SAMPLE_READING_COPY = (
+    f"{_SAMPLE_CAPTION}\n"
+    "request: exchange a delivered keyboard for the same model in another color.\n"
+    "policy summary: confirm the details with the customer before changing an order.\n"
+    'call: find_user_id_by_name_zip(name="Sam Lee", zip="94107")\n'
+    "reward and expected actions: not present"
 )
-_SAMPLE_VERDICT = json.dumps(
+_SAMPLE_VERDICT = f"{_SAMPLE_CAPTION}\n" + json.dumps(
     [
         {"question_id": "completed", "kind": "noul", "noul": 0.9},
         {
@@ -382,17 +391,20 @@ _SAMPLE_VERDICT = json.dumps(
     indent=2,
     sort_keys=True,
 )
-_SAMPLE_FINDINGS = (
-    "Sample finding: the strong LLM and the decision model agree with the "
-    "benchmark on most runs, and the cascade keeps that accuracy at lower cost."
+_SAMPLE_FINDING = (
+    f"{_SAMPLE_CAPTION}\n"
+    "The strong judge agrees with the checker on N out of 115 conversations, and "
+    "the cheap judge keeps most of that agreement at a fraction of the cost."
 )
 _SAMPLE_LABEL = (
-    "Sample label: wrong_tool_arguments — the agent called the right tool with the "
-    "wrong order id, so the change never applied."
+    f"{_SAMPLE_CAPTION}\n"
+    "why it failed: the agent changed the order without confirming with the "
+    "customer first, so the checker marked it fail."
 )
 _SAMPLE_REPORT = (
-    "Sample report section: one block per gate with its findings, tables, and "
-    "chart, followed by the threats to validity."
+    f"{_SAMPLE_CAPTION}\n"
+    "README results: one short section per experiment, each with its finding, its "
+    "table, and its chart, followed by the limits of the study."
 )
 
 
@@ -642,159 +654,180 @@ def _run_results(paths: Paths, ctx: RunContext) -> None:
 STEPS: tuple[RunStep, ...] = (
     RunStep(
         id="run-agent",
-        title="Run the agent",
-        purpose="Run the retail tasks twice: under the careful policy and the careless one.",
+        title="Talk to the store",
+        purpose=(
+            "A language model plays the support agent while another plays 115 scripted "
+            "customers; a checker marks each conversation pass or fail. Every conversation "
+            "runs live and costs money."
+        ),
         pipe="run-agent",
         input_station="tasks",
         output_station="conversations",
         stages=("agent",),
         paid=True,
         learn=(
-            "A trajectory is the full record of one agent solving one task: every message, "
-            "tool call, and tool result in order. The same tasks run twice here, once under "
-            "the full retail policy and once under a policy with the confirmation rule "
-            "removed, so later steps have both careful and careless runs to tell apart. The "
-            "benchmark scores each run pass or fail against its own checks, and that score is "
-            "the ground truth every judge is measured against. Nothing is judged yet; this "
-            "step only produces the runs."
+            "Two language models talk to each other. One plays the store's support agent; the "
+            "other plays a customer with a scripted request, one of 115 from a public "
+            "benchmark. The agent can look up an order and exchange items by calling tools "
+            "against a private copy of the store's database. When the talk ends, a checker "
+            "compares the database to the expected result and marks the conversation pass or "
+            "fail. Every conversation is a live call to a paid model, so this step costs money. "
+            "The same requests run twice: once with the rule 'confirm with the customer before "
+            "changing an order', and once with that rule removed, so later steps have careful "
+            "and careless runs to tell apart. Nothing is judged yet; this step only produces "
+            "the conversations."
         ),
         unlock=_always_ready,
         status=_status_from(_always_ready, _agent_counts),
-        example_input=_example(_first_task_instruction, _SAMPLE_TASK),
+        example_input=_example(_first_task_instruction, _SAMPLE_REQUEST),
         example_output=_example(_first_conversation, _SAMPLE_CONVERSATION),
         run=lambda paths, ctx: _run_agent(paths, ctx),
     ),
     RunStep(
         id="serialize",
-        title="Serialize the runs",
-        purpose="Turn each run into judge-ready text with the answer key removed.",
+        title="Prepare the reading copy",
+        purpose="Make the text version each judge reads, with the answer removed.",
         pipe="serialize",
         input_station="conversations",
         output_station="judge_text",
         stages=(),
         paid=False,
         learn=(
-            "A judge never sees the raw trajectory. It reads a serialized state: a plain-text "
-            "rendering of the run with the benchmark's own answer key removed, so the judge "
-            "has to decide from the agent's behavior alone. Two views are written, a full view "
-            "with every turn and a compact view that trims tool noise. Withholding the reward "
-            "is the point: if the judge could see whether the task passed, its verdict would "
+            "A judge never reads the raw conversation. It reads a text copy with the checker's "
+            "pass or fail result taken out, so it has to decide from what the agent did, not "
+            "from the answer. Two copies are written: a full one with every turn, and a short "
+            "one that trims the tool noise so the small local model can fit it. Taking the "
+            "answer out is the whole point: if a judge could see the result, its verdict would "
             "mean nothing."
         ),
         unlock=_needs_conversations,
         status=_status_from(_needs_conversations, _serialize_counts),
         example_input=_example(_first_conversation, _SAMPLE_CONVERSATION),
-        example_output=_example(_first_state_text, _SAMPLE_STATE),
+        example_output=_example(_first_state_text, _SAMPLE_READING_COPY),
         run=lambda paths, ctx: _run_serialize(paths, ctx),
     ),
     RunStep(
         id="judge-outcome",
-        title="Judge the outcomes",
-        purpose="Ask every judge whether each run passed, on both views, five times over.",
+        title="Ask the judges",
+        purpose=(
+            "Every judge answers two questions about every conversation, five times, on the "
+            "full text and on a short version."
+        ),
         pipe="judge",
         input_station="judge_text",
         output_station="verdicts",
         stages=("g3",),
         paid=True,
         learn=(
-            "Each judge reads a state and answers one question: did the agent complete the "
-            "task? Running every judge over both the full and compact views, five times each, "
-            "lets us measure three different things. Accuracy is how often the judge agrees "
-            "with the ground truth. Cohen's kappa discounts the agreement you would expect by "
-            "chance. Agreement across repeats shows how stable a judge is when asked the same "
-            "thing again. These raw verdicts are what every later analysis reuses."
+            "Each judge reads the text copy and answers two questions: did the agent finish the "
+            "customer's request, and how good was the outcome. Running every judge on both the "
+            "full and the short copy, five times each, lets us measure three things. Accuracy "
+            "is how often a judge agrees with the checker. Agreement beyond chance discounts "
+            "the agreement you would get by guessing. Agreement across the five repeats shows "
+            "how steady a judge is when asked again. These answers are what every later step "
+            "reuses."
         ),
         unlock=_needs_states,
         status=_status_from(_needs_states, _verdict_counts),
-        example_input=_example(_first_state_text, _SAMPLE_STATE),
+        example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_judge_outcome(paths, ctx),
     ),
     RunStep(
         id="analyze",
-        title="Analyze the verdicts",
-        purpose="Reduce the verdicts into cascade, calibration, and regression findings.",
+        title="Draw conclusions",
+        purpose=(
+            "From those answers: when to trust the cheap judge, whether confidence means what "
+            "it says, and whether judges notice a real drop in quality."
+        ),
         pipe="analyze",
         input_station="verdicts",
         output_station="findings",
         stages=("g5", "g6", "g8"),
         paid=False,
         learn=(
-            "This step reduces the verdicts into findings without any new judging. The cascade "
-            "asks how much accuracy you keep if a cheap local model answers when it is "
-            "confident and a strong model answers otherwise, trading cost for accuracy. "
-            "Calibration checks whether a judge's stated confidence matches how often it is "
-            "actually right: a judge that says ninety percent should be right about ninety "
-            "percent of the time. Regression detection asks whether the judges can spot the "
-            "drop in quality between the two policy variants."
+            "This step turns the answers into written results, with no new judging. The first "
+            "result asks how much accuracy you keep if a cheap judge answers when it is sure "
+            "and an expensive judge answers only when the cheap one is unsure, trading cost for "
+            "accuracy. The second checks whether a judge's confidence means what it says: a "
+            "judge that says it is ninety percent sure should be right about nine times in ten. "
+            "The third asks whether the judges notice the drop in quality between the careful "
+            "runs and the careless ones."
         ),
         unlock=_needs_verdicts,
         status=_status_from(_needs_verdicts, _analyze_counts),
         example_input=_example(_first_verdict_json, _SAMPLE_VERDICT),
-        example_output=_example(_first_findings, _SAMPLE_FINDINGS),
+        example_output=_example(_first_findings, _SAMPLE_FINDING),
         run=lambda paths, ctx: _run_analyze(paths, ctx),
     ),
     RunStep(
         id="laya",
-        title="Train the local model",
-        purpose="Fine-tune the local model on the runs and compare it against its zero-shot self.",
+        title="Teach the local model",
+        purpose=(
+            "Download Laya, judge with it as published, train it on these conversations "
+            "without letting it see its own test items, and compare."
+        ),
         pipe="judge",
         input_station="judge_text",
         output_station="verdicts",
         stages=("g10",),
         paid=False,
         learn=(
-            "The local decision model learns from the runs themselves. Because the same runs "
-            "are used to train and to test, it is trained with cross-validation: the runs are "
-            "split into folds, and each fold is judged by a model that never trained on it, so "
-            "no run grades a model that saw it. Fitting a calibration temperature on the "
-            "held-out fold keeps its confidence honest. The fine-tuned model is compared "
-            "against its own zero-shot starting point to show what the training bought."
+            "Laya is a small model you can run on your own machine for free. It picks from "
+            "fixed answers and reports how sure it is, instead of writing sentences. This step "
+            "downloads Laya, judges with it as published, then trains it on these "
+            "conversations. To keep the test fair, the conversations are split into groups, and "
+            "each group is judged by a copy of Laya that never trained on it, so no "
+            "conversation grades a model that already saw it. The trained Laya is then compared "
+            "against the untrained one to show what the training bought."
         ),
         unlock=_needs_states,
         status=_status_from(_needs_states, _laya_counts),
-        example_input=_example(_first_state_text, _SAMPLE_STATE),
+        example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_laya(paths, ctx),
     ),
     RunStep(
         id="gates",
-        title="Probe the judges",
-        purpose="Probe single steps, injected text, question shape, and task difficulty.",
+        title="Test the judges harder",
+        purpose=(
+            "Score every single action; plant a sentence aimed at the judge; try small "
+            "questions against one big one; guess difficulty before running."
+        ),
         pipe="judge",
         input_station="judge_text",
         output_station="verdicts",
         stages=("g2", "g7", "g4", "g1"),
         paid=True,
         learn=(
-            "These gates probe the judges from angles a single outcome verdict misses. "
-            "Per-step scoring asks whether each individual tool call was warranted, not just "
-            "whether the whole task passed. Robustness splices evaluator-directed text into a "
-            "run to see if a judge can be talked into flipping its verdict. Decomposition "
-            "compares asking one broad question against asking several narrow ones. Triage "
-            "estimates each task's difficulty before any run, as a baseline."
+            "These four checks come at the judges from angles the pass or fail question misses. "
+            "The first scores every single action the agent took, not just the final result. "
+            "The second plants a sentence written to fool the judge and sees whether it changes "
+            "its answer. The third compares asking one broad question against asking several "
+            "small ones and adding them up. The fourth guesses how hard each request is before "
+            "any conversation runs, as a baseline."
         ),
         unlock=_needs_states,
         status=_status_from(_needs_states, _gates_counts),
-        example_input=_example(_first_state_text, _SAMPLE_STATE),
+        example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_gates(paths, ctx),
     ),
     RunStep(
         id="label",
-        title="Label and classify failures",
-        purpose="Label failed runs by hand, then score the taxonomy judge against your labels.",
+        title="Be the judge yourself",
+        purpose="Label why 50 conversations failed; then see how well the judges agree with you.",
         pipe="judge",
         input_station="judge_text",
         output_station="verdicts",
         stages=("g9",),
         paid=True,
         learn=(
-            "Here you are the ground truth. Some failures are subtle, and the taxonomy gate "
-            "needs human labels to measure against. Open the Label page, read a failed run, "
-            "and assign the failure type you see. Once labels exist, this step runs the "
-            "taxonomy judge and scores its guesses against yours. Without your labels there is "
-            "nothing to grade the judge on."
+            "Here you are the answer key. Some failures are subtle, and this check needs human "
+            "labels to score against. Open the labeling page, read a failed conversation, and "
+            "pick the failure type you see. Once your labels exist, this step asks the judges "
+            "to pick the same failure type and scores how well they agree with you. Without "
+            "your labels there is nothing to grade the judges on."
         ),
         unlock=_needs_failures,
         status=_status_from(_needs_failures, _label_counts),
@@ -804,22 +837,22 @@ STEPS: tuple[RunStep, ...] = (
     ),
     RunStep(
         id="results",
-        title="Publish the results",
-        purpose="Assemble every finding into the README results section.",
+        title="Write it up",
+        purpose="Put every finding, table, and chart into the README.",
         pipe=None,
         input_station="verdicts",
         output_station="findings",
         stages=(),
         paid=False,
         learn=(
-            "This step assembles every finding into one report and refreshes the README "
-            "between its result markers. It reads the tables, charts, and findings each "
-            "earlier step wrote and lays them out in gate order, followed by the threats to "
-            "validity. Nothing is recomputed: this is the printing press, not the study."
+            "This step gathers every written result into one report and refreshes the README "
+            "between its result markers. It reads the tables, charts, and findings the earlier "
+            "steps wrote and lays them out in order, followed by the limits of the study. "
+            "Nothing is measured again here; this is the printing press, not the study."
         ),
         unlock=_needs_verdicts,
         status=_status_from(_needs_verdicts, _results_counts),
-        example_input=_example(_first_findings, _SAMPLE_FINDINGS),
+        example_input=_example(_first_findings, _SAMPLE_FINDING),
         example_output=_example(_first_findings, _SAMPLE_REPORT),
         run=lambda paths, ctx: _run_results(paths, ctx),
     ),

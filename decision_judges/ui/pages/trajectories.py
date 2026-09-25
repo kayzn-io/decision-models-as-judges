@@ -16,13 +16,15 @@ from decision_judges.ui.flow import Station
 
 _DEFAULT_PROFILE = "full"
 _DEFAULT_INJECTION = "none"
-_PURPOSE = "Read one agent run beside its ground truth and every judge's verdict."
-_WHY = "Seeing one run end to end makes the aggregate gate numbers concrete."
-_NEXT_HINT = "The gates turn many runs like this one into one score per judge."
-_JUDGE_VIEW = "Show only what the judge saw"
+_PURPOSE = "Read one conversation beside the checker's verdict and every judge's verdict."
+_WHY = "Seeing one conversation end to end makes the summary numbers concrete."
+_NEXT_HINT = "The experiments turn many conversations like this one into one score per judge."
+_JUDGE_VIEW = "Show only what the judge reads"
 _JUDGE_VIEW_CAPTION = (
-    "The judge never sees the reward or the expected actions; a guard refuses to serialize them."
+    "The judge never sees the pass or fail result or the expected actions; "
+    "they are removed before the judge reads."
 )
+_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
 _LEGEND = (
     "✓ expected action, ✗ not among the expected actions; percentages are each "
     "judge's probability that the call was necessary and that its arguments were "
@@ -41,10 +43,16 @@ def render() -> None:
     tasks = data.load_tasks_for_ui(paths)
 
     components.page_header("Trajectories", _PURPOSE, why=_WHY)
+    st.markdown(
+        "You are reading one "
+        + components.term("conversation", _CONVERSATION_TERM)
+        + " and the answers each judge gave about it.",
+        unsafe_allow_html=True,
+    )
     components.flow_context(paths, Station.judge_text)
     if not records:
         st.caption("No agent runs are available yet.")
-        components.next_link("Gates", "/gates", _NEXT_HINT)
+        components.next_link("Experiments", "/gates", _NEXT_HINT)
         components.footer()
         return
 
@@ -60,7 +68,7 @@ def render() -> None:
         sentence = views.injected_sentence(original, state)
         st.warning(
             f"Evaluator-directed '{state.injection.value}' injection is present in this "
-            f"state: {sentence}"
+            f"reading copy: {sentence}"
         )
 
     steps = data.step_states(states, variant, profile, task_id)
@@ -79,15 +87,15 @@ def render() -> None:
     with ground_truth:
         _ground_truth(record, task)
     _verdicts(state, grouped)
-    components.next_link("Gates", "/gates", _NEXT_HINT)
+    components.next_link("Experiments", "/gates", _NEXT_HINT)
     components.footer()
 
 
 def _judge_view(state: StateRecord | None) -> None:
-    """Render the serialized text the judge reads, with a note on what it omits."""
+    """Render the text the judge reads, with a note on what it omits."""
     st.subheader("Conversation")
     if state is None:
-        st.caption("No serialized state for this selection.")
+        st.caption("No reading copy for this selection.")
         return
     with st.container(height=600):
         st.text(state.text)
@@ -169,7 +177,7 @@ def _select(
 
         task_ids = sorted({tid for candidate, tid in records if candidate == variant})
         with columns[cursor]:
-            task_id = _select_default("Task", task_ids, desired["task"], "task")
+            task_id = _select_default("Request", task_ids, desired["task"], "task")
         cursor += 1
 
         profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
@@ -320,11 +328,11 @@ def _verdicts(state: StateRecord | None, grouped: dict[str, list[Verdict]]) -> N
     """Render the judge verdicts for the selected state's hash."""
     st.subheader("Verdicts")
     if state is None:
-        st.caption("No serialized state for this selection.")
+        st.caption("No reading copy for this selection.")
         return
     matching = grouped.get(state.state_hash, [])
     if not matching:
-        st.caption("No verdicts for this state.")
+        st.caption("No verdicts for this reading copy.")
         return
     frame = views.verdict_rows(matching)
     st.dataframe(

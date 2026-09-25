@@ -24,9 +24,11 @@ _SPINNER = "Reading cached verdicts"
 _SIGNAL_HELP = "The three probability signals G6 scores against ground truth."
 _THRESHOLD_HELP = "Escalate to the slow judge when the fast judge's confidence falls below this."
 _ISOTONIC_HELP = "Refit each signal with cross-validated isotonic regression and rescore it."
-_PURPOSE = "Results for each evaluation gate, static and interactive."
-_WHY = "Each gate is one test of whether a judge's scores can be trusted."
-_NEXT_HINT = "Hand-labeling failures builds the ground truth the taxonomy gate scores against."
+_PURPOSE = "One tab per experiment, each with its numbers and how to read them."
+_WHY = "Each experiment is one test of whether a judge can be trusted."
+_NEXT_HINT = (
+    "Labeling failures by hand builds the truth the failure-type experiment scores against."
+)
 
 _JUDGE_STEP = 3
 _ANALYZE_STEP = 4
@@ -34,7 +36,9 @@ _ANALYZE_STEP = 4
 _G2_MEASURE = "G2 scores every tool call: was it needed, and were its arguments consistent."
 _G3_MEASURE = "G3 scores each run's pass or fail verdict against the outcome truth."
 _G4_MEASURE = "G4 tests whether aggregating six atomic questions beats one broad question."
-_G10_MEASURE = "G10 compares the local decision model against the hosted judges on compact states."
+_G10_MEASURE = (
+    "G10 compares the local decision model against the hosted judges on the short reading copy."
+)
 _G5_MEASURE = "G5 replays the outcome verdicts as a confidence-gated cascade of cost and accuracy."
 _G6_MEASURE = "G6 measures how closely each judge's probabilities track observed outcomes."
 _G8_MEASURE = "G8 estimates each judge's baseline-to-degraded regression with bootstrap intervals."
@@ -95,21 +99,27 @@ _HOW_TO_READ: dict[str, list[tuple[str, str]]] = {
 def render() -> None:
     """Render one tab per gate, static where results exist and interactive elsewhere."""
     paths = data.Paths.from_env()
-    components.page_header("Gates", _PURPOSE, why=_WHY)
+    components.page_header("Experiments", _PURPOSE, why=_WHY)
+    st.markdown(
+        "Each tab is one "
+        + components.term("experiment", "one measured question about the judges")
+        + ". The ids like G3 are just file names.",
+        unsafe_allow_html=True,
+    )
     components.flow_context(paths, Station.verdicts)
     example = _example_task_id(paths)
     steps, outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = (
         st.tabs(
             [
-                "G2 Steps",
-                "G3 Outcome",
-                "G4 Decomposition",
-                "G10 Local model",
-                "G5 Cascade",
-                "G6 Calibration",
-                "G8 Regression",
-                "G9 Taxonomy",
-                "G7 Robustness",
+                "G2 Every action",
+                "G3 Pass or fail",
+                "G4 Small questions",
+                "G10 Free local model",
+                "G5 Cheap first, then expensive",
+                "G6 Does confidence mean it",
+                "G8 Spotting a drop",
+                "G9 Why it failed",
+                "G7 Can it be tricked",
             ]
         )
     )
@@ -140,7 +150,7 @@ def render() -> None:
     with robustness:
         _intro("g7", example)
         _g7_tab(paths)
-    components.next_link("Label", "/label", _NEXT_HINT)
+    components.next_link("Judge it yourself", "/label", _NEXT_HINT)
     components.footer()
 
 
@@ -210,7 +220,7 @@ def _g3_tab(paths: data.Paths) -> None:
     frame = data.load_results_table(paths, "g3_summary")
     if frame is None:
         components.empty_state(
-            "G3 scores whether each run met the outcome bar the rubric states.",
+            "G3 scores whether each run met the outcome bar the rubric sets.",
             "judges judge --gate g3 --variant baseline --variant degraded",
             run_step=_JUDGE_STEP,
         )
@@ -250,7 +260,7 @@ def _g10_tab(paths: data.Paths) -> None:
     frame = data.load_results_table(paths, "g10_summary")
     if frame is None:
         components.empty_state(
-            "G10 compares the local decision model against the hosts on compact states.",
+            "G10 compares the local decision model against the hosts on the short reading copy.",
             "judges judge --gate g10 --profile compact --variant baseline",
             run_step=_JUDGE_STEP,
         )
@@ -424,7 +434,7 @@ def _g9_tab(paths: data.Paths) -> None:
     summary = data.load_results_table(paths, "g9_summary")
     if summary is None:
         components.empty_state(
-            "G9 asks each judge to classify a failing trajectory into the failure taxonomy "
+            "G9 asks each judge to sort a failed conversation into the failure types "
             "and scores it against the owner's hand labels; label failures on the Label page "
             "first.",
             "judges judge --gate g9 --variant baseline",
@@ -479,7 +489,7 @@ def _g7_tab(paths: data.Paths) -> None:
 
 def _g7_flip_links(flips: pd.DataFrame) -> None:
     """Render one deep link per flipped trajectory into the Trajectories page."""
-    st.write("Flipped trajectories")
+    st.write("Flipped conversations")
     for row in flips.itertuples(index=False):
         _flip_link(str(row.judge), str(row.placement), str(row.variant), str(row.task_id))
 

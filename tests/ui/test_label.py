@@ -131,7 +131,7 @@ def test_label_has_flow_strip_and_next_link(
     at.run()
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
-    assert '<a href="/live" class="in-app-link">Next: Live</a>' in _rendered(at)
+    assert '<a href="/live" class="in-app-link">Next: Watch the judges work</a>' in _rendered(at)
 
 
 def test_label_intro_visible_before_first_label(

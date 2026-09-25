@@ -1,5 +1,6 @@
 """Shared Streamlit rendering helpers reused across pages."""
 
+import html
 import urllib.parse
 from collections.abc import Mapping, Sequence
 from functools import lru_cache
@@ -181,6 +182,22 @@ def how_to_read(rows: Sequence[tuple[str, str]]) -> None:
 def keyboard_hint(text: str) -> None:
     """Render a small caption describing an optional keyboard shortcut."""
     st.caption(text)
+
+
+def term(word: str, meaning: str) -> str:
+    """Return markup that shows a word with its meaning as a hover tooltip.
+
+    The word renders inside an ``<abbr>`` whose ``title`` carries the one-line
+    meaning, so a reader sees the plain word and hovers to learn what it means.
+    Both the word and the meaning are HTML-escaped so a stray quote or angle
+    bracket cannot break out of the attribute. The dotted underline in the muted
+    palette color comes from the ``.term`` rule in the motion stylesheet, so the
+    caller must render the string with HTML enabled, for example
+    ``st.markdown(term(...), unsafe_allow_html=True)``.
+    """
+    safe_meaning = html.escape(meaning, quote=True)
+    safe_word = html.escape(word)
+    return f'<abbr class="term" title="{safe_meaning}">{safe_word}</abbr>'
 
 
 def metric_row(items: Sequence[tuple[str, str]]) -> None:

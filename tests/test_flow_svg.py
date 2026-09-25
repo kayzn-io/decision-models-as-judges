@@ -12,9 +12,9 @@ _COUNTS = {
 }
 
 _LABELS = {
-    Station.tasks: "Tasks",
+    Station.tasks: "Requests",
     Station.conversations: "Conversations",
-    Station.judge_text: "Judge text",
+    Station.judge_text: "What judges read",
     Station.verdicts: "Verdicts",
     Station.findings: "Findings",
 }

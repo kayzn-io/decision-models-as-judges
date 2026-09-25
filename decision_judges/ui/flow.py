@@ -41,13 +41,20 @@ _ORDER: tuple[Station, ...] = (
     Station.findings,
 )
 _LABELS: dict[Station, str] = {
-    Station.tasks: "Tasks",
+    Station.tasks: "Requests",
     Station.conversations: "Conversations",
-    Station.judge_text: "Judge text",
+    Station.judge_text: "What judges read",
     Station.verdicts: "Verdicts",
     Station.findings: "Findings",
 }
-_TITLE = "Study pipeline: tasks to findings"
+_CAPTIONS: dict[Station, str] = {
+    Station.tasks: "115 scripted customer requests",
+    Station.conversations: "what the agent and the simulated customer said",
+    Station.judge_text: "what each judge is allowed to read",
+    Station.verdicts: "every judge answer",
+    Station.findings: "the written results",
+}
+_TITLE = "Study pipeline: requests to findings"
 
 _VIEW_W = 1040
 _MARGIN = 20
@@ -93,7 +100,7 @@ def _dims(compact: bool) -> tuple[int, int, int]:
 
 
 def _station_svg(station: Station, count: int, active: bool, compact: bool) -> str:
-    """Return one station group: a rounded rect with its count and label."""
+    """Return one station group: a rounded rect with its count, label, and caption."""
     height, box_y, box_h = _dims(compact)
     center_x = _box_x(_ORDER.index(station)) + _BOX_W // 2
     label = _LABELS[station]
@@ -101,17 +108,23 @@ def _station_svg(station: Station, count: int, active: bool, compact: bool) -> s
     if compact:
         count_y, count_size, label_y, label_size = box_y + 17, 14, height - 3, 11
     else:
-        count_y, count_size, label_y, label_size = box_y + 42, 30, box_y + 68, 15
-    return (
-        f'<g class="{cls}" aria-label="{label}: {count}">'
+        count_y, count_size, label_y, label_size = box_y + 40, 30, box_y + 66, 15
+    parts = [
+        f'<g class="{cls}" aria-label="{label}: {count}">',
         f'<rect x="{_box_x(_ORDER.index(station))}" y="{box_y}" '
-        f'width="{_BOX_W}" height="{box_h}" rx="6" />'
+        f'width="{_BOX_W}" height="{box_h}" rx="6" />',
         f'<text class="count" x="{center_x}" y="{count_y}" '
-        f'text-anchor="middle" font-size="{count_size}">{count}</text>'
+        f'text-anchor="middle" font-size="{count_size}">{count}</text>',
         f'<text class="label" x="{center_x}" y="{label_y}" '
-        f'text-anchor="middle" font-size="{label_size}">{label}</text>'
-        f"</g>"
-    )
+        f'text-anchor="middle" font-size="{label_size}">{label}</text>',
+    ]
+    if not compact:
+        parts.append(
+            f'<text class="caption" x="{center_x}" y="{box_y + 96}" '
+            f'text-anchor="middle" font-size="9">{_CAPTIONS[station]}</text>'
+        )
+    parts.append("</g>")
+    return "".join(parts)
 
 
 def _pipe_path(index: int, center_y: int) -> str:

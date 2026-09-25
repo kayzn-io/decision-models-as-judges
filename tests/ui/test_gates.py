@@ -11,15 +11,15 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 _UI_ROOT = _REPO_ROOT / "tests" / "fixtures" / "ui_cache"
 _SCRIPT = "from decision_judges.ui.pages.gates import render\n\nrender()\n"
 _TAB_LABELS = [
-    "G2 Steps",
-    "G3 Outcome",
-    "G4 Decomposition",
-    "G10 Local model",
-    "G5 Cascade",
-    "G6 Calibration",
-    "G8 Regression",
-    "G9 Taxonomy",
-    "G7 Robustness",
+    "G2 Every action",
+    "G3 Pass or fail",
+    "G4 Small questions",
+    "G10 Free local model",
+    "G5 Cheap first, then expensive",
+    "G6 Does confidence mean it",
+    "G8 Spotting a drop",
+    "G9 Why it failed",
+    "G7 Can it be tricked",
 ]
 
 
@@ -57,7 +57,7 @@ def _config_only_tree(source: Path, dest: Path) -> Path:
 def test_gates_page_renders_and_lists_tabs(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     at = _run(monkeypatch, tmp_path, _UI_ROOT)
     assert not at.exception
-    assert at.title[0].value == "Gates"
+    assert at.title[0].value == "Experiments"
     assert [tab.label for tab in at.tabs] == _TAB_LABELS
 
 
@@ -171,7 +171,7 @@ def test_gates_has_flow_strip_and_next_link(
     at = _run(monkeypatch, tmp_path, _UI_ROOT)
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
-    anchors = [node.value for node in at.get("html") if "Next: Label" in node.value]
+    anchors = [node.value for node in at.get("html") if "Next: Judge it yourself" in node.value]
     assert len(anchors) == 1
     assert 'href="/label"' in anchors[0]
     assert "target" not in anchors[0]

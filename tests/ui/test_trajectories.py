@@ -136,7 +136,7 @@ def test_trajectories_has_flow_strip_and_next_link(
     at = _run(monkeypatch, tmp_path)
     assert not at.exception
     assert 'class="flow-strip"' in _rendered(at)
-    anchors = [node.value for node in at.get("html") if "Next: Gates" in node.value]
+    anchors = [node.value for node in at.get("html") if "Next: Experiments" in node.value]
     assert len(anchors) == 1
     assert 'href="/gates"' in anchors[0]
     assert "target" not in anchors[0]
@@ -158,7 +158,7 @@ def test_trajectories_judge_view_toggle_hides_turns_and_shows_caption(
 
     assert not at.exception
     captions = _captions(at)
-    assert "a guard refuses to serialize them" in captions
+    assert "they are removed before the judge reads" in captions
     assert "necessary" not in captions
 
 

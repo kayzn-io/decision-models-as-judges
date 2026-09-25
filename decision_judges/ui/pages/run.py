@@ -21,13 +21,39 @@ _BALLOONS_KEY = "run_first_paid_finished"
 _SETTLE_MARKER = "run_settle_css"
 
 _STATION_LABELS = {
-    "tasks": "Tasks",
+    "tasks": "Requests",
     "conversations": "Conversations",
-    "judge_text": "Judge text",
+    "judge_text": "What judges read",
     "verdicts": "Verdicts",
     "findings": "Findings",
 }
 _STATUS_COLORS = {"locked": "gray", "ready": "blue", "partial": "orange", "done": "green"}
+
+# One "Notice:" line per station, telling the learner what to look for in an example.
+_CHECKER_NOTICE = "Notice: the checker's pass or fail is here, and the judges will never see it."
+_INPUT_NOTICE = {
+    "tasks": "Notice: one scripted request, the same one the customer will act out.",
+    "conversations": _CHECKER_NOTICE,
+    "judge_text": "Notice: the answer is already removed, so the judge reads blind.",
+    "verdicts": "Notice: these are the judges' answers, not the truth.",
+    "findings": "Notice: these are written results, ready to publish.",
+}
+_OUTPUT_NOTICE = {
+    "conversations": _CHECKER_NOTICE,
+    "judge_text": "Notice: the answer is removed, so the judge reads blind.",
+    "verdicts": "Notice: each judge answers on its own, and none of them see the truth.",
+    "findings": "Notice: this is a written result, not a new measurement.",
+}
+
+# Card 1 explainer: the same agent runs twice so later steps can tell the two apart.
+_VARIANTS = (
+    (
+        "With the rule",
+        "The agent must confirm the details with the customer before it changes an order.",
+    ),
+    ("With the rule removed", "The same agent, but that confirmation step is gone."),
+)
+_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
 
 _SETTLE_CSS = (
     "<style>.settle{border-left:3px solid #16a34a;padding:0.4rem 0.75rem;"
@@ -51,6 +77,12 @@ def render() -> None:
     runner = _runner(paths)
 
     components.page_header("Run the study", _PURPOSE)
+    st.markdown(
+        "Each step reads what the last one wrote. One run of step 1 produces one "
+        + components.term("conversation", _CONVERSATION_TERM)
+        + ".",
+        unsafe_allow_html=True,
+    )
     _resume_banner(runner)
     _settle_style()
 
@@ -121,10 +153,23 @@ def _card(
     status = step.status(paths)
     with st.container(border=True):
         _header(index, step)
+        _two_variants(step)
         _pills(step, study, ledger, status)
         _show_me(step, paths)
         _controls(step, paths, study, pricing, key, runner, status, running)
         _run_state(step, paths, runner)
+
+
+def _two_variants(step: RunStep) -> None:
+    """On the first step, show why the same requests run twice, side by side."""
+    if step.id != "run-agent":
+        return
+    st.caption("Two variants")
+    columns = st.columns(2)
+    for column, (label, explanation) in zip(columns, _VARIANTS, strict=True):
+        with column:
+            st.markdown(f"**{label}**")
+            st.caption(explanation)
 
 
 def _header(index: int, step: RunStep) -> None:
@@ -170,10 +215,16 @@ def _show_me(step: RunStep, paths: data.Paths) -> None:
     with st.expander("Show me"):
         left, right = st.columns(2)
         with left:
-            st.caption(f"Input · {_label(step.input_station)}")
+            st.caption("What goes in")
+            notice = _INPUT_NOTICE.get(step.input_station)
+            if notice:
+                st.caption(notice)
             st.code(step.example_input(paths), wrap_lines=True)
         with right:
-            st.caption(f"Output · {_label(step.output_station)}")
+            st.caption("What comes out")
+            notice = _OUTPUT_NOTICE.get(step.output_station)
+            if notice:
+                st.caption(notice)
             st.code(step.example_output(paths), wrap_lines=True)
         st.markdown(step.learn)
 
@@ -301,7 +352,7 @@ def _finished_panel(step: RunStep, paths: data.Paths, status: object) -> None:
     findings = _step_findings(step, paths)
     if findings:
         st.caption(findings)
-    components.page_link("/gates", "See the gates")
+    components.page_link("/gates", "See the experiments")
     if not cancelled:
         _maybe_balloons(step)
 
