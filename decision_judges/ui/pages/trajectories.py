@@ -74,8 +74,8 @@ def _actions_table(frame: pd.DataFrame) -> None:
     st.dataframe(
         frame,
         column_config={
-            "action": st.column_config.TextColumn("Action", width="large"),
-            "matched": st.column_config.CheckboxColumn("Matched", disabled=True),
+            "action": st.column_config.TextColumn("Action", width="medium"),
+            "matched": st.column_config.CheckboxColumn("Matched", width="small", disabled=True),
         },
         hide_index=True,
         use_container_width=True,
