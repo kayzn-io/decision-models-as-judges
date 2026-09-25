@@ -255,7 +255,14 @@ def _run_state(step: RunStep, paths: data.Paths, runner: StepRunner) -> None:
 
 @st.fragment(run_every="1s")
 def _running_panel(step: RunStep, runner: StepRunner) -> None:
-    """Show live progress, a dollar meter, elapsed time, and a Stop button."""
+    """Show live progress, a dollar meter, elapsed time, and a Stop button.
+
+    When the step's thread has ended, rerun the whole page once so the status
+    badge, the flow strip counts, and the finished panel all reflect the new
+    files on disk instead of the snapshot this fragment started from.
+    """
+    if not runner.is_running(step.id):
+        st.rerun()
     status = runner.status(step.id)
     if status is None:
         st.caption("Starting…")
