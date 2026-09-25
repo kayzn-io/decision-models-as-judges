@@ -59,3 +59,33 @@ def test_verdicts_by_state_groups_correctly(ui_root: Path) -> None:
     grouped = data.verdicts_by_state(verdicts)
     assert len(grouped) == 4
     assert all(len(group) == 2 for group in grouped.values())
+
+
+def test_load_states_includes_injected_copies(tmp_path: Path) -> None:
+    from decision_judges import pipeline
+    from decision_judges.bench.load import Task
+    from decision_judges.bench.run_agent import AgentRecord
+    from decision_judges.serialize import StateProfile
+
+    record = AgentRecord(
+        variant="baseline",
+        task_id="retail-0",
+        trajectory=[
+            {"role": "user", "content": "help"},
+            {"role": "assistant", "content": "sorry"},
+        ],
+        reward=0.0,
+        harness_info={},
+        agent_model="agent",
+        user_model="user",
+        tau_bench_ref="ref",
+    )
+    task = Task(task_id="retail-0", instruction="do the thing", actions=[], outputs=[])
+    state_dir = tmp_path / "cache" / "state"
+    pipeline.serialize_all({"retail-0": record}, {"retail-0": task}, state_dir, [StateProfile.full])
+
+    states = data.load_states(_paths_for(tmp_path))
+
+    injections = {key[2] for key in states}
+    assert "none" in injections
+    assert {"final_message", "tool_result", "control"} <= injections

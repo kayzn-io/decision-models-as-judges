@@ -169,7 +169,10 @@ def judge(
     cache = Cache(cache_dir)
     spend = Spend(pricing_table, study_config.spend_caps, ledger)
     verdicts = pipeline.run_gate(gate_impl, items, judge_list, cache, spend, repeat_plan)
-    findings = pipeline.analyze_gate(gate_impl, verdicts, items, results_dir)
+    analysis_verdicts, analysis_items = pipeline.verdicts_for_analysis(
+        gate, cache_dir, verdicts, items, state_dir, agent_dir, state_profile, variant
+    )
+    findings = pipeline.analyze_gate(gate_impl, analysis_verdicts, analysis_items, results_dir)
     typer.echo(findings)
     typer.echo(f"{gate} spend: ${spend.spent(gate_impl.stage):.6f}")
 

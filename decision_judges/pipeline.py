@@ -32,13 +32,20 @@ from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.gates.g4_decomposition import G4Decomposition
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
+from decision_judges.gates.g7_robustness import G7Robustness
 from decision_judges.gates.g8_regression import G8Regression
 from decision_judges.gates.g10_local_model import G10LocalModel
 from decision_judges.judges.base import HasStateText, Judge, build_verdict, timed
 from decision_judges.judges.code import CodeJudge
 from decision_judges.judges.llm import LlmJudge, OpenAiClientAdapter
 from decision_judges.report import write_chart, write_table
-from decision_judges.serialize import StateProfile, StateRecord, serialize
+from decision_judges.serialize import (
+    Injection,
+    StateProfile,
+    StateRecord,
+    serialize,
+    with_injection,
+)
 from decision_judges.spend import Spend
 from decision_judges.types import Answer, Question, QuestionKind, Verdict
 
@@ -106,6 +113,25 @@ def _write_step_states(
         _write_state_json(path, state)
 
 
+def _write_injected_states(
+    record: AgentRecord, state: StateRecord, profile: StateProfile, out_dir: Path
+) -> None:
+    """Write three injected copies of a failing run's whole-trajectory state.
+
+    Only runs that scored below full reward are injected, since only fail
+    trajectories can flip to pass. Files are named
+    ``<task_id>.<injection>.json`` under the ``injected`` subdirectory so they
+    never collide with the whole-trajectory file.
+    """
+    if record.reward >= 1.0:
+        return
+    injected_dir = out_dir / record.variant / profile.value / "injected"
+    for kind in (Injection.final_message, Injection.tool_result, Injection.control):
+        injected = with_injection(state, kind)
+        path = injected_dir / f"{record.task_id}.{kind.value}.json"
+        _write_state_json(path, injected)
+
+
 def serialize_all(
     records: Mapping[str, AgentRecord],
     tasks: Mapping[str, Task],
@@ -117,9 +143,11 @@ def serialize_all(
     Whole-trajectory states are written to
     ``<out_dir>/<variant>/<profile>/<task_id>.json`` and one per-step state per
     tool call to ``<out_dir>/<variant>/<profile>/steps/<task_id>.<step_index>.json``
-    (index zero-padded to three digits). The returned count is the number of
-    whole-trajectory states. Serialization is deterministic, so re-running
-    overwrites identical content.
+    (index zero-padded to three digits). Failing runs (reward below 1.0) also get
+    three injected copies written to
+    ``<out_dir>/<variant>/<profile>/injected/<task_id>.<injection>.json``. The
+    returned count is the number of whole-trajectory states. Serialization is
+    deterministic, so re-running overwrites identical content.
     """
     out_dir = Path(out_dir)
     count = 0
@@ -133,6 +161,7 @@ def serialize_all(
             _write_state_json(path, state)
             count += 1
             _write_step_states(record, task, profile, out_dir)
+            _write_injected_states(record, state, profile, out_dir)
     return count
 
 
@@ -325,7 +354,13 @@ def gate_registry() -> dict[str, type[Gate]]:
     These gates make their own judge calls and have zero-argument constructors,
     so the CLI can build them without study or pricing context.
     """
-    return {"g3": G3Outcome, "g4": G4Decomposition, "g10": G10LocalModel, "g2": G2Steps}
+    return {
+        "g3": G3Outcome,
+        "g4": G4Decomposition,
+        "g7": G7Robustness,
+        "g10": G10LocalModel,
+        "g2": G2Steps,
+    }
 
 
 def default_repeats(
@@ -390,6 +425,24 @@ def read_step_states(
     return states
 
 
+def read_injected_states(
+    state_dir: Path, variant: str, profile: StateProfile
+) -> dict[tuple[str, Injection], StateRecord]:
+    """Read injected states for a variant and profile, keyed by task id and injection.
+
+    Injected states live under the ``injected`` subdirectory the serialize stage
+    writes for failing runs. A missing directory yields an empty mapping.
+    """
+    directory = Path(state_dir) / variant / profile.value / "injected"
+    states: dict[tuple[str, Injection], StateRecord] = {}
+    if not directory.is_dir():
+        return states
+    for path in sorted(directory.glob("*.json")):
+        record = StateRecord.model_validate_json(path.read_text(encoding="utf-8"))
+        states[(record.task_id, record.injection)] = record
+    return states
+
+
 def items_for_gate(
     gate_id: str,
     state_dir: Path,
@@ -401,12 +454,15 @@ def items_for_gate(
     """Build the items a gate judges for one variant and profile.
 
     The G2 step gate judges per-step states labeled by the task's expected
-    actions; every other gate judges whole-trajectory states labeled by the
-    run's reward.
+    actions; the G7 robustness gate judges the injected copies of failing runs;
+    every other gate judges whole-trajectory states labeled by the run's reward.
     """
     records, _ = load_agent_records(agent_dir, variant)
     if gate_id == "g2":
         return step_items(read_step_states(state_dir, variant, profile), records, tasks)
+    if gate_id == "g7":
+        injected = read_injected_states(state_dir, variant, profile)
+        return items_from_states(list(injected.values()), records)
     states = read_states(state_dir, variant, profile)
     return items_from_states(list(states.values()), records)
 
@@ -480,6 +536,33 @@ def run_gate(
 ) -> list[Verdict]:
     """Judge every item, keeping the CLI free of gate internals."""
     return gate.run(items, judges, cache, spend, repeats=repeats)
+
+
+def verdicts_for_analysis(
+    gate_id: str,
+    cache_dir: Path,
+    run_verdicts: Sequence[Verdict],
+    items: Sequence[Item],
+    state_dir: Path,
+    agent_dir: Path,
+    profile: StateProfile,
+    variant: str,
+) -> tuple[list[Verdict], list[Item]]:
+    """Return the verdicts and items a gate's analysis should receive.
+
+    Most gates analyze exactly the verdicts they just produced over the items
+    they judged, so those are returned unchanged. G7 additionally needs the
+    original G3 verdicts to compare against: it loads every cached verdict, adds
+    the original whole-trajectory items, and keeps the verdicts matching the
+    union of the original and injected items.
+    """
+    if gate_id != "g7":
+        return list(run_verdicts), list(items)
+    records, _ = load_agent_records(agent_dir, variant)
+    originals = items_from_states(list(read_states(state_dir, variant, profile).values()), records)
+    union = [*originals, *items]
+    all_verdicts, _ = load_verdicts(cache_dir)
+    return filter_verdicts_to_items(all_verdicts, union), union
 
 
 def analyze_gate(

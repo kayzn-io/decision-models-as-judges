@@ -101,10 +101,15 @@ def _serialize_states(tmp_path: Path) -> tuple[Path, Path]:
 
 def _judge_args(tmp_path: Path, agent_dir: Path, state_dir: Path) -> list[str]:
     """Build the judge invocation arguments for a code+fake run."""
+    return _judge_args_for(tmp_path, agent_dir, state_dir, "g3")
+
+
+def _judge_args_for(tmp_path: Path, agent_dir: Path, state_dir: Path, gate: str) -> list[str]:
+    """Build code+fake judge invocation arguments for a chosen gate."""
     return [
         "judge",
         "--gate",
-        "g3",
+        gate,
         "--profile",
         "full",
         "--variant",
@@ -154,6 +159,20 @@ def test_cli_judge_runs_gate_and_warms_cache(tmp_path: Path) -> None:
     assert second.exit_code == 0, second.output
     after = {path: path.stat().st_mtime_ns for path in sorted(cache_dir.rglob("*.json"))}
     assert after == before, "warm cache must not recompute any verdict"
+
+
+def test_cli_judge_g7_after_g3_writes_summary_and_flips(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    results_dir = tmp_path / "results"
+    runner = CliRunner()
+
+    g3 = runner.invoke(app, _judge_args_for(tmp_path, agent_dir, state_dir, "g3"))
+    assert g3.exit_code == 0, g3.output
+
+    g7 = runner.invoke(app, _judge_args_for(tmp_path, agent_dir, state_dir, "g7"))
+    assert g7.exit_code == 0, g7.output
+    assert (results_dir / "g7_summary.md").is_file()
+    assert (results_dir / "g7_flips.csv").is_file()
 
 
 def _record_with_calls(task_id: str = "retail-0") -> AgentRecord:

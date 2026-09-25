@@ -13,7 +13,7 @@ from decision_judges.config import StudyConfig, load_pricing, load_study
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.gates.g8_regression import G8Regression
-from decision_judges.serialize import StateProfile, StateRecord
+from decision_judges.serialize import Injection, StateProfile, StateRecord
 from decision_judges.types import Verdict
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -392,10 +392,11 @@ def test_parse_repeats_rejects_mixed() -> None:
 
 def test_gate_registry_contains_judging_gates() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g2", "g3", "g4", "g10"}
+    assert set(registry) == {"g2", "g3", "g4", "g7", "g10"}
     assert registry["g2"]().gate_id == "g2"
     assert registry["g3"]().gate_id == "g3"
     assert registry["g4"]().gate_id == "g4"
+    assert registry["g7"]().gate_id == "g7"
     assert registry["g10"]().gate_id == "g10"
 
 
@@ -615,3 +616,114 @@ def test_fake_judge_answers_every_question() -> None:
     assert answers["completed"].noul == 0.5
     assert verdict.usage.input_tokens == 0
     assert verdict.error is None
+
+
+# --- injected states (G7) --------------------------------------------------
+
+
+def test_serialize_all_writes_injected_only_for_failing(tmp_path: Path) -> None:
+    tasks = _tasks()
+    records = {
+        "retail-0": _record("retail-0", 1.0),
+        "retail-1": _record("retail-1", 0.0),
+    }
+    out_dir = tmp_path / "state"
+
+    pipeline.serialize_all(records, tasks, out_dir, [StateProfile.full])
+
+    injected_dir = out_dir / "baseline" / "full" / "injected"
+    for kind in ("final_message", "tool_result", "control"):
+        assert (injected_dir / f"retail-1.{kind}.json").is_file()
+    assert not (injected_dir / "retail-0.final_message.json").exists()
+
+
+def test_read_injected_states_keys_by_task_and_injection(tmp_path: Path) -> None:
+    out_dir = tmp_path / "state"
+    pipeline.serialize_all(
+        {"retail-1": _record("retail-1", 0.0)}, _tasks(), out_dir, [StateProfile.full]
+    )
+
+    injected = pipeline.read_injected_states(out_dir, "baseline", StateProfile.full)
+
+    assert set(injected) == {
+        ("retail-1", Injection.final_message),
+        ("retail-1", Injection.tool_result),
+        ("retail-1", Injection.control),
+    }
+    assert injected[("retail-1", Injection.control)].injection is Injection.control
+
+
+def test_read_injected_states_missing_dir_is_empty(tmp_path: Path) -> None:
+    assert pipeline.read_injected_states(tmp_path / "state", "baseline", StateProfile.full) == {}
+
+
+def test_items_for_gate_g7_uses_injected_states(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    record = _record("retail-1", 0.0)
+    (agent_dir / "baseline").mkdir(parents=True)
+    (agent_dir / "baseline" / "retail-1.json").write_text(
+        record.model_dump_json(), encoding="utf-8"
+    )
+    pipeline.serialize_all({"retail-1": record}, _tasks(), state_dir, [StateProfile.full])
+
+    items = pipeline.items_for_gate(
+        "g7", state_dir, agent_dir, StateProfile.full, "baseline", _tasks()
+    )
+
+    assert len(items) == 3
+    assert all(item.truth_label == "fail" for item in items)
+    assert {item.state.injection for item in items} == {
+        Injection.final_message,
+        Injection.tool_result,
+        Injection.control,
+    }
+
+
+def test_verdicts_for_analysis_non_g7_passthrough(tmp_path: Path) -> None:
+    states = [_state("retail-0")]
+    records = {"retail-0": _record("retail-0", 1.0)}
+    items = pipeline.items_from_states(states, records)
+    run_verdicts = [_verdict("hash-retail-0")]
+
+    verdicts, out_items = pipeline.verdicts_for_analysis(
+        "g3", tmp_path, run_verdicts, items, tmp_path, tmp_path, StateProfile.full, "baseline"
+    )
+
+    assert verdicts == run_verdicts
+    assert out_items == items
+
+
+def test_verdicts_for_analysis_g7_unions_originals_and_injected(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    cache_dir = tmp_path / "judge"
+    record = _record("retail-1", 0.0)
+    (agent_dir / "baseline").mkdir(parents=True)
+    (agent_dir / "baseline" / "retail-1.json").write_text(
+        record.model_dump_json(), encoding="utf-8"
+    )
+    pipeline.serialize_all({"retail-1": record}, _tasks(), state_dir, [StateProfile.full])
+
+    originals = pipeline.read_states(state_dir, "baseline", StateProfile.full)
+    injected = pipeline.read_injected_states(state_dir, "baseline", StateProfile.full)
+    shard = cache_dir / "aa"
+    shard.mkdir(parents=True)
+    all_states = [*originals.values(), *injected.values()]
+    for index, state in enumerate(all_states):
+        (shard / f"v{index}.json").write_text(
+            _verdict(state.state_hash).model_dump_json(), encoding="utf-8"
+        )
+
+    injected_items = pipeline.items_for_gate(
+        "g7", state_dir, agent_dir, StateProfile.full, "baseline", _tasks()
+    )
+    verdicts, items = pipeline.verdicts_for_analysis(
+        "g7", cache_dir, [], injected_items, state_dir, agent_dir, StateProfile.full, "baseline"
+    )
+
+    assert len(items) == 4
+    injections = {item.state.injection for item in items}
+    assert Injection.none in injections
+    assert {Injection.final_message, Injection.tool_result, Injection.control} <= injections
+    assert len(verdicts) == 4
