@@ -1,0 +1,108 @@
+/* Motion for the pipeline flow strip. Palette from the study design system. */
+:root {
+  --flow-duration: 1.8s;
+  --flow-accent: #e0651f;
+  --flow-offwhite: #f1ede4;
+  --flow-muted: #9a9384;
+  --flow-border: #6b6454;
+  --flow-surface: #161412;
+}
+
+.flow-strip {
+  display: block;
+  width: 100%;
+}
+
+.flow-strip .station rect {
+  fill: var(--flow-surface);
+  stroke: var(--flow-border);
+  stroke-width: 1;
+}
+
+.flow-strip .station .count {
+  fill: var(--flow-offwhite);
+  font-weight: 600;
+}
+
+.flow-strip .station .label {
+  fill: var(--flow-muted);
+}
+
+.flow-strip .station.active rect {
+  stroke: var(--flow-accent);
+  stroke-width: 2;
+  filter: drop-shadow(0 0 4px rgba(224, 101, 31, 0.55));
+}
+
+.flow-strip .station.active {
+  animation: station-glow 2s ease-in-out infinite;
+}
+
+.flow-strip .pipe {
+  fill: none;
+  stroke: var(--flow-border);
+  stroke-width: 2;
+}
+
+.flow-strip .pipe.flow {
+  stroke: var(--flow-accent);
+}
+
+.flow-strip .dot {
+  offset-distance: 0%;
+  animation: flow-dots var(--flow-duration) linear infinite;
+}
+
+.flow-strip .dot.paid {
+  fill: var(--flow-accent);
+}
+
+.flow-strip .dot.free {
+  fill: var(--flow-offwhite);
+}
+
+.flow-strip .arrowhead {
+  display: none;
+  fill: var(--flow-accent);
+}
+
+/* Helper classes pages apply to a card or number that just changed. */
+.settle {
+  animation: settle 300ms ease-out 1;
+}
+
+.counter {
+  animation: counter-flash 200ms ease-in-out 1;
+}
+
+@keyframes flow-dots {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+
+@keyframes station-glow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes settle {
+  from { transform: scale(1.02); }
+  to { transform: scale(1); }
+}
+
+@keyframes counter-flash {
+  0% { color: #f1ede4; }
+  50% { color: #e0651f; }
+  100% { color: #f1ede4; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flow-strip .dot,
+  .flow-strip .station.active,
+  .settle,
+  .counter {
+    animation: none;
+  }
+  .flow-strip .dot { display: none; }
+  .flow-strip .arrowhead { display: inline; }
+}

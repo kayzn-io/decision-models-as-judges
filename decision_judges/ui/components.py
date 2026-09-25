@@ -1,9 +1,11 @@
 """Shared Streamlit rendering helpers reused across pages."""
 
 from collections.abc import Sequence
+from functools import lru_cache
 from pathlib import Path
 
 import streamlit as st
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 from decision_judges import __version__
 from decision_judges.ui.views import Turn
@@ -11,6 +13,29 @@ from decision_judges.ui.views import Turn
 _ASSETS = Path(__file__).parent / "assets"
 LOGO = _ASSETS / "kayzn-logo.png"
 FAVICON = _ASSETS / "kayzn-favicon.png"
+MOTION_CSS = _ASSETS / "motion.css"
+
+_MOTION_MARKER = "_flow_motion_css_injected"
+
+
+@lru_cache(maxsize=1)
+def _motion_css() -> str:
+    """Return the motion stylesheet text, read once per process."""
+    return MOTION_CSS.read_text(encoding="utf-8")
+
+
+def motion_styles() -> None:
+    """Inject the flow-strip stylesheet once per script run."""
+    ctx = get_script_run_ctx()
+    if ctx is not None:
+        if getattr(ctx, _MOTION_MARKER, False):
+            return
+        try:
+            setattr(ctx, _MOTION_MARKER, True)
+        except (AttributeError, TypeError):
+            pass
+    st.html(f"<style>{_motion_css()}</style>")
+
 
 _REPO = "https://github.com/kayzn-io/decision-models-as-judges"
 _FOOTER = (
