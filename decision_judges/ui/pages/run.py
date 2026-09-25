@@ -66,6 +66,11 @@ def render() -> None:
 
     for index, step in enumerate(steps.STEPS, start=1):
         _card(index, step, paths, study, pricing, ledger, key, runner, running)
+    components.next_link(
+        "Trajectories",
+        "/trajectories",
+        "Read one of the conversations a step produced, beside its ground truth and every verdict.",
+    )
     components.footer()
 
 
