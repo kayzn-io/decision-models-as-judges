@@ -144,6 +144,20 @@ class StepRunner:
             thread = self._threads.get(step_id)
         return thread is not None and thread.is_alive()
 
+    def is_cancelling(self, step_id: str) -> bool:
+        """Return whether a step was asked to stop but its thread is still alive.
+
+        True while a cancel has been requested and the daemon thread is still
+        letting its in-flight work finish; False once the thread ends or when
+        no cancel was requested.
+        """
+        with self._lock:
+            token = self._tokens.get(step_id)
+            thread = self._threads.get(step_id)
+        if token is None or thread is None:
+            return False
+        return token.is_cancelled and thread.is_alive()
+
     def running_steps(self) -> list[str]:
         """Return the ids of steps whose threads are still alive."""
         with self._lock:

@@ -321,6 +321,7 @@ def _run_state(index: int, step: RunStep, paths: data.Paths, runner: StepRunner)
     if runner.is_running(step.id):
         _running_panel(step, runner)
         return
+    st.session_state.pop(f"stopping_{step.id}", None)
     status = runner.status(step.id)
     if status is not None and status.finished_at is not None:
         _finished_panel(index, step, paths, status)
@@ -361,9 +362,17 @@ def _dollar_meter(status: object) -> None:
 
 
 def _stop_button(step: RunStep, runner: StepRunner) -> None:
-    """Render the Stop button that cancels the running step."""
+    """Render the Stop button, or a disabled Stopping state once cancel is asked."""
+    if runner.is_cancelling(step.id) or st.session_state.get(f"stopping_{step.id}"):
+        st.button("Stopping", key=f"stop_{step.id}", disabled=True)
+        st.caption(
+            "Letting the conversations already in progress finish; nothing started so far is lost."
+        )
+        return
     if st.button("Stop", key=f"stop_{step.id}"):
         runner.cancel(step.id)
+        st.session_state[f"stopping_{step.id}"] = True
+        st.rerun()
 
 
 def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object) -> None:
@@ -377,7 +386,11 @@ def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object
         _stopped_early_panel(index, stopped_reason)
         return
     if getattr(status, "cancelled", False):
-        st.caption("Stopped. Your work so far is saved; run again to continue.")
+        done = getattr(status, "done", 0) or 0
+        st.caption(
+            f"Stopped after {done} conversations. "
+            "Everything finished so far is saved; run again to continue."
+        )
         return
     components.success_moment(
         f"Step {index} done",

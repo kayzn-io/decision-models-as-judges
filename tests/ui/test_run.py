@@ -175,6 +175,52 @@ def test_slow_step_shows_stop_and_cancels(monkeypatch: pytest.MonkeyPatch, tmp_p
     assert status.cancelled is True
 
 
+def test_slow_step_shows_a_stopping_state_then_the_stopped_line(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def slow_fake(paths: object, ctx: object) -> None:
+        started = utc_now_iso()
+        if ctx.on_progress is not None:
+            ctx.on_progress(
+                Progress(
+                    step_id="judge-outcome",
+                    done=1,
+                    total=4,
+                    started_at=started,
+                    last_item="item 1",
+                )
+            )
+        while not (ctx.cancel is not None and ctx.cancel.is_cancelled):
+            time.sleep(0.02)
+        time.sleep(0.5)
+
+    monkeypatch.setattr("decision_judges.ui.steps._run_judge_outcome", slow_fake)
+    root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
+
+    at.button(key="run_judge-outcome").click().run()
+    _await_running(root, "judge-outcome")
+    at.run()
+
+    at.button(key="stop_judge-outcome").click().run()
+
+    assert not at.exception
+    stopping = at.button(key="stop_judge-outcome")
+    assert stopping.label == "Stopping"
+    assert stopping.disabled is True
+    assert any(
+        "Letting the conversations already in progress finish" in text for text in _texts(at)
+    )
+
+    status = _await_finished(root, "judge-outcome")
+    assert status.cancelled is True
+    at.run()
+    assert not at.exception
+    assert any("Stopped after" in text for text in _texts(at))
+
+
 def test_resume_banner_shows_for_a_stale_step(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:
@@ -247,7 +293,7 @@ def test_cancelled_step_shows_the_stopped_line(
     at.run()
 
     assert not at.exception
-    assert any("Stopped. Your work so far is saved" in text for text in _texts(at))
+    assert any("Stopped after 1 conversations" in text for text in _texts(at))
 
 
 def _plant_stopped(root: Path, step_id: str, reason: str) -> None:

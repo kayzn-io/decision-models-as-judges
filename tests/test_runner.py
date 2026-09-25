@@ -46,6 +46,14 @@ def _loop_until_cancel(*, on_progress, cancel: CancelToken) -> None:
         time.sleep(0.01)
 
 
+def _slow_after_cancel(*, on_progress, cancel: CancelToken) -> None:
+    """A step that keeps running for a moment after cancel, like in-flight work."""
+    on_progress(Progress(step_id="x", done=1, total=1, started_at=utc_now_iso()))
+    while not cancel.is_cancelled:
+        time.sleep(0.01)
+    time.sleep(0.3)
+
+
 def test_start_writes_progress_file_ending_with_finished_at(tmp_path: Path) -> None:
     runner = StepRunner(tmp_path)
     runner.start("step", _one_shot)
@@ -105,6 +113,25 @@ def test_cancel_flips_cancelled_and_stops(tmp_path: Path) -> None:
     assert status is not None
     assert status.cancelled is True
     assert status.finished_at is not None
+
+
+def test_is_cancelling_is_true_until_the_thread_ends(tmp_path: Path) -> None:
+    runner = StepRunner(tmp_path)
+    runner.start("step", _slow_after_cancel)
+    _wait_until(lambda: runner.status("step") is not None)
+    assert runner.is_cancelling("step") is False
+
+    runner.cancel("step")
+    _wait_until(lambda: runner.is_cancelling("step"))
+    assert runner.is_running("step") is True
+
+    _wait_until(lambda: not runner.is_running("step"))
+    assert runner.is_cancelling("step") is False
+
+
+def test_is_cancelling_is_false_for_an_unknown_step(tmp_path: Path) -> None:
+    runner = StepRunner(tmp_path)
+    assert runner.is_cancelling("missing") is False
 
 
 def test_starting_a_running_step_raises(tmp_path: Path) -> None:
