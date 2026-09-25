@@ -11,6 +11,7 @@ from decision_judges.config import PricingTable, StudyConfig
 from decision_judges.serialize import StateRecord
 from decision_judges.types import Verdict
 from decision_judges.ui import charts, components, data, live
+from decision_judges.ui import keys as session_key
 from decision_judges.ui.flow import Station
 
 _PURPOSE = "Run Jev, Laya, and an LLM judge on one run, side by side, on your own keys."
@@ -20,7 +21,6 @@ _FRAMING = (
     "The text judge explains itself in prose; the decision models return only "
     "probabilities. This page shows that difference side by side."
 )
-_OPENROUTER_KEY = "live_openrouter_key"
 _TYPESAFE_KEY = "live_typesafe_key"
 _COUNT_KEY = "live_call_count"
 _RESULTS_KEY = "live_results"
@@ -66,16 +66,19 @@ def render() -> None:
 
 
 def _sidebar_keys() -> live.LiveKeys:
-    """Render the session-key inputs and return the keys held in session state."""
-    st.sidebar.subheader("Keys for this session")
-    openrouter = st.sidebar.text_input("OpenRouter API key", type="password", key=_OPENROUTER_KEY)
+    """Return the session keys: the shared OpenRouter key plus a TypeSafe field.
+
+    The OpenRouter key comes from the shared sidebar field ``app.main`` renders on
+    every page, read through ``keys.get_key``. The optional TypeSafe key serves
+    only the direct Jev route, so it stays a small field on this page rather than
+    moving into the shared expander.
+    """
     typesafe = st.sidebar.text_input(
         "TypeSafe API key (optional; only for the direct route)",
         type="password",
         key=_TYPESAFE_KEY,
     )
-    st.sidebar.caption("Keys stay in this session only; they are never saved or logged.")
-    return live.LiveKeys(openrouter=openrouter or None, typesafe=typesafe or None)
+    return live.LiveKeys(openrouter=session_key.get_key(), typesafe=typesafe or None)
 
 
 def _controls(

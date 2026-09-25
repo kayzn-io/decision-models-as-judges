@@ -7,7 +7,7 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 from decision_judges.pipeline import FakeJudge
-from decision_judges.ui import live
+from decision_judges.ui import keys, live
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _UI_ROOT = _REPO_ROOT / "tests" / "fixtures" / "ui_cache"
@@ -82,7 +82,8 @@ def test_live_entering_key_enables_button(monkeypatch: pytest.MonkeyPatch, tmp_p
     _disable_laya(monkeypatch)
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
 
     assert not at.exception
     assert at.button(key="live_judge").disabled is False
@@ -99,7 +100,8 @@ def test_live_click_shows_verdict_metrics_and_writes_no_cache(
     at.run()
     before = _judge_files(root)
 
-    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
     at.button(key="live_judge").click().run()
 
     assert not at.exception
@@ -116,7 +118,8 @@ def test_live_button_disabled_after_reaching_cap(
     )
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
     for _ in range(live.LIVE_CALL_CAP):
         at.button(key="live_judge").click().run()
     at.run()
@@ -133,7 +136,8 @@ def test_live_never_renders_the_key(monkeypatch: pytest.MonkeyPatch, tmp_path: P
     )
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
     at.button(key="live_judge").click().run()
 
     assert not at.exception
@@ -167,7 +171,8 @@ def test_live_shows_latency_race_after_judging(
     )
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key="live_openrouter_key").set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
     at.button(key="live_judge").click().run()
 
     assert not at.exception

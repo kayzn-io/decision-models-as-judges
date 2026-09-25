@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit.navigation.page import StreamlitPage
 from streamlit.runtime.scriptrunner import get_script_run_ctx
 
-from decision_judges.ui import components, data
+from decision_judges.ui import components, data, keys
 from decision_judges.ui.pages import gates, label, live, overview, run, trajectories
 
 _Render = Callable[[], None]
@@ -66,6 +66,8 @@ def main() -> None:
     )
     local = data.is_local()
     components.sidebar_brand()
+    if local:
+        keys.render_key_field()
     pages = build_pages(local)
     navigation = st.navigation(pages)
     caption = mode_caption(local)

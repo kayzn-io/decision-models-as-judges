@@ -9,12 +9,12 @@ from streamlit.testing.v1 import AppTest
 
 from decision_judges.progress import Progress, utc_now_iso
 from decision_judges.runner import StepRunner
+from decision_judges.ui import keys
 
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 _UI_ROOT = _REPO_ROOT / "tests" / "fixtures" / "ui_cache"
 _SCRIPT = "from decision_judges.ui.pages.run import render\n\nrender()\n"
 _FAKE_KEY = "sk-fake-run-key-XYZ"
-_KEY_FIELD = "live_openrouter_key"
 _PAID_IDS = ("run-agent", "judge-outcome", "gates", "label")
 
 
@@ -107,7 +107,8 @@ def test_entering_a_key_enables_paid_buttons(
 ) -> None:
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key=_KEY_FIELD).set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
 
     assert not at.exception
     assert at.button(key="run_judge-outcome").disabled is False
@@ -161,7 +162,8 @@ def test_slow_step_shows_stop_and_cancels(monkeypatch: pytest.MonkeyPatch, tmp_p
     monkeypatch.setattr("decision_judges.ui.steps._run_judge_outcome", slow_fake)
     root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key=_KEY_FIELD).set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
 
     at.button(key="run_judge-outcome").click().run()
     _await_running(root, "judge-outcome")
@@ -191,7 +193,8 @@ def test_resume_banner_shows_for_a_stale_step(
 def test_run_page_never_renders_the_key(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
-    at.text_input(key=_KEY_FIELD).set_value(_FAKE_KEY).run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
 
     assert not at.exception
     assert all(_FAKE_KEY not in str(text) for text in _texts(at))

@@ -12,11 +12,10 @@ from datetime import datetime
 import streamlit as st
 
 from decision_judges.runner import StepAlreadyRunning, StepRunner
-from decision_judges.ui import components, data, flow, steps
+from decision_judges.ui import components, data, flow, keys, steps
 from decision_judges.ui.steps import RunContext, RunStep, StepStatus
 
 _PURPOSE = "Eight steps, in order. Each shows what goes in, what comes out, and what it costs."
-_OPENROUTER_KEY = "live_openrouter_key"
 _RUNNER_KEY = "run_step_runner"
 _BALLOONS_KEY = "run_first_paid_finished"
 _SETTLE_MARKER = "run_settle_css"
@@ -48,7 +47,7 @@ def render() -> None:
     paths = data.Paths.from_env()
     study, pricing = data.load_study_and_pricing(paths)
     ledger = data.load_ledger(paths)
-    key = _sidebar_key()
+    key = keys.get_key()
     runner = _runner(paths)
 
     components.page_header("Run the study", _PURPOSE)
@@ -72,14 +71,6 @@ def render() -> None:
         "Read one of the conversations a step produced, beside its ground truth and every verdict.",
     )
     components.footer()
-
-
-def _sidebar_key() -> str | None:
-    """Render the shared OpenRouter key field and return the session value."""
-    st.sidebar.subheader("Key for this session")
-    st.sidebar.text_input("OpenRouter API key", type="password", key=_OPENROUTER_KEY)
-    st.sidebar.caption("Keys stay in this session only; they are never saved or logged.")
-    return st.session_state.get(_OPENROUTER_KEY) or None
 
 
 def _runner(paths: data.Paths) -> StepRunner:
@@ -216,7 +207,7 @@ def _disabled_reason(status: StepStatus, locked: bool, needs_key: bool, busy: bo
     if locked:
         return status.detail
     if needs_key:
-        return "Add your OpenRouter key in the sidebar to run this step."
+        return keys.require_key_hint()
     if busy:
         return "Another step is running; wait for it to finish."
     return None
