@@ -10,6 +10,7 @@ import pandas as pd
 import streamlit as st
 
 _ACRONYMS = frozenset({"AUROC", "ECE", "F1", "USD"})
+_JUDGE_COLUMNS = frozenset({"judge", "judge_id"})
 _RATIO_KEYWORDS = (
     "rate",
     "accuracy",
@@ -43,6 +44,21 @@ def friendly_label(column: str) -> str:
     return " ".join(words)
 
 
+def axis_title(column: str) -> str:
+    """Return a chart axis or legend title for a column name.
+
+    Judge columns collapse to ``Judge``, cost columns gain a ``(USD)`` unit, and
+    every other column keeps its friendly Sentence-case header.
+    """
+    lower = column.lower()
+    if lower in _JUDGE_COLUMNS:
+        return "Judge"
+    label = friendly_label(column)
+    if "cost" in lower and "usd" not in lower:
+        return f"{label} (USD)"
+    return label
+
+
 def column_config_for(df: pd.DataFrame) -> dict[str, Any]:
     """Map each column to a Streamlit column config by its name and dtype.
 
@@ -59,15 +75,23 @@ def column_config_for(df: pd.DataFrame) -> dict[str, Any]:
         if pd.api.types.is_bool_dtype(df[column]):
             config[column] = st.column_config.CheckboxColumn(label=label, disabled=True)
         elif "usd" in lower or "cost" in lower:
-            config[column] = st.column_config.NumberColumn(label=label, format="$%.4f")
+            config[column] = st.column_config.NumberColumn(
+                label=label, format="$%.4f", width="small"
+            )
         elif "latency" in lower:
-            config[column] = st.column_config.NumberColumn(label=label, format="%d ms")
+            config[column] = st.column_config.NumberColumn(
+                label=label, format="%d ms", width="small"
+            )
         elif "kappa" in lower:
-            config[column] = st.column_config.NumberColumn(label=label, format="%.3f")
+            config[column] = st.column_config.NumberColumn(
+                label=label, format="%.3f", width="small"
+            )
         elif any(keyword in lower for keyword in _RATIO_KEYWORDS):
-            config[column] = st.column_config.NumberColumn(label=f"{label} (0–1)", format="%.3f")
+            config[column] = st.column_config.NumberColumn(
+                label=f"{label} (0–1)", format="%.3f", width="small"
+            )
         elif lower == "n" or any(keyword in lower for keyword in _COUNT_KEYWORDS):
-            config[column] = st.column_config.NumberColumn(label=label, format="%d")
+            config[column] = st.column_config.NumberColumn(label=label, format="%d", width="small")
         else:
             config[column] = st.column_config.Column(label=label)
     return config

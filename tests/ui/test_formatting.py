@@ -85,6 +85,27 @@ def test_friendly_label_keeps_known_acronyms() -> None:
     assert formatting.friendly_label("cost_per_item") == "Cost per item"
 
 
+def test_axis_title_collapses_judge_columns() -> None:
+    assert formatting.axis_title("judge") == "Judge"
+    assert formatting.axis_title("judge_id") == "Judge"
+
+
+def test_axis_title_adds_usd_unit_to_cost_columns() -> None:
+    assert formatting.axis_title("cost_per_item") == "Cost per item (USD)"
+    assert formatting.axis_title("input_usd") == "Input USD"
+
+
+def test_axis_title_keeps_friendly_labels() -> None:
+    assert formatting.axis_title("auroc") == "AUROC"
+    assert formatting.axis_title("accuracy") == "Accuracy"
+
+
+def test_number_columns_are_width_small() -> None:
+    config = _config()
+    for column in ("accuracy", "cost_per_item", "latency_p50", "kappa", "n"):
+        assert config[column]["width"] == "small"
+
+
 def test_pct_formats_ratio_as_one_decimal_percent() -> None:
     assert formatting.pct(0.924) == "92.4%"
     assert formatting.pct(1.0) == "100.0%"

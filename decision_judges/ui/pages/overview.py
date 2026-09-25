@@ -15,6 +15,10 @@ _FRONTIER_WHAT = (
     "The cascade frontier: accuracy against cost per verdict for each confidence threshold."
 )
 _FRONTIER_COMMAND = "judges analyze --gate g5"
+_FRONTIER_HEADLINE = (
+    "Each point takes the decision model's verdict when its confidence clears the threshold "
+    "and the strong LLM's verdict otherwise; further right costs more, higher is more accurate."
+)
 
 
 def render() -> None:
@@ -39,6 +43,7 @@ def render() -> None:
     )
 
     st.subheader("Cascade frontier")
+    st.caption(_FRONTIER_HEADLINE)
     _frontier(paths)
 
     st.subheader("Judge roster")

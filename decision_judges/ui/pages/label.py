@@ -2,7 +2,7 @@
 
 import streamlit as st
 
-from decision_judges.labels import TAXONOMY, Label
+from decision_judges.labels import TAXONOMY, TAXONOMY_DESCRIPTIONS, Label, label_title
 from decision_judges.ui import components, data, views
 
 _TARGET = 50
@@ -36,9 +36,11 @@ def render() -> None:
     record = data.load_agent_records(paths)[(variant, task_id)]
     components.render_conversation(views.turns(record))
 
-    label = st.radio("Label", TAXONOMY, key="label")
+    label = st.radio("Label", TAXONOMY, index=None, format_func=label_title, key="label")
+    if label is not None:
+        st.caption(TAXONOMY_DESCRIPTIONS[str(label)])
     note = st.text_area("Note", key="note")
-    if st.button("Save label", key="save"):
+    if st.button("Save label", key="save", type="primary", disabled=label is None):
         store.append(Label(variant=variant, task_id=task_id, label=str(label), note=note))
         _advance()
         st.toast("Label saved.")

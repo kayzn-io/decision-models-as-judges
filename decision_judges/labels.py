@@ -21,6 +21,39 @@ TAXONOMY: tuple[str, ...] = (
     "other",
 )
 
+TAXONOMY_DESCRIPTIONS: dict[str, str] = {
+    "wrong_or_missing_action": (
+        "The agent took an action the task did not call for, or skipped one it required."
+    ),
+    "unrequested_write": (
+        "The agent changed an order, account, or record the customer never asked it to change."
+    ),
+    "skipped_confirmation": (
+        "The agent made a change without first confirming the details with the customer."
+    ),
+    "identity_not_verified": (
+        "The agent acted on the account without verifying the customer's identity first."
+    ),
+    "wrong_arguments": (
+        "The agent called the right tool but with wrong arguments, such as the wrong order id "
+        "or amount."
+    ),
+    "premature_end": (
+        "The agent ended the conversation before the customer's request was resolved."
+    ),
+    "policy_misapplied": (
+        "The agent applied the retail policy incorrectly, such as refunding an item outside its "
+        "return window."
+    ),
+    "other": "The failure does not fit any of the specific categories above.",
+}
+
+
+def label_title(label: str) -> str:
+    """Return a human title for a taxonomy label ('Wrong or missing action')."""
+    return label.replace("_", " ").capitalize()
+
+
 _STORE_RELATIVE = Path("labels") / "taxonomy.jsonl"
 
 

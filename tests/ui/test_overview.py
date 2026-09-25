@@ -2,7 +2,7 @@
 
 from streamlit.testing.v1 import AppTest
 
-from decision_judges.ui.app import page_specs
+from decision_judges.ui.app import mode_caption, page_specs
 
 
 def _metric_values(at: AppTest) -> dict[str, str]:
@@ -41,3 +41,16 @@ def test_navigation_lists_shared_pages_only_when_not_local() -> None:
 
 def test_navigation_adds_local_pages_when_local() -> None:
     assert page_specs(True) == ["Overview", "Trajectories", "Gates", "Label", "Live"]
+
+
+def test_mode_caption_by_mode() -> None:
+    assert mode_caption(True) == "Local mode: labeling and live judging enabled"
+    assert mode_caption(False) is None
+
+
+def test_overview_shows_frontier_headline(app_test: AppTest) -> None:
+    at = app_test
+    at.run()
+    assert not at.exception
+    captions = "\n".join(caption.value for caption in at.caption)
+    assert "further right costs more, higher is more accurate" in captions

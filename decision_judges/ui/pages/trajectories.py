@@ -50,13 +50,12 @@ def render() -> None:
     step_frames = views.step_scores(steps, grouped)
     expected = views.expected_step_flags(task, record) if task is not None else None
 
-    conversation, ground_truth, verdicts = st.columns(3)
+    conversation, ground_truth = st.columns([3, 2])
     with conversation:
         _conversation(record, step_frames, expected, sentence)
     with ground_truth:
         _ground_truth(record, task)
-    with verdicts:
-        _verdicts(state, grouped)
+    _verdicts(state, grouped)
     components.footer()
 
 
@@ -70,10 +69,31 @@ def _dataframe(frame: pd.DataFrame) -> None:
     )
 
 
+def _actions_table(frame: pd.DataFrame) -> None:
+    """Render the expected-actions table, wrapping the wide argument column."""
+    st.dataframe(
+        frame,
+        column_config={
+            "action": st.column_config.TextColumn("Action", width="large"),
+            "matched": st.column_config.CheckboxColumn("Matched", disabled=True),
+        },
+        hide_index=True,
+        use_container_width=True,
+    )
+
+
 def _select_default(label: str, options: list[str], default: str, key: str) -> str:
     """Render a selectbox defaulting to ``default`` when it is among options."""
     index = options.index(default) if default in options else 0
     return str(st.selectbox(label, options, index=index, key=key))
+
+
+def _current(key: str, options: list[str], fallback: str) -> str:
+    """Return the live selection for a widget key, validated against its options."""
+    chosen = st.session_state.get(key, fallback)
+    if chosen in options:
+        return str(chosen)
+    return options[0] if options else fallback
 
 
 def _select(
@@ -85,25 +105,33 @@ def _select(
     A ``variant``, ``task``, or ``injection`` query parameter preselects the
     matching widget so a link can deep-link into a specific state; the resulting
     selection is written back to the query parameters. The selectors share one
-    bordered row so they read as a single control group.
+    row of columns inside a bordered container so they read as one control group.
     """
     variants = sorted({variant for variant, _ in records})
     desired = views.selection_from_query(
         dict(st.query_params),
         {"variant": variants[0], "task": "", "injection": _DEFAULT_INJECTION},
     )
+    count = _selector_count(records, states, variants, desired)
     with st.container(border=True):
-        variant = _select_default("Variant", variants, desired["variant"], "variant")
+        columns = st.columns(count)
+        cursor = 0
+        with columns[cursor]:
+            variant = _select_default("Variant", variants, desired["variant"], "variant")
+        cursor += 1
 
         task_ids = sorted({tid for candidate, tid in records if candidate == variant})
-        task_id = _select_default("Task", task_ids, desired["task"], "task")
+        with columns[cursor]:
+            task_id = _select_default("Task", task_ids, desired["task"], "task")
+        cursor += 1
 
         profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
-        profile = (
-            _select_default("Profile", profiles, _DEFAULT_PROFILE, "profile")
-            if profiles
-            else _DEFAULT_PROFILE
-        )
+        if profiles:
+            with columns[cursor]:
+                profile = _select_default("Profile", profiles, _DEFAULT_PROFILE, "profile")
+            cursor += 1
+        else:
+            profile = _DEFAULT_PROFILE
 
         injections = sorted(
             {
@@ -113,12 +141,33 @@ def _select(
             }
         )
         if len(injections) > 1:
-            injection = _select_default("Injection", injections, desired["injection"], "injection")
+            with columns[cursor]:
+                injection = _select_default(
+                    "Injection", injections, desired["injection"], "injection"
+                )
         else:
             injection = injections[0] if injections else _DEFAULT_INJECTION
 
     _write_query_params(variant, task_id, injection)
     return variant, task_id, profile, injection
+
+
+def _selector_count(
+    records: dict[tuple[str, str], AgentRecord],
+    states: dict[tuple[str, str, str, str], StateRecord],
+    variants: list[str],
+    desired: dict[str, str],
+) -> int:
+    """Return how many selector columns the current selection needs (variant, task, +optional)."""
+    variant = _current("variant", variants, desired["variant"])
+    task_ids = sorted({tid for candidate, tid in records if candidate == variant})
+    task_id = _current("task", task_ids, desired["task"])
+    profiles = sorted({prof for v, prof, _, tid in states if v == variant and tid == task_id})
+    profile = _current("profile", profiles, _DEFAULT_PROFILE) if profiles else _DEFAULT_PROFILE
+    injections = sorted(
+        {inj for v, prof, inj, tid in states if v == variant and prof == profile and tid == task_id}
+    )
+    return 2 + (1 if profiles else 0) + (1 if len(injections) > 1 else 0)
 
 
 def _write_query_params(variant: str, task_id: str, injection: str) -> None:
@@ -152,7 +201,7 @@ def _conversation(
                     if turn.content:
                         st.write(turn.content)
                     for call in turn.tool_calls:
-                        st.code(call)
+                        st.code(call, language="json", wrap_lines=True)
                         pending.append(call.split("(", 1)[0])
                         _step_scores(step_index, step_frames, expected)
                         step_index += 1
@@ -211,7 +260,7 @@ def _ground_truth(record: AgentRecord, task: Task | None) -> None:
         }
         for action, matched in views.matched_expected_actions(task, record)
     ]
-    _dataframe(pd.DataFrame(action_rows, columns=["action", "matched"]))
+    _actions_table(pd.DataFrame(action_rows, columns=["action", "matched"]))
     if task.outputs:
         st.write("Required outputs:")
         for output in task.outputs:

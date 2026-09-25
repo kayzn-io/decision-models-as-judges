@@ -34,6 +34,11 @@ def _color_scale(chart: alt.TopLevelMixin) -> dict:
     return chart.to_dict()["encoding"]["color"]["scale"]
 
 
+def _encoding(chart: alt.TopLevelMixin) -> dict:
+    """Return the top-level encoding block of a single-layer chart."""
+    return chart.to_dict()["encoding"]
+
+
 def test_bar_returns_a_bar_mark() -> None:
     frame = pd.DataFrame({"judge_id": ["code", "fake"], "accuracy": [1.0, 0.5]})
     chart = charts.bar(frame, x="judge_id", y="accuracy", title="Accuracy")
@@ -106,3 +111,54 @@ def test_intervals_has_rule_and_point_marks() -> None:
     )
     assert "rule" in marks
     assert "point" in marks
+
+
+def test_bar_axis_titles_are_friendly() -> None:
+    frame = pd.DataFrame({"judge_id": ["code", "fake"], "auroc": [0.9, 0.8]})
+    encoding = _encoding(charts.bar(frame, x="judge_id", y="auroc", color="judge_id"))
+    assert encoding["x"]["title"] == "Judge"
+    assert encoding["y"]["title"] == "AUROC"
+    assert encoding["color"]["title"] == "Judge"
+
+
+def test_single_category_bar_sets_a_fixed_bar_size() -> None:
+    frame = pd.DataFrame({"judge_id": ["code"], "accuracy": [0.9]})
+    spec = charts.bar(frame, x="judge_id", y="accuracy").to_dict()
+    assert spec["mark"]["type"] == "bar"
+    assert spec["mark"]["size"] == 48
+
+
+def test_multi_category_bar_has_no_fixed_size() -> None:
+    frame = pd.DataFrame({"judge_id": ["code", "fake"], "accuracy": [0.9, 0.8]})
+    mark = charts.bar(frame, x="judge_id", y="accuracy").to_dict()["mark"]
+    assert "size" not in mark
+
+
+def test_every_chart_is_280_tall() -> None:
+    frame = pd.DataFrame({"judge_id": ["code", "fake"], "accuracy": [0.9, 0.8]})
+    assert charts.bar(frame, x="judge_id", y="accuracy").to_dict()["height"] == 280
+
+
+def test_frontier_axis_titles_and_formats() -> None:
+    frontier = pd.DataFrame(
+        {"t": [0.5, 0.9], "cost_per_item": [0.001, 0.01], "accuracy": [0.8, 0.95]}
+    )
+    line = charts.frontier(
+        frontier, x_cost="cost_per_item", y_accuracy="accuracy", label="t"
+    ).to_dict()["layer"][0]["encoding"]
+    assert line["x"]["title"] == "Cost per item (USD)"
+    assert line["x"]["axis"]["format"] == "$.4f"
+    assert line["y"]["title"] == "Accuracy"
+    assert line["y"]["axis"]["format"].endswith("%")
+
+
+def test_frontier_labels_read_as_threshold_equals() -> None:
+    frontier = pd.DataFrame(
+        {"t": [0.5, 0.9], "cost_per_item": [0.001, 0.01], "accuracy": [0.8, 0.95]}
+    )
+    spec = str(
+        charts.frontier(
+            frontier, x_cost="cost_per_item", y_accuracy="accuracy", label="t"
+        ).to_dict()
+    )
+    assert "t = " in spec

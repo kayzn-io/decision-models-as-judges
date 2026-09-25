@@ -5,7 +5,31 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
-from decision_judges.labels import TAXONOMY, Label, LabelStore
+from decision_judges.labels import (
+    TAXONOMY,
+    TAXONOMY_DESCRIPTIONS,
+    Label,
+    LabelStore,
+    label_title,
+)
+
+
+def test_label_title_reads_as_a_sentence() -> None:
+    assert label_title("wrong_or_missing_action") == "Wrong or missing action"
+    assert label_title("other") == "Other"
+    assert label_title("identity_not_verified") == "Identity not verified"
+
+
+def test_every_taxonomy_label_has_a_title_and_description() -> None:
+    for label in TAXONOMY:
+        assert label_title(label).strip()
+        description = TAXONOMY_DESCRIPTIONS[label]
+        assert description.strip()
+        assert description.endswith(".")
+
+
+def test_descriptions_cover_exactly_the_taxonomy() -> None:
+    assert set(TAXONOMY_DESCRIPTIONS) == set(TAXONOMY)
 
 
 def _label(task_id: str, label: str, created_at: str, variant: str = "baseline") -> Label:

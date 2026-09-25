@@ -54,16 +54,44 @@ def test_label_local_shows_radio_and_progress(
     assert not at.exception
     assert len(at.radio) == 1
     assert list(at.radio[0].options) == [
-        "wrong_or_missing_action",
-        "unrequested_write",
-        "skipped_confirmation",
-        "identity_not_verified",
-        "wrong_arguments",
-        "premature_end",
-        "policy_misapplied",
-        "other",
+        "Wrong or missing action",
+        "Unrequested write",
+        "Skipped confirmation",
+        "Identity not verified",
+        "Wrong arguments",
+        "Premature end",
+        "Policy misapplied",
+        "Other",
     ]
     assert "0 of 50 labeled" in _texts(at)
+
+
+def test_label_defaults_to_no_selection_and_disables_save(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    assert at.radio[0].value is None
+    save = next(button for button in at.button if button.label == "Save label")
+    assert save.disabled is True
+
+
+def test_label_shows_description_of_selected_label(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    from decision_judges.labels import TAXONOMY_DESCRIPTIONS
+
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    at.radio[0].set_value("skipped_confirmation").run()
+
+    assert not at.exception
+    captions = "\n".join(caption.value for caption in at.caption)
+    assert TAXONOMY_DESCRIPTIONS["skipped_confirmation"] in captions
+    save = next(button for button in at.button if button.label == "Save label")
+    assert save.disabled is False
 
 
 def test_label_save_appends_line_and_updates_progress(

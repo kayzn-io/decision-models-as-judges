@@ -71,7 +71,7 @@ def render_conversation(turns: list[Turn]) -> None:
                 if turn.content:
                     st.write(turn.content)
                 for call in turn.tool_calls:
-                    st.code(call)
+                    st.code(call, language="json", wrap_lines=True)
         elif turn.role == "tool":
             with st.expander("tool result"):
                 st.write(turn.content)

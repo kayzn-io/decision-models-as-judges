@@ -30,6 +30,13 @@ def page_specs(local: bool) -> list[str]:
     return titles
 
 
+def mode_caption(local: bool) -> str | None:
+    """Return the sidebar mode caption, or None when there is nothing to say."""
+    if local:
+        return "Local mode: labeling and live judging enabled"
+    return None
+
+
 def build_pages(local: bool) -> list[StreamlitPage]:
     """Build the navigation pages, including local-only pages when local."""
     entries = list(_SHARED_PAGES)
@@ -49,11 +56,12 @@ def main() -> None:
         layout="wide",
     )
     local = data.is_local()
-    mode = "local mode" if local else "shared mode"
     components.sidebar_brand()
     pages = build_pages(local)
     navigation = st.navigation(pages)
-    st.sidebar.caption(mode)
+    caption = mode_caption(local)
+    if caption is not None:
+        st.sidebar.caption(caption)
     navigation.run()
 
 
