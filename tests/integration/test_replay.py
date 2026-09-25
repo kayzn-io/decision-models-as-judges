@@ -38,4 +38,6 @@ def test_results_replays_offline_on_empty_cache(tmp_path: Path) -> None:
 
     assert result.returncode == 0, result.stderr
     assert (results_dir / "summary.md").is_file()
-    assert EMPTY_SUMMARY in readme.read_text(encoding="utf-8")
+    readme_text = readme.read_text(encoding="utf-8")
+    assert EMPTY_SUMMARY in readme_text
+    assert "### Outcome judging" in readme_text

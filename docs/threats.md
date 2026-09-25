@@ -1,0 +1,12 @@
+- Every judge sees the same serialized state and answers the same rubric, so serialization and rubric choices bias all judges equally.
+- LLM judges run at provider defaults with no per-judge prompt or temperature tuning.
+- Jev's training data is described by TypeSafe as synthetic and cannot be verified from outside.
+- Results cover one agent model and one domain, tau-bench retail, under two policy variants.
+- tau-bench's strict state matching penalizes valid alternative solution paths, and it does so for every judge equally.
+- Hand labels for the failure taxonomy come from a single annotator.
+- Laya accepts 512 input tokens, which forces a compact state, so the fair local-model comparison is on compact states only.
+- Fine-tuning uses 115 tasks, which is small; only cross-validated numbers are reported.
+- Prices are public list prices as of the date on the pricing table and drift as providers change them.
+- Jev is served through OpenRouter after TypeSafe paused direct signups, so its measured latency includes the gateway.
+- Reward truth comes from tau-bench itself, so it is a proxy for task success rather than an independent human judgment.
+- Cached runs fix one random seed per stage, so variance across seeds is not measured here.

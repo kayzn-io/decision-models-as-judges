@@ -466,6 +466,6 @@ def test_cli_results_lists_gate_tables(tmp_path: Path) -> None:
 
     assert result.exit_code == 0, result.output
     body = (results_dir / "summary.md").read_text(encoding="utf-8")
-    assert "Tables" in body
-    assert "g3_summary" in body
-    assert "g3_summary" in readme.read_text(encoding="utf-8")
+    assert "### Outcome judging" in body
+    assert "| a |" in body
+    assert "### Outcome judging" in readme.read_text(encoding="utf-8")

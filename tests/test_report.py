@@ -8,14 +8,30 @@ from typer.testing import CliRunner
 
 from decision_judges.cli import app
 from decision_judges.report import (
+    render_results,
     render_summary,
     update_readme,
     write_chart,
+    write_findings,
     write_table,
 )
 
 MARKERS = "<!-- results:start -->\n{body}\n<!-- results:end -->"
 EMPTY_SUMMARY = "No cached results yet. Tables and charts appear here as evaluation stages run."
+FIXTURE = Path(__file__).resolve().parent / "fixtures" / "results_sample"
+
+GATE_TITLES = [
+    "Task triage before any run",
+    "Per-step tool-call scoring",
+    "Outcome judging",
+    "Atomic questions versus one broad question",
+    "Confidence-gated cascade",
+    "Calibration",
+    "Robustness to evaluator-directed text",
+    "Regression detection",
+    "Failure taxonomy against hand labels",
+    "Local decision model: zero-shot versus fine-tuned",
+]
 
 
 def test_write_table_writes_both_files_with_header(tmp_path: Path) -> None:
@@ -150,5 +166,57 @@ def test_results_command_writes_summary(tmp_path: Path) -> None:
     assert result.exit_code == 0
     summary_file = results_dir / "summary.md"
     assert summary_file.is_file()
-    assert summary_file.read_text(encoding="utf-8") == EMPTY_SUMMARY
-    assert EMPTY_SUMMARY in readme.read_text(encoding="utf-8")
+    summary_text = summary_file.read_text(encoding="utf-8")
+    assert EMPTY_SUMMARY in summary_text
+    assert summary_text.count("Not run yet") == 10
+    readme_text = readme.read_text(encoding="utf-8")
+    assert EMPTY_SUMMARY in readme_text
+    assert "### Outcome judging" in readme_text
+
+
+def test_write_findings_writes_gate_file(tmp_path: Path) -> None:
+    path = write_findings(tmp_path / "results", "g3", "code judge wins")
+
+    assert path == tmp_path / "results" / "g3_findings.md"
+    assert path.read_text(encoding="utf-8") == "code judge wins\n"
+
+
+def test_render_results_on_fixture_renders_all_sections(tmp_path: Path) -> None:
+    body = render_results(FIXTURE, tmp_path / "missing")
+
+    # Every gate title appears, in order.
+    positions = [body.index(f"### {title}") for title in GATE_TITLES]
+    assert positions == sorted(positions)
+
+    # G3 has a table, findings, and a chart image.
+    assert "| judge_id" in body
+    assert "0.95" in body
+    assert "The code judge reaches 0.95 accuracy" in body
+    assert "![Outcome judging](results/g3_accuracy.png)" in body
+
+    # G2 has no table yet.
+    assert "Not run yet" in body
+    assert body.count("Not run yet") == 7
+
+    # Threats and Reproduce close the fragment.
+    assert "### Threats to validity" in body
+    assert "synthetic" in body
+    assert "### Reproduce" in body
+    assert "make results" in body
+
+
+def test_render_results_empty_dir_has_ten_not_run(tmp_path: Path) -> None:
+    body = render_results(tmp_path / "results", tmp_path / "cache")
+
+    assert body.count("Not run yet") == 10
+    for title in GATE_TITLES:
+        assert f"### {title}" in body
+
+
+def test_render_results_uses_analyze_hint_for_analysis_gates(tmp_path: Path) -> None:
+    body = render_results(tmp_path / "results", tmp_path / "cache")
+
+    assert "judges analyze --gate g5" in body
+    assert "judges analyze --gate g6" in body
+    assert "judges analyze --gate g8" in body
+    assert "judges judge --gate g2" in body

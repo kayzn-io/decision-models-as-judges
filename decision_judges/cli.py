@@ -12,7 +12,7 @@ from decision_judges.bench import run_agent as run_agent_mod
 from decision_judges.bench.load import Task
 from decision_judges.cache import Cache
 from decision_judges.config import load_pricing, load_study
-from decision_judges.report import render_summary, update_readme
+from decision_judges.report import render_results, update_readme, write_findings
 from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.spend import Spend
 
@@ -65,13 +65,8 @@ def results(
     readme: Annotated[Path, typer.Option("--readme")] = Path("README.md"),
 ) -> None:
     """Render a results summary from the cache and refresh the README."""
-    summary = render_summary(cache_dir)
     results_dir.mkdir(parents=True, exist_ok=True)
-    tables = pipeline.list_result_tables(results_dir)
-    body = summary
-    if tables:
-        links = "\n".join(f"- [{name}]({name}.md)" for name in tables)
-        body = f"{summary}\n\n**Tables:**\n\n{links}"
+    body = render_results(results_dir, cache_dir)
     summary_path = results_dir / "summary.md"
     summary_path.write_text(body, encoding="utf-8")
     if readme.is_file():
@@ -179,6 +174,7 @@ def judge(
         gate, cache_dir, verdicts, items, state_dir, agent_dir, state_profile, variant
     )
     findings = pipeline.analyze_gate(gate_impl, analysis_verdicts, analysis_items, results_dir)
+    write_findings(results_dir, gate, findings)
     typer.echo(findings)
     typer.echo(f"{gate} spend: ${spend.spent(gate_impl.stage):.6f}")
 
@@ -228,6 +224,7 @@ def analyze(
         )
         return
     findings = pipeline.analyze_gate(gate_impl, verdicts, items, results_dir)
+    write_findings(results_dir, gate, findings)
     typer.echo(findings)
 
 
