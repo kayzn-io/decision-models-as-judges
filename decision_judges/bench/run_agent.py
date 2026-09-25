@@ -210,12 +210,20 @@ class _TauRunner:
         os.environ["OPENAI_API_BASE"] = self._base_url
 
     def preflight(self) -> None:
-        """Fail before any task when the API key is missing, naming how to set it."""
-        if not os.environ.get(self._key_env):
+        """Fail before any task when the API key is missing, and hand it to litellm.
+
+        tau_bench calls litellm with the ``openai`` provider, which reads
+        ``OPENAI_API_KEY``. The study holds one OpenRouter key, so the check and
+        the hand-off happen together: a missing key raises before any task, and a
+        present one is copied into the variable litellm reads.
+        """
+        key = os.environ.get(self._key_env)
+        if not key:
             raise MissingCredentials(
                 f"{self._key_env} is not set. Set it in the app sidebar or run "
                 f"export {self._key_env}=... before this step."
             )
+        os.environ["OPENAI_API_KEY"] = key
 
     def __call__(self, task_index: int, policy: str) -> RawRunResult:
         from tau_bench.agents.tool_calling_agent import ToolCallingAgent

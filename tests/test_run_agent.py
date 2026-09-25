@@ -4,6 +4,7 @@ These unit tests inject a fake runner and never import tau_bench or touch the
 network. The real ``build_tau_runner`` is left to the marked smoke test.
 """
 
+import os
 from datetime import date
 from pathlib import Path
 
@@ -394,3 +395,15 @@ def test_build_tau_runner_binds_config_without_running() -> None:
     assert baseline.user_model == study.models.user_sim
     assert baseline.policy == WIKI
     assert CONFIRMATION_RULE not in degraded.policy
+
+
+def test_preflight_hands_the_openrouter_key_to_litellm(monkeypatch: pytest.MonkeyPatch) -> None:
+    """litellm reads OPENAI_API_KEY; preflight must populate it from the OpenRouter key."""
+    from decision_judges.bench import run_agent as mod
+
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test-key")
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    runner = mod._TauRunner.__new__(mod._TauRunner)
+    runner._key_env = "OPENROUTER_API_KEY"
+    runner.preflight()
+    assert os.environ["OPENAI_API_KEY"] == "sk-or-test-key"
