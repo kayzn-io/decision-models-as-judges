@@ -1,95 +1,104 @@
-"""Overview page: study summary, corpus counts, judge roster, and threats."""
+"""Overview page: the study's front door.
+
+A hero states what the study asks and the next thing to do, the pipeline strip
+is the one diagram, ten tiles link to each experiment, one chart carries the
+headline result, and a single Details expander holds the roster, spend, counts,
+and threats so nothing about tokens or file counts sits above the fold.
+"""
 
 import streamlit as st
 
-from decision_judges.ui import charts, components, data, formatting
+from decision_judges.ui import charts, components, data, flow, formatting
+from decision_judges.ui.flow import Station
 
-_PURPOSE = "What the study measures, who the judges are, and what it has cost so far."
-_WHY = "It orients you before you open any single gate or trajectory."
-_NEXT_HINT = "Run the pipeline to fill in any gates that are still empty."
-_STUDY_SUMMARY = (
-    "This study evaluates the typed decision models Jev and Laya as evaluation "
-    "judges over tau-bench retail agent trajectories, comparing them with a "
-    "deterministic code judge and general LLM judges against the benchmark's "
-    "deterministic ground truth."
+_HERO_TITLE = "Decision models as judges"
+_HERO_TAGLINE = (
+    "Can an AI that only picks answers judge other AIs better than one that writes essays? "
+    "This app runs the study and shows every number's source."
+)
+_HEADLINE_TITLE = "Headline result: when to trust the cheap judge"
+_FRONTIER_HEADLINE = (
+    "Each point takes the decision model's verdict when its confidence clears the threshold "
+    "and the strong LLM's verdict otherwise; further right costs more, higher is more accurate."
 )
 _FRONTIER_WHAT = (
     "The cascade frontier: accuracy against cost per verdict for each confidence threshold."
 )
 _FRONTIER_COMMAND = "judges analyze --gate g5"
-_FRONTIER_HEADLINE = (
-    "Each point takes the decision model's verdict when its confidence clears the threshold "
-    "and the strong LLM's verdict otherwise; further right costs more, higher is more accurate."
+
+# The ten experiments in g1..g10 order, each with its plain, front-door name.
+_TILE_NAMES: tuple[tuple[str, str], ...] = (
+    ("g1", "Difficulty guess"),
+    ("g2", "Every action"),
+    ("g3", "Pass or fail"),
+    ("g4", "Small questions"),
+    ("g5", "Cheap first"),
+    ("g6", "Confidence"),
+    ("g7", "Tricked?"),
+    ("g8", "Spotting a drop"),
+    ("g9", "Why it failed"),
+    ("g10", "Free local model"),
 )
 
 
 def render() -> None:
-    """Render the overview from cached agent runs, states, verdicts, and spend."""
+    """Render the overview from cached agent runs, verdicts, spend, and results."""
     paths = data.Paths.from_env()
     study, pricing = data.load_study_and_pricing(paths)
     agent_records = data.load_agent_records(paths)
-    states = data.load_states(paths)
-    verdicts = data.load_verdicts(paths)
     ledger = data.load_ledger(paths)
 
-    components.page_header("Decision models as judges", _PURPOSE, why=_WHY)
-    components.flow_context(paths, None)
-    st.write(_STUDY_SUMMARY)
+    components.hero(_HERO_TITLE, _HERO_TAGLINE)
+    _call_to_action(paths, bool(agent_records))
+    st.divider()
 
-    components.metric_row(
-        [
-            ("Agent records", str(len(agent_records))),
-            ("States (whole + step)", str(len(states))),
-            ("Verdicts", str(len(verdicts))),
-            ("Total spend (USD)", f"${data.total_spend(ledger):.4f}"),
-        ]
-    )
+    flow.strip(paths, active=None, compact=False)
 
-    _gate_progress(paths)
-    _start_button(bool(agent_records))
+    st.subheader("The experiments")
+    components.gate_tiles(_tiles(paths))
 
-    st.subheader("Headline result: the cascade frontier")
+    st.subheader(_HEADLINE_TITLE)
     st.caption(_FRONTIER_HEADLINE)
     _frontier(paths)
 
-    st.subheader("Judge roster")
-    roster = data.judge_roster(study, pricing)
-    st.dataframe(
-        roster,
-        column_config=formatting.column_config_for(roster),
-        hide_index=True,
-        use_container_width=True,
+    _details(paths, study, pricing, ledger)
+    components.next_link(
+        "Run", "/run", "Run the study step by step to fill in what is still empty."
     )
-
-    if ledger is not None:
-        st.subheader("Spend by stage")
-        spend = data.spend_by_stage(ledger)
-        st.dataframe(
-            spend,
-            column_config=formatting.column_config_for(spend),
-            hide_index=True,
-            use_container_width=True,
-        )
-
-    with st.expander("Threats to validity", expanded=False):
-        st.markdown(data.threats_text(paths))
-    components.next_link("Run", "/run", _NEXT_HINT)
     components.footer()
 
 
-def _gate_progress(paths: data.Paths) -> None:
-    """Render one badge per gate G1..G10 and how many gates have results."""
-    present = data.gate_results_present(paths)
-    done = sum(1 for _, ok in present if ok)
-    badges = "  ".join(f"{':orange[●]' if ok else ':gray[○]'} {gate}" for gate, ok in present)
-    st.markdown(badges)
-    st.caption(f"{done} of {len(present)} gates have results.")
-
-
-def _start_button(has_records: bool) -> None:
-    """Link to the Run page in the same tab, worded by whether records exist yet."""
+def _call_to_action(paths: data.Paths, has_records: bool) -> None:
+    """Link to the Run page and caption which step comes next."""
     label = "Continue the study" if has_records else "Start the study"
     components.page_link("/run", label, primary=True)
+    st.caption(f"Step {_next_step(paths)} of 8 next")
+
+
+def _next_step(paths: data.Paths) -> int:
+    """Return the next study step (1..5) from the folders the strip counts.
+
+    The pipeline fills in order, so the first empty station names the next step:
+    conversations, then the reading copy, then verdicts, then the findings the
+    analysis writes. Once findings exist the reader is past the core four, so the
+    hint points at the fifth step and stops guessing.
+    """
+    counts = flow.counts(paths)
+    if counts[Station.conversations] == 0:
+        return 1
+    if counts[Station.judge_text] == 0:
+        return 2
+    if counts[Station.verdicts] == 0:
+        return 3
+    if counts[Station.findings] == 0:
+        return 4
+    return 5
+
+
+def _tiles(paths: data.Paths) -> list[tuple[str, str, bool]]:
+    """Pair each experiment id and name with whether its summary results exist."""
+    done = {gate.lower(): ok for gate, ok in data.gate_results_present(paths)}
+    return [(gate_id, name, done.get(gate_id, False)) for gate_id, name in _TILE_NAMES]
 
 
 def _frontier(paths: data.Paths) -> None:
@@ -108,3 +117,47 @@ def _frontier(paths: data.Paths) -> None:
         ),
         use_container_width=True,
     )
+
+
+def _details(paths: data.Paths, study: object, pricing: object, ledger: object) -> None:
+    """Fold the roster, spend, counts, and threats into one Details expander."""
+    with st.expander("Details", expanded=False):
+        st.markdown("**Judge roster**")
+        roster = data.judge_roster(study, pricing)  # type: ignore[arg-type]
+        st.dataframe(
+            roster,
+            column_config=formatting.column_config_for(roster),
+            hide_index=True,
+            use_container_width=True,
+        )
+
+        if ledger is not None:
+            st.markdown("**Spend by stage**")
+            spend = data.spend_by_stage(ledger)  # type: ignore[arg-type]
+            st.dataframe(
+                spend,
+                column_config=formatting.column_config_for(spend),
+                hide_index=True,
+                use_container_width=True,
+            )
+
+        st.markdown("**Counts**")
+        st.markdown(_counts_table(paths, ledger))
+
+        st.markdown("**Threats to validity**")
+        st.markdown(data.threats_text(paths))
+
+
+def _counts_table(paths: data.Paths, ledger: object) -> str:
+    """Return a small markdown table of the corpus counts and total spend."""
+    counts = flow.counts(paths)
+    total = data.total_spend(ledger)  # type: ignore[arg-type]
+    rows = [
+        ("Conversations", str(counts[Station.conversations])),
+        ("What judges read", str(counts[Station.judge_text])),
+        ("Verdicts", str(counts[Station.verdicts])),
+        ("Total spend", f"${total:.4f}"),
+    ]
+    lines = ["| What | Count |", "| --- | --- |"]
+    lines += [f"| {label} | {value} |" for label, value in rows]
+    return "\n".join(lines)

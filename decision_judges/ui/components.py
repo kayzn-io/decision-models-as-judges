@@ -234,6 +234,48 @@ def metric_row(items: Sequence[tuple[str, str]]) -> None:
         column.metric(label, value, border=True)
 
 
+def hero(title: str, tagline: str) -> None:
+    """Render a page's front-door hero: a large serif title and one plain sentence.
+
+    The title renders in the design's serif at ``2.4rem`` and the tagline in a
+    larger muted body size, both styled by the ``/* Overview */`` block in the
+    motion stylesheet. Both strings are trusted UI copy, so they pass through
+    unescaped and may carry an apostrophe.
+    """
+    motion_styles()
+    st.html(
+        f'<div class="hero"><div class="hero-title">{title}</div>'
+        f'<p class="hero-tagline">{tagline}</p></div>'
+    )
+
+
+def gate_tiles(tiles: Sequence[tuple[str, str, bool]]) -> None:
+    """Render experiment tiles in rows of five, each a bordered card.
+
+    Each tile is a ``(gate_id, name, done)`` triple: it shows the plain name in
+    serif, a filled marker when the experiment has results and a hollow one when
+    it does not, the small muted id, and a same-tab link to that experiment's tab
+    carrying ``gate=<id>`` as a query the Experiments page may ignore for now.
+    """
+    per_row = 5
+    for start in range(0, len(tiles), per_row):
+        row = tiles[start : start + per_row]
+        columns = st.columns(per_row)
+        for column, (gate_id, name, done) in zip(columns, row, strict=False):
+            with column, st.container(border=True):
+                state = "done" if done else "todo"
+                marker = "●" if done else "○"
+                st.html(
+                    f'<div class="tile {state}" data-gate="{gate_id}">'
+                    f'<div class="tile-name">{name}</div>'
+                    f'<div class="tile-meta">'
+                    f'<span class="tile-dot">{marker}</span>'
+                    f'<span class="tile-id">{gate_id.upper()}</span>'
+                    f"</div></div>"
+                )
+                page_link("/gates", "Open", query={"gate": gate_id})
+
+
 def sidebar_brand() -> None:
     """Show the logo, the app name, and the version in the sidebar."""
     if hasattr(st, "logo"):

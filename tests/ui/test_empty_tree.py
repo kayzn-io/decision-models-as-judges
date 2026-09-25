@@ -53,6 +53,37 @@ def test_overview_shows_frontier_empty_state(
     assert any("judges analyze --gate g5" in code.value for code in at.code)
 
 
+def _html(at: AppTest) -> str:
+    """Return concatenated html and markdown text for substring assertions."""
+    return "\n".join(node.value for node in [*at.get("html"), *at.get("markdown")])
+
+
+def test_overview_hero_and_start_cta_on_empty_tree(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, "overview")
+    assert not at.exception
+    rendered = _html(at)
+    assert 'class="hero-title"' in rendered
+    assert "shows every number's source" in rendered
+    starts = [node.value for node in at.get("html") if "Start the study" in node.value]
+    assert len(starts) == 1
+    assert 'href="/run"' in starts[0]
+    assert "Step 1 of 8 next" in _text(at)
+
+
+def test_overview_tiles_render_on_empty_tree(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, "overview")
+    assert not at.exception
+    rendered = _html(at)
+    # Every tile is hollow on an empty tree, and each links to its experiment.
+    assert '<div class="tile todo" data-gate="g1">' in rendered
+    assert rendered.count('class="tile ') == 10
+    assert 'href="/gates?gate=g1"' in rendered
+
+
 def test_gates_show_command_empty_states(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     at = _run(monkeypatch, tmp_path, "gates")
     assert at.code, "empty gate tabs should show the CLI command that fills them"
