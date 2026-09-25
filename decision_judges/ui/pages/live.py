@@ -217,7 +217,7 @@ def _latency_race(entries: list[tuple[str, Verdict]]) -> None:
         return
     st.caption("Response time by judge")
     frame = pd.DataFrame(rows, columns=["judge", "latency_ms"])
-    st.altair_chart(charts.bar(frame, "judge", "latency_ms"), use_container_width=True)
+    st.altair_chart(charts.bar(frame, "judge", "latency_ms"), width="stretch")
 
 
 def _render_verdict(pricing: PricingTable, judge_id: str, verdict: Verdict) -> None:
@@ -229,9 +229,7 @@ def _render_verdict(pricing: PricingTable, judge_id: str, verdict: Verdict) -> N
     components.metric_row(live.result_metrics(pricing, verdict))
     probabilities = live.verdict_probabilities(verdict)
     if not probabilities.empty:
-        st.altair_chart(
-            charts.bar(probabilities, "outcome", "probability"), use_container_width=True
-        )
+        st.altair_chart(charts.bar(probabilities, "outcome", "probability"), width="stretch")
     if verdict.rationale:
         with st.expander("Rationale"):
             st.write(verdict.rationale)

@@ -133,7 +133,7 @@ def _actions_table(frame: pd.DataFrame) -> None:
             "matched": st.column_config.CheckboxColumn("Matched", width="small", disabled=True),
         },
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -339,5 +339,5 @@ def _verdicts(state: StateRecord | None, grouped: dict[str, list[Verdict]]) -> N
         frame,
         column_config=_verdict_config(frame),
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )

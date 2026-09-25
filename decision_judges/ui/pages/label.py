@@ -112,7 +112,7 @@ def _tally(store: data.LabelStore) -> None:
     if not counts:
         return
     frame = pd.DataFrame(counts, columns=["category", "count"])
-    st.altair_chart(charts.bar(frame, "category", "count"), use_container_width=True)
+    st.altair_chart(charts.bar(frame, "category", "count"), width="stretch")
 
 
 def _select(

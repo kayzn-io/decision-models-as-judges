@@ -178,13 +178,13 @@ def _show_table(frame: pd.DataFrame) -> None:
         frame,
         column_config=formatting.column_config_for(frame),
         hide_index=True,
-        use_container_width=True,
+        width="stretch",
     )
 
 
 def _show_chart(chart: alt.Chart | alt.LayerChart | alt.FacetChart) -> None:
     """Render an Altair chart stretched to the container width."""
-    st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(chart, width="stretch")
 
 
 def _table(result: GateResult, name: str) -> pd.DataFrame:

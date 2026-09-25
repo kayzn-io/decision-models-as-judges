@@ -115,7 +115,7 @@ def _frontier(paths: data.Paths) -> None:
             label="t",
             title="Cascade cost-accuracy frontier",
         ),
-        use_container_width=True,
+        width="stretch",
     )
 
 
@@ -128,7 +128,7 @@ def _details(paths: data.Paths, study: object, pricing: object, ledger: object) 
             roster,
             column_config=formatting.column_config_for(roster),
             hide_index=True,
-            use_container_width=True,
+            width="stretch",
         )
 
         if ledger is not None:
@@ -138,7 +138,7 @@ def _details(paths: data.Paths, study: object, pricing: object, ledger: object) 
                 spend,
                 column_config=formatting.column_config_for(spend),
                 hide_index=True,
-                use_container_width=True,
+                width="stretch",
             )
 
         st.markdown("**Counts**")
