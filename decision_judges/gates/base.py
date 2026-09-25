@@ -14,7 +14,7 @@ from pydantic import BaseModel, ConfigDict
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache, cache_key
-from decision_judges.judges.base import Judge
+from decision_judges.judges.base import Judge, build_verdict
 from decision_judges.serialize import StateProfile, StateRecord
 from decision_judges.spend import Reservation, Spend
 from decision_judges.types import Question, Verdict
@@ -118,9 +118,29 @@ class Gate(ABC):
             key=lambda entry: (entry[0].judge_id, entry[1].state.state_hash, entry[2]),
         )
         return [
-            self._one_call(judge, item, repeat, questions, cache, spend)
+            self._call_or_error(judge, item, repeat, questions, cache, spend)
             for judge, item, repeat in plan
         ]
+
+    def _call_or_error(
+        self,
+        judge: Judge,
+        item: Item,
+        repeat: int,
+        questions: Sequence[Question],
+        cache: Cache,
+        spend: Spend,
+    ) -> Verdict:
+        """Return the judge's verdict, or an error verdict when it rejects a question.
+
+        A judge that cannot answer a gate's questions raises ``ValueError``; that
+        is recorded as one error verdict so a single incompatible judge does not
+        crash the run for the others.
+        """
+        try:
+            return self._one_call(judge, item, repeat, questions, cache, spend)
+        except ValueError as exc:
+            return build_verdict(judge, item.state, repeat, [], latency_ms=0, error=str(exc))
 
     def _one_call(
         self,

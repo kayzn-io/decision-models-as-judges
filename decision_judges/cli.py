@@ -116,6 +116,7 @@ def judge(
     pricing: Annotated[Path, typer.Option("--pricing")] = Path("config/pricing.toml"),
     ledger: Annotated[Path, typer.Option("--ledger")] = Path("results/spend.json"),
     tasks_fixture: Annotated[Path | None, typer.Option("--tasks-fixture")] = None,
+    labels: Annotated[Path, typer.Option("--labels")] = Path("data/labels/taxonomy.jsonl"),
 ) -> None:
     """Run a gate's judges over serialized states and analyze the verdicts."""
     registry = pipeline.gate_registry()
@@ -134,7 +135,7 @@ def judge(
     study_config = load_study(study)
     pricing_table = load_pricing(pricing)
     tasks = {task.task_id: task for task in _load_tasks(tasks_fixture)}
-    gate_impl = pipeline.make_gate(gate, tasks)
+    gate_impl = pipeline.make_gate(gate, tasks, labels_path=labels)
 
     records, warnings = pipeline.load_agent_records(agent_dir, variant)
     for warning in warnings:
@@ -143,8 +144,13 @@ def judge(
         raise typer.BadParameter(
             f"no agent records under {agent_dir / variant}; run 'run-agent' first"
         )
-    items = pipeline.items_for_gate(gate, state_dir, agent_dir, state_profile, variant, tasks)
+    items = pipeline.items_for_gate(
+        gate, state_dir, agent_dir, state_profile, variant, tasks, labels_path=labels
+    )
     if not items:
+        if gate == "g9":
+            typer.echo(f"No hand labels found at {labels}; label failures on the Label page first.")
+            raise typer.Exit()
         raise typer.BadParameter(
             f"no serialized states for gate {gate!r} under {state_dir}; run 'serialize' first"
         )

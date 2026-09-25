@@ -28,7 +28,7 @@ def render() -> None:
     paths = data.Paths.from_env()
     st.title("Gates")
     st.write("Static gate summaries beside interactive cascade, calibration, and regression views.")
-    outcome, decomposition, local, cascade, calibration, regression, robustness = st.tabs(
+    outcome, decomposition, local, cascade, calibration, regression, taxonomy, robustness = st.tabs(
         [
             "G3 Outcome",
             "G4 Decomposition",
@@ -36,6 +36,7 @@ def render() -> None:
             "G5 Cascade",
             "G6 Calibration",
             "G8 Regression",
+            "G9 Taxonomy",
             "G7 Robustness",
         ]
     )
@@ -51,6 +52,8 @@ def render() -> None:
         _g6_tab(paths)
     with regression:
         _g8_tab(paths)
+    with taxonomy:
+        _g9_tab(paths)
     with robustness:
         _g7_tab(paths)
 
@@ -215,6 +218,27 @@ def _g8_tab(paths: data.Paths) -> None:
         return
     st.dataframe(summary, hide_index=True)
     st.pyplot(_figure(result, "g8_intervals"))
+
+
+def _g9_tab(paths: data.Paths) -> None:
+    """Show the static G9 taxonomy summary and confusion the judge command writes."""
+    summary = data.load_results_table(paths, "g9_summary")
+    if summary is None:
+        _empty_state(
+            "G9 asks each judge to classify a failing trajectory into the failure taxonomy "
+            "and scores it against the owner's hand labels; label failures on the Label page "
+            "first.",
+            "judges judge --gate g9 --variant baseline",
+        )
+        return
+    st.caption("Single annotator; see the findings.")
+    st.dataframe(summary, hide_index=True)
+    confusion = data.load_results_table(paths, "g9_confusion")
+    if confusion is not None:
+        st.dataframe(confusion, hide_index=True)
+    image = data.load_chart_path(paths, "g9_accuracy")
+    if image is not None:
+        st.image(str(image))
 
 
 def _g7_tab(paths: data.Paths) -> None:

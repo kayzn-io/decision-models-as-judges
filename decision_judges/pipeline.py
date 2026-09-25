@@ -35,10 +35,12 @@ from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.gates.g7_robustness import G7Robustness
 from decision_judges.gates.g8_regression import G8Regression
+from decision_judges.gates.g9_taxonomy import G9Taxonomy, labels_from_store
 from decision_judges.gates.g10_local_model import G10LocalModel
 from decision_judges.judges.base import HasStateText, Judge, build_verdict, timed
 from decision_judges.judges.code import CodeJudge
 from decision_judges.judges.llm import LlmJudge, OpenAiClientAdapter
+from decision_judges.labels import LabelStore
 from decision_judges.report import write_chart, write_table
 from decision_judges.serialize import (
     Injection,
@@ -55,6 +57,7 @@ _FAIL = "fail"
 _UNPRICED_MODEL_ID = "none"
 _KNOWN_JUDGES = ("code", "llm_cheap", "llm_strong", "jev", "fake")
 _QUARANTINE = "_quarantine"
+_DEFAULT_LABELS_PATH = Path("data") / "labels" / "taxonomy.jsonl"
 
 
 # --- record loading and serialization --------------------------------------
@@ -362,17 +365,23 @@ def gate_registry() -> dict[str, type[Gate]]:
         "g7": G7Robustness,
         "g10": G10LocalModel,
         "g2": G2Steps,
+        "g9": G9Taxonomy,
     }
 
 
-def make_gate(gate_id: str, tasks: Mapping[str, Task]) -> Gate:
-    """Construct a gate, giving the triage gate the tasks its analysis reads.
+def make_gate(gate_id: str, tasks: Mapping[str, Task], *, labels_path: Path | None = None) -> Gate:
+    """Construct a gate, giving each gate the extra data its analysis reads.
 
     The registry holds zero-argument gate classes; G1 needs the task action
-    counts at analysis time, so it is built with the tasks mapping here.
+    counts at analysis time, and G9 needs the owner's hand labels, so those are
+    built with their extra data here. ``labels_path`` defaults to the store's
+    standard location and is read only for G9.
     """
     if gate_id == "g1":
         return G1Triage(tasks=tasks)
+    if gate_id == "g9":
+        path = labels_path if labels_path is not None else _DEFAULT_LABELS_PATH
+        return G9Taxonomy(labels=labels_from_store(LabelStore(path)))
     return gate_registry()[gate_id]()
 
 
@@ -463,14 +472,18 @@ def items_for_gate(
     profile: StateProfile,
     variant: str,
     tasks: Mapping[str, Task],
+    *,
+    labels_path: Path | None = None,
 ) -> list[Item]:
     """Build the items a gate judges for one variant and profile.
 
     The G1 triage gate builds one item per record from the task instruction and
     policy alone; the G2 step gate judges per-step states labeled by the task's
     expected actions; the G7 robustness gate judges the injected copies of
-    failing runs; every other gate judges whole-trajectory states labeled by the
-    run's reward.
+    failing runs; the G9 taxonomy gate judges the whole-trajectory states of
+    hand-labeled runs, reusing the states G3 already serialized so their hashes
+    match; every other gate judges whole-trajectory states labeled by the run's
+    reward.
     """
     records, _ = load_agent_records(agent_dir, variant)
     if gate_id == "g1":
@@ -480,8 +493,33 @@ def items_for_gate(
     if gate_id == "g7":
         injected = read_injected_states(state_dir, variant, profile)
         return items_from_states(list(injected.values()), records)
+    if gate_id == "g9":
+        path = labels_path if labels_path is not None else _DEFAULT_LABELS_PATH
+        labels = labels_from_store(LabelStore(path))
+        return taxonomy_items(read_states(state_dir, variant, profile), records, labels, variant)
     states = read_states(state_dir, variant, profile)
     return items_from_states(list(states.values()), records)
+
+
+def taxonomy_items(
+    states: Mapping[str, StateRecord],
+    records: Mapping[str, AgentRecord],
+    labels: Mapping[tuple[str, str], str],
+    variant: str,
+) -> list[Item]:
+    """Pair each hand-labeled run's existing state with its taxonomy label.
+
+    Reuses the serialized states rather than re-serializing, so an item's state
+    hash matches the whole-trajectory hash G3 judged. Only runs present in both
+    the states and the label set for this variant are scorable.
+    """
+    items: list[Item] = []
+    for task_id, state in states.items():
+        label = labels.get((variant, task_id))
+        if label is None or task_id not in records:
+            continue
+        items.append(Item(state=state, truth_label=label))
+    return items
 
 
 def items_for_variants(

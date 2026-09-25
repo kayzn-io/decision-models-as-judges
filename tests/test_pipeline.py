@@ -13,6 +13,8 @@ from decision_judges.config import StudyConfig, load_pricing, load_study
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.gates.g8_regression import G8Regression
+from decision_judges.gates.g9_taxonomy import G9Taxonomy
+from decision_judges.labels import Label, LabelStore
 from decision_judges.serialize import Injection, StateProfile, StateRecord
 from decision_judges.types import Verdict
 
@@ -214,6 +216,50 @@ def test_items_for_gate_g3_uses_whole_states(tmp_path: Path) -> None:
     assert all(item.state.step_index is None for item in items)
 
 
+def test_items_for_gate_g9_reuses_g3_state_hashes(tmp_path: Path) -> None:
+    agent_dir = tmp_path / "agent"
+    state_dir = tmp_path / "state"
+    _seed_variant(agent_dir, state_dir, "baseline")
+    labels_path = tmp_path / "labels.jsonl"
+    LabelStore(labels_path).append(
+        Label(variant="baseline", task_id="retail-1", label="premature_end")
+    )
+
+    g3_items = pipeline.items_for_gate(
+        "g3", state_dir, agent_dir, StateProfile.full, "baseline", _tasks()
+    )
+    g3_by_task = {item.state.task_id: item for item in g3_items}
+    g9_items = pipeline.items_for_gate(
+        "g9",
+        state_dir,
+        agent_dir,
+        StateProfile.full,
+        "baseline",
+        _tasks(),
+        labels_path=labels_path,
+    )
+
+    assert len(g9_items) == 1
+    assert g9_items[0].state.task_id == "retail-1"
+    assert g9_items[0].truth_label == "premature_end"
+    assert g9_items[0].state.state_hash == g3_by_task["retail-1"].state.state_hash
+
+
+def test_make_gate_g9_loads_labels_from_path(tmp_path: Path) -> None:
+    labels_path = tmp_path / "labels.jsonl"
+    LabelStore(labels_path).append(
+        Label(variant="baseline", task_id="retail-1", label="premature_end")
+    )
+
+    gate = pipeline.make_gate("g9", _tasks(), labels_path=labels_path)
+
+    assert isinstance(gate, G9Taxonomy)
+    records = {"retail-1": _record("retail-1", 0.0)}
+    items = gate.build_items(records, _tasks(), StateProfile.full)
+    assert len(items) == 1
+    assert items[0].truth_label == "premature_end"
+
+
 # --- load_agent_records ----------------------------------------------------
 
 
@@ -392,12 +438,13 @@ def test_parse_repeats_rejects_mixed() -> None:
 
 def test_gate_registry_contains_judging_gates() -> None:
     registry = pipeline.gate_registry()
-    assert set(registry) == {"g1", "g2", "g3", "g4", "g7", "g10"}
+    assert set(registry) == {"g1", "g2", "g3", "g4", "g7", "g9", "g10"}
     assert registry["g1"]().gate_id == "g1"
     assert registry["g2"]().gate_id == "g2"
     assert registry["g3"]().gate_id == "g3"
     assert registry["g4"]().gate_id == "g4"
     assert registry["g7"]().gate_id == "g7"
+    assert registry["g9"]().gate_id == "g9"
     assert registry["g10"]().gate_id == "g10"
 
 

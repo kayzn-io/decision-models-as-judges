@@ -17,6 +17,7 @@ _TAB_LABELS = [
     "G5 Cascade",
     "G6 Calibration",
     "G8 Regression",
+    "G9 Taxonomy",
     "G7 Robustness",
 ]
 
@@ -132,6 +133,16 @@ def test_g7_tab_shows_summary_and_one_flip_link(
     assert "variant=baseline" in links[0]
     assert "task=retail-1" in links[0]
     assert "injection=final_message" in links[0]
+
+
+def test_g9_tab_shows_taxonomy_summary_and_note(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    at = _run(monkeypatch, tmp_path, _UI_ROOT)
+    assert not at.exception
+    assert "Single annotator" in _captions(at)
+    confusions = [df.value for df in at.dataframe if "predicted" in df.value.columns]
+    assert any("truth" in frame.columns for frame in confusions)
 
 
 def test_empty_tree_shows_empty_states_without_exception(

@@ -9,6 +9,7 @@ from decision_judges import pipeline
 from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cli import app
+from decision_judges.labels import Label, LabelStore
 from decision_judges.serialize import StateProfile
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -268,6 +269,69 @@ def test_cli_judge_g2_writes_step_verdicts_and_summary(tmp_path: Path) -> None:
     verdict_files = sorted(cache_dir.rglob("*.json"))
     assert len(verdict_files) == 2, "expected one verdict per step under cache/judge"
     assert (results_dir / "g2_summary.md").is_file()
+
+
+def _g9_judge_args(
+    tmp_path: Path, agent_dir: Path, state_dir: Path, labels_path: Path
+) -> list[str]:
+    """Build fake-only judge invocation arguments for the g9 gate with a labels path."""
+    return [
+        "judge",
+        "--gate",
+        "g9",
+        "--profile",
+        "full",
+        "--variant",
+        "baseline",
+        "--judges",
+        "fake",
+        "--repeats",
+        "1",
+        "--agent-dir",
+        str(agent_dir),
+        "--state-dir",
+        str(state_dir),
+        "--cache-dir",
+        str(tmp_path / "cache" / "judge"),
+        "--results-dir",
+        str(tmp_path / "results"),
+        "--study",
+        str(STUDY_FILE),
+        "--pricing",
+        str(PRICING_FILE),
+        "--ledger",
+        str(tmp_path / "results" / "spend.json"),
+        "--tasks-fixture",
+        str(FIXTURE),
+        "--labels",
+        str(labels_path),
+    ]
+
+
+def test_cli_judge_g9_no_labels_exits_zero_with_message(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    labels_path = tmp_path / "labels.jsonl"
+    runner = CliRunner()
+
+    result = runner.invoke(app, _g9_judge_args(tmp_path, agent_dir, state_dir, labels_path))
+
+    assert result.exit_code == 0, result.output
+    assert "No hand labels found at" in result.output
+    assert "Label page" in result.output
+
+
+def test_cli_judge_g9_with_labels_writes_summary(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    labels_path = tmp_path / "labels.jsonl"
+    LabelStore(labels_path).append(
+        Label(variant="baseline", task_id="retail-1", label="premature_end")
+    )
+    runner = CliRunner()
+
+    result = runner.invoke(app, _g9_judge_args(tmp_path, agent_dir, state_dir, labels_path))
+
+    assert result.exit_code == 0, result.output
+    assert (tmp_path / "results" / "g9_summary.md").is_file()
 
 
 def test_cli_judge_unknown_gate_lists_registry(tmp_path: Path) -> None:
