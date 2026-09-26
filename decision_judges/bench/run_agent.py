@@ -85,6 +85,10 @@ _TRANSIENT_MARKERS = (
     "serviceunavailable",
     "ratelimit",
     "rate limit",
+    "credits",
+    "insufficient_quota",
+    "billing",
+    "402",
 )
 
 

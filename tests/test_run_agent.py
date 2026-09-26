@@ -410,3 +410,15 @@ def test_preflight_hands_the_openrouter_key_to_litellm(monkeypatch: pytest.Monke
     runner._key_env = "OPENROUTER_API_KEY"
     runner.preflight()
     assert os.environ["OPENAI_API_KEY"] == "sk-or-test-key"
+
+
+def test_exhausted_credits_are_transient_not_a_task_failure() -> None:
+    """A provider's credit exhaustion is a billing state to retry after, never an exclusion."""
+    from decision_judges.bench.run_agent import classify_failure
+
+    exc = RuntimeError(
+        "APIError: litellm.APIError: APIError: OpenAIException - This request would exceed "
+        "your available credits given your current in-flight requests. Retry after in-flight "
+        "requests settle, or add credits."
+    )
+    assert classify_failure(exc) == "transient"
