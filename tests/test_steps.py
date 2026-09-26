@@ -147,3 +147,43 @@ def test_step_one_returns_first_stop_reason_and_stops_after_one_variant(
 
     assert result == "aborted: the first 3 tasks failed with Missing credentials"
     assert calls == ["baseline"]
+
+
+def test_exactly_one_material_step_and_it_is_first() -> None:
+    material = [step for step in steps.STEPS if step.material]
+    assert len(material) == 1
+    assert steps.STEPS[0].material is True
+    assert material[0].id == "run-agent"
+    assert material[0].title == "The conversations"
+
+
+def test_display_indices_number_only_the_seven_runnable_steps() -> None:
+    indices = [steps.display_index(step) for step in steps.STEPS]
+    assert indices[0] is None
+    assert indices[1:] == [1, 2, 3, 4, 5, 6, 7]
+
+
+def test_material_status_shipped_on_the_fixture_and_missing_on_empty(tmp_path: Path) -> None:
+    assert steps.material_status(_paths(_FIXTURE)) == "shipped"
+    assert steps.material_status(_paths(tmp_path)) == "missing"
+
+
+def test_material_status_regenerating_when_flagged() -> None:
+    assert steps.material_status(_paths(_FIXTURE), regenerating=True) == "regenerating"
+
+
+def test_variant_counts_and_provenance_read_from_the_fixture() -> None:
+    counts = steps.variant_counts(_paths(_FIXTURE))
+    assert [count.variant for count in counts] == ["baseline"]
+    assert counts[0].conversations == 2
+    assert counts[0].pass_rate == 0.5
+    prov = steps.provenance(_paths(_FIXTURE))
+    assert prov is not None
+    assert prov.agent_model == "openai/gpt-4.1"
+    assert prov.user_model == "openai/gpt-4o-mini"
+    assert prov.tau_bench_ref
+
+
+def test_variant_counts_and_provenance_empty_on_an_empty_tree(tmp_path: Path) -> None:
+    assert steps.variant_counts(_paths(tmp_path)) == []
+    assert steps.provenance(_paths(tmp_path)) is None

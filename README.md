@@ -10,15 +10,14 @@ Results are published here as evaluation gates complete.
 
 ## Run it
 
-Three commands install the study; the app runs the rest.
+The repository ships the 230 conversations, so you never have to generate them to test the judges. Two commands install the study and open the app.
 
 ```
 uv sync --extra laya
-export OPENROUTER_API_KEY=...   # one key covers the agent runs, the LLM judges, and Jev
 make ui
 ```
 
-Open the Run page. It walks through the eight steps in order, shows what each one reads and writes, what it costs against the spend caps, and a live view while it runs. Every step is resumable, and every result it produces is a file under `cache/` or `results/` that the other pages read. The same steps are available as commands for scripting; see the [runbook](docs/runbook.md).
+Open the Run page and work through the seven steps that test the judges on the shipped conversations. Each step shows what it reads and writes, what it costs against the spend caps, and a live view while it runs. One `OPENROUTER_API_KEY` is needed only for the paid judges; set it in the app sidebar or export it before `make ui`. Regenerating the conversations with your own agent is optional and costs about $10. The same steps are available as commands for scripting; see the [runbook](docs/runbook.md).
 
 ## Development
 

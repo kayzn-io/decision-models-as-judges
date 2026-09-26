@@ -14,7 +14,8 @@ from decision_judges.ui.flow import Station
 _HERO_TITLE = "Decision models as judges"
 _HERO_TAGLINE = (
     "Can an AI that only picks answers judge other AIs better than one that writes essays? "
-    "This app runs the study and shows every number's source."
+    "A retail support agent already handled 230 customer problems; this app tests the judges "
+    "on those conversations and shows every number's source."
 )
 _HEADLINE_TITLE = "Headline result: when to trust the cheap judge"
 _FRONTIER_HEADLINE = (
@@ -69,30 +70,48 @@ def render() -> None:
 
 
 def _call_to_action(paths: data.Paths, has_records: bool) -> None:
-    """Link to the Run page and caption which step comes next."""
-    label = "Continue the study" if has_records else "Start the study"
+    """Link to the Run page and caption which step comes next.
+
+    The label reflects one of three states: no conversations yet, conversations
+    present but no judging done, or work already underway.
+    """
+    if not has_records:
+        label = "Get the conversations first"
+    elif _only_conversations(paths):
+        label = "Test the judges"
+    else:
+        label = "Continue"
     components.page_link("/run", label, primary=True)
-    st.caption(f"Step {_next_step(paths)} of 8 next")
+    st.caption(f"Step {_next_step(paths)} of 7 next")
+
+
+def _only_conversations(paths: data.Paths) -> bool:
+    """Return whether the conversations exist but nothing downstream has run yet."""
+    counts = flow.counts(paths)
+    return (
+        counts[Station.judge_text] == 0
+        and counts[Station.verdicts] == 0
+        and counts[Station.findings] == 0
+    )
 
 
 def _next_step(paths: data.Paths) -> int:
-    """Return the next study step (1..5) from the folders the strip counts.
+    """Return the next numbered study step (1..4) from the folders the strip counts.
 
-    The pipeline fills in order, so the first empty station names the next step:
-    conversations, then the reading copy, then verdicts, then the findings the
-    analysis writes. Once findings exist the reader is past the core four, so the
-    hint points at the fifth step and stops guessing.
+    The seven numbered steps start at the reading copy, since the conversations
+    are the unnumbered material. The first empty station names the next step:
+    the reading copy, then verdicts, then the findings the analysis writes. Once
+    findings exist the reader is past the core steps, so the hint points at the
+    fourth step and stops guessing.
     """
     counts = flow.counts(paths)
-    if counts[Station.conversations] == 0:
-        return 1
     if counts[Station.judge_text] == 0:
-        return 2
+        return 1
     if counts[Station.verdicts] == 0:
-        return 3
+        return 2
     if counts[Station.findings] == 0:
-        return 4
-    return 5
+        return 3
+    return 4
 
 
 def _tiles(paths: data.Paths) -> list[tuple[str, str, bool]]:

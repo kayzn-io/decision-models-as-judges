@@ -5,9 +5,17 @@ one headline chart, and a single Details expander that holds everything else.
 These tests pin that order and the two states the page can open in.
 """
 
+import shutil
+from pathlib import Path
+
+import pytest
 from streamlit.testing.v1 import AppTest
 
 from decision_judges.ui.app import mode_caption, page_specs
+
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_APP = str(_REPO_ROOT / "decision_judges" / "ui" / "app.py")
+_UI_ROOT = _REPO_ROOT / "tests" / "fixtures" / "ui_cache"
 
 _HERO_TITLE = "Decision models as judges"
 _HERO_SENTENCE = "shows every number's source"
@@ -75,12 +83,13 @@ def test_overview_continue_cta_and_step_hint_on_fixture(app_test: AppTest) -> No
     at = app_test
     at.run()
     assert not at.exception
-    anchors = [node.value for node in at.get("html") if "Continue the study" in node.value]
+    anchors = [node.value for node in at.get("html") if "in-app-link primary" in node.value]
     assert len(anchors) == 1
+    assert ">Continue<" in anchors[0]
     assert 'href="/run"' in anchors[0]
     assert "in-app-link primary" in anchors[0]
     assert "target" not in anchors[0]
-    assert "Step 4 of 8 next" in _captions(at)
+    assert "Step 3 of 7 next" in _captions(at)
 
 
 def test_overview_shows_ten_tiles_in_gate_order(app_test: AppTest) -> None:
@@ -150,3 +159,43 @@ def test_navigation_adds_local_pages_when_local() -> None:
 def test_mode_caption_by_mode() -> None:
     assert mode_caption(True) == "Local mode: run the study, label failures, and judge live"
     assert mode_caption(False) is None
+
+
+def _cta_anchor(at: AppTest) -> str:
+    """Return the primary call-to-action anchor markup."""
+    anchors = [node.value for node in at.get("html") if "in-app-link primary" in node.value]
+    assert len(anchors) == 1
+    return anchors[0]
+
+
+def _overview_at(monkeypatch: pytest.MonkeyPatch, root: Path) -> AppTest:
+    """Build an overview AppTest bound to a given root in shared mode."""
+    monkeypatch.setenv("JUDGES_ROOT", str(root))
+    monkeypatch.delenv("JUDGES_LOCAL", raising=False)
+    return AppTest.from_file(_APP, default_timeout=30)
+
+
+def test_overview_cta_gets_conversations_first_when_none_exist(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "root"
+    shutil.copytree(_UI_ROOT, root)
+    shutil.rmtree(root / "cache" / "agent")
+    (root / "cache" / "agent").mkdir(parents=True)
+    at = _overview_at(monkeypatch, root).run()
+
+    assert not at.exception
+    assert ">Get the conversations first<" in _cta_anchor(at)
+
+
+def test_overview_cta_tests_the_judges_when_only_conversations_exist(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "root"
+    shutil.copytree(_UI_ROOT, root)
+    for downstream in ("state", "judge"):
+        shutil.rmtree(root / "cache" / downstream, ignore_errors=True)
+    at = _overview_at(monkeypatch, root).run()
+
+    assert not at.exception
+    assert ">Test the judges<" in _cta_anchor(at)

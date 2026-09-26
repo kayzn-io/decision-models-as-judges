@@ -1,4 +1,4 @@
-"""Run page: guide the learner through the eight study steps and execute each one.
+"""Run page: guide the learner through the study steps and execute each one.
 
 The page is a thin view. Each step's readiness, examples, and work live in
 ``steps``; this module renders the cards, launches steps on a background
@@ -16,9 +16,27 @@ from decision_judges.runner import StepAlreadyRunning, StepRunner
 from decision_judges.ui import components, data, flow, keys, steps
 from decision_judges.ui.steps import RunContext, RunStep, StepStatus
 
-_PURPOSE = "Eight steps, in order. Each shows what goes in, what comes out, and what it costs."
+_PURPOSE = (
+    "Seven steps that test the judges on the shipped conversations. Each shows what goes "
+    "in, what comes out, and what it costs."
+)
+_INTRO = "Paid steps use your OpenRouter key only to run the judges."
 _RUNNER_KEY = "run_step_runner"
 _LAST_RUNNING_KEY = "run_last_running_id"
+
+# The material card's status badge color per state.
+_MATERIAL_BADGE_COLORS = {"shipped": "green", "regenerating": "orange", "missing": "red"}
+_MATERIAL_MISSING_LINE = (
+    "The study needs conversations first. Open Regenerate below to create them with your own agent."
+)
+_PROVENANCE_NOTE = (
+    "Generated once and saved; nothing here is regenerated when you run the other steps."
+)
+_REGENERATE_WARNING = (
+    "This replaces the shipped conversations and costs about $10 through your OpenRouter key."
+)
+# The human label for each policy variant the conversations were collected under.
+_VARIANT_LABELS = {"baseline": "With the rule", "degraded": "With the rule removed"}
 
 _STATION_LABELS = {
     "tasks": "Requests",
@@ -53,7 +71,7 @@ _OUTPUT_NOTICE = {
     "findings": "Notice: this is a written result, not a new measurement.",
 }
 
-# Card 1 explainer: the same agent runs twice so later steps can tell the two apart.
+# Regenerate explainer: the same agent runs twice so later steps can tell the two apart.
 _VARIANTS = (
     (
         "With the rule",
@@ -61,11 +79,10 @@ _VARIANTS = (
     ),
     ("With the rule removed", "The same agent, but that confirmation step is gone."),
 )
-_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
 
 
 def render() -> None:
-    """Render the eight study steps as runnable cards in local mode."""
+    """Render the material panel and the seven runnable step cards in local mode."""
     if not data.is_local():
         st.info("Running the study runs only locally with JUDGES_LOCAL=1.")
         components.footer()
@@ -78,12 +95,7 @@ def render() -> None:
     runner = _runner(paths)
 
     components.page_header("Run the study", _PURPOSE)
-    st.markdown(
-        "Each step reads what the last one wrote. One run of step 1 produces one "
-        + components.term("conversation", _CONVERSATION_TERM)
-        + ".",
-        unsafe_allow_html=True,
-    )
+    st.markdown(_INTRO)
     _resume_banner(runner)
 
     running = _running_step(runner)
@@ -96,8 +108,8 @@ def render() -> None:
         flash=_flash_station(runner, running),
     )
 
-    for index, step in enumerate(steps.STEPS, start=1):
-        _card(index, step, paths, study, pricing, ledger, key, runner, running)
+    for step in steps.STEPS:
+        _card(step, paths, study, pricing, ledger, key, runner, running)
     components.next_link(
         "Trajectories",
         "/trajectories",
@@ -123,13 +135,24 @@ def _running_step(runner: StepRunner) -> RunStep | None:
 
 def _resume_banner(runner: StepRunner) -> None:
     """Warn about the first step whose work was interrupted while the app was closed."""
-    for index, step in enumerate(steps.STEPS, start=1):
+    for step in steps.STEPS:
         if runner.stale(step.id):
-            st.warning(
-                f"Step {index} stopped while the app was closed; its work is saved. "
-                "Run it again to continue."
-            )
+            st.warning(_stale_message(step))
             return
+
+
+def _stale_message(step: RunStep) -> str:
+    """Return the resume warning for a stalled step, numbered or material."""
+    index = steps.display_index(step)
+    if index is None:
+        return (
+            "Regenerating the conversations stopped while the app was closed; its work is "
+            "saved. Run it again to continue."
+        )
+    return (
+        f"Step {index} stopped while the app was closed; its work is saved. "
+        "Run it again to continue."
+    )
 
 
 def _flash_station(runner: StepRunner, running: RunStep | None) -> flow.Station | None:
@@ -165,7 +188,6 @@ def _step_by_id(step_id: str) -> RunStep | None:
 
 
 def _card(
-    index: int,
     step: RunStep,
     paths: data.Paths,
     study: object,
@@ -175,21 +197,112 @@ def _card(
     runner: StepRunner,
     running: RunStep | None,
 ) -> None:
-    """Render one bordered step card: header, pills, examples, controls, and state."""
-    status = step.status(paths)
+    """Render one bordered step card, material or numbered."""
     with st.container(border=True):
-        _header(index, step)
-        _two_variants(step)
-        _pills(step, study, ledger, status)
-        _show_me(step, paths)
-        _controls(step, paths, study, pricing, key, runner, status, running)
-        _run_state(index, step, paths, runner)
+        if step.material:
+            _material_card(step, paths, study, pricing, key, runner, running)
+        else:
+            _numbered_card(step, paths, study, pricing, ledger, key, runner, running)
 
 
-def _two_variants(step: RunStep) -> None:
-    """On the first step, show why the same requests run twice, side by side."""
-    if step.id != "run-agent":
+def _numbered_card(
+    step: RunStep,
+    paths: data.Paths,
+    study: object,
+    pricing: object,
+    ledger: object,
+    key: str | None,
+    runner: StepRunner,
+    running: RunStep | None,
+) -> None:
+    """Render a numbered step card: header, pills, examples, controls, and state."""
+    index = steps.display_index(step)
+    status = step.status(paths)
+    _header(index, step)
+    _pills(step, study, ledger, status)
+    _show_me(step, paths)
+    _controls(step, paths, study, pricing, key, runner, status, running)
+    _run_state(step, index, paths, runner)
+
+
+def _material_card(
+    step: RunStep,
+    paths: data.Paths,
+    study: object,
+    pricing: object,
+    key: str | None,
+    runner: StepRunner,
+    running: RunStep | None,
+) -> None:
+    """Render the unnumbered material panel describing the shipped conversations."""
+    badge = steps.material_status(paths, regenerating=runner.is_running(step.id))
+    st.markdown(f"### {step.title}")
+    st.caption(step.purpose)
+    _material_badge(badge)
+    if badge == "missing":
+        st.caption(_MATERIAL_MISSING_LINE)
+    _variant_counts(paths)
+    _provenance(paths)
+    _show_me(step, paths)
+    _regenerate(step, paths, study, pricing, key, runner, running, badge == "missing")
+
+
+def _material_badge(badge: str) -> None:
+    """Render the shipped / regenerating / missing status badge."""
+    color = _MATERIAL_BADGE_COLORS.get(badge, "gray")
+    st.markdown(f":{color}-badge[{badge}]")
+
+
+def _variant_counts(paths: data.Paths) -> None:
+    """Show each variant's conversation count and pass rate, side by side."""
+    counts = steps.variant_counts(paths)
+    if not counts:
         return
+    columns = st.columns(len(counts))
+    for column, item in zip(columns, counts, strict=True):
+        with column:
+            st.markdown(f"**{_VARIANT_LABELS.get(item.variant, item.variant)}**")
+            st.caption(f"{item.conversations} conversations · {item.pass_rate * 100:.1f}% pass")
+
+
+def _provenance(paths: data.Paths) -> None:
+    """Fold the models and tau-bench commit behind a 'Where these came from' expander."""
+    prov = steps.provenance(paths)
+    with st.expander("Where these came from"):
+        if prov is not None:
+            st.markdown(
+                f"- Support agent: `{prov.agent_model}`\n"
+                f"- Customer: `{prov.user_model}`\n"
+                f"- tau-bench commit: `{prov.tau_bench_ref}`"
+            )
+        st.caption(_PROVENANCE_NOTE)
+
+
+def _regenerate(
+    step: RunStep,
+    paths: data.Paths,
+    study: object,
+    pricing: object,
+    key: str | None,
+    runner: StepRunner,
+    running: RunStep | None,
+    expanded: bool,
+) -> None:
+    """Hold the regenerate explainer, cost, warning, Run button, and live panel."""
+    with st.expander("Regenerate with your own agent", expanded=expanded):
+        _two_variants()
+        st.markdown(step.learn)
+        cap = step.cap_usd(study)  # type: ignore[arg-type]
+        if cap is not None:
+            st.caption(f"Spend cap: \\${cap:.0f}")
+        st.warning(_REGENERATE_WARNING)
+        status = step.status(paths)
+        _controls(step, paths, study, pricing, key, runner, status, running)
+        _run_state(step, None, paths, runner)
+
+
+def _two_variants() -> None:
+    """Show why the same requests run twice, side by side."""
     st.caption("Two variants")
     columns = st.columns(2)
     for column, (label, explanation) in zip(columns, _VARIANTS, strict=True):
@@ -198,7 +311,7 @@ def _two_variants(step: RunStep) -> None:
             st.caption(explanation)
 
 
-def _header(index: int, step: RunStep) -> None:
+def _header(index: int | None, step: RunStep) -> None:
     """Render the numbered title and one-line purpose."""
     st.markdown(f"### {index}. {step.title}")
     st.caption(step.purpose)
@@ -316,7 +429,7 @@ def _launch(
         pass
 
 
-def _run_state(index: int, step: RunStep, paths: data.Paths, runner: StepRunner) -> None:
+def _run_state(step: RunStep, index: int | None, paths: data.Paths, runner: StepRunner) -> None:
     """Render the running panel while alive, or the finished panel once done."""
     if runner.is_running(step.id):
         _running_panel(step, runner)
@@ -324,7 +437,7 @@ def _run_state(index: int, step: RunStep, paths: data.Paths, runner: StepRunner)
     st.session_state.pop(f"stopping_{step.id}", None)
     status = runner.status(step.id)
     if status is not None and status.finished_at is not None:
-        _finished_panel(index, step, paths, status)
+        _finished_panel(step, index, paths, status)
 
 
 @st.fragment(run_every="1s")
@@ -375,7 +488,7 @@ def _stop_button(step: RunStep, runner: StepRunner) -> None:
         st.rerun()
 
 
-def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object) -> None:
+def _finished_panel(step: RunStep, index: int | None, paths: data.Paths, status: object) -> None:
     """Render the error, the stopped-early warning, the stopped line, or success."""
     error = getattr(status, "error", None)
     if error:
@@ -393,7 +506,7 @@ def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object
         )
         return
     components.success_moment(
-        f"Step {index} done",
+        _done_title(index),
         _produced_text(step, status),
         "See the experiments",
         "/gates",
@@ -403,9 +516,15 @@ def _finished_panel(index: int, step: RunStep, paths: data.Paths, status: object
         st.caption(findings)
 
 
-def _stopped_early_panel(index: int, reason: str) -> None:
+def _done_title(index: int | None) -> str:
+    """Return the success-card title for a finished step."""
+    return "Conversations regenerated" if index is None else f"Step {index} done"
+
+
+def _stopped_early_panel(index: int | None, reason: str) -> None:
     """Warn that a step stopped early without an error, and how to proceed."""
-    st.warning(f"Step {index} stopped early\n\n{reason}\n\n{_stop_guidance(reason)}")
+    header = "Regenerating stopped early" if index is None else f"Step {index} stopped early"
+    st.warning(f"{header}\n\n{reason}\n\n{_stop_guidance(reason)}")
 
 
 def _stop_guidance(reason: str) -> str:

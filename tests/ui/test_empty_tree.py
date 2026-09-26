@@ -66,10 +66,10 @@ def test_overview_hero_and_start_cta_on_empty_tree(
     rendered = _html(at)
     assert 'class="hero-title"' in rendered
     assert "shows every number's source" in rendered
-    starts = [node.value for node in at.get("html") if "Start the study" in node.value]
+    starts = [node.value for node in at.get("html") if "Get the conversations first" in node.value]
     assert len(starts) == 1
     assert 'href="/run"' in starts[0]
-    assert "Step 1 of 8 next" in _text(at)
+    assert "Step 1 of 7 next" in _text(at)
 
 
 def test_overview_tiles_render_on_empty_tree(

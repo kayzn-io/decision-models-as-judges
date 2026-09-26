@@ -82,12 +82,52 @@ def test_run_shared_mode_shows_info(monkeypatch: pytest.MonkeyPatch, tmp_path: P
     assert any("JUDGES_LOCAL=1" in info.value for info in at.info)
 
 
-def test_run_renders_eight_cards(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+def test_run_renders_material_and_seven_numbered_cards(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
     _root, at = _local_app(monkeypatch, tmp_path)
     at.run()
 
     assert not at.exception
+    # One Run button per numbered step plus the regenerate button on the material panel.
     assert len(_run_buttons(at)) == 8
+    headers = [block.value for block in at.markdown if block.value.startswith("### ")]
+    assert any(header.startswith("### The conversations") for header in headers)
+    assert sum(1 for header in headers if header[4:5].isdigit()) == 7
+
+
+def test_material_card_shows_counts_provenance_and_run_only_in_regenerate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    texts = _texts(at)
+    assert any("With the rule" in text for text in texts)
+    assert any("Generated once and saved" in text for text in texts)
+    labels = [expander.label for expander in at.expander]
+    assert "Where these came from" in labels
+    regen = next(e for e in at.expander if e.label == "Regenerate with your own agent")
+    assert any(button.key == "run_run-agent" for button in regen.button)
+    assert any("$10" in warning.value for warning in at.warning)
+
+
+def test_material_card_missing_asks_for_conversations_and_opens_regenerate(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root = tmp_path / "root"
+    shutil.copytree(_UI_ROOT, root)
+    shutil.rmtree(root / "cache" / "agent")
+    (root / "cache" / "agent").mkdir(parents=True)
+    monkeypatch.setenv("JUDGES_ROOT", str(root))
+    monkeypatch.setenv("JUDGES_LOCAL", "1")
+    at = AppTest.from_file(_script(tmp_path), default_timeout=60).run()
+
+    assert not at.exception
+    assert any("needs conversations" in text.lower() for text in _texts(at))
+    regen = next(e for e in at.expander if e.label == "Regenerate with your own agent")
+    assert regen.proto.expanded is True
 
 
 def test_paid_buttons_disabled_without_a_key(
@@ -327,10 +367,10 @@ def test_stopped_step_shows_warning_and_key_guidance(
 
     assert not at.exception
     warnings = [w.value for w in at.warning]
-    assert any("Step 1 stopped early" in w for w in warnings)
+    assert any("Regenerating stopped early" in w for w in warnings)
     assert any("Missing credentials" in w for w in warnings)
     assert any("OpenRouter key" in w for w in warnings)
-    assert all("Step 1 done" not in text for text in _texts(at))
+    assert all("Conversations regenerated" not in text for text in _texts(at))
 
 
 def test_stopped_step_with_spend_cap_shows_cap_guidance(
@@ -343,5 +383,5 @@ def test_stopped_step_with_spend_cap_shows_cap_guidance(
 
     assert not at.exception
     warnings = [w.value for w in at.warning]
-    assert any("Step 1 stopped early" in w for w in warnings)
+    assert any("Regenerating stopped early" in w for w in warnings)
     assert any("config/study.toml" in w for w in warnings)

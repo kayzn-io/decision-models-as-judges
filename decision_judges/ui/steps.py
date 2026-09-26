@@ -1,6 +1,8 @@
-"""The eight steps of the study, each with its own unlock, status, and runner.
+"""The study steps, each with its own unlock, status, and runner.
 
-A :class:`RunStep` is a frozen description of one stage: what it reads, what it
+The first entry is a material panel describing the shipped conversations; the
+seven that follow are the runnable steps, numbered 1 to 7 in the UI. A
+:class:`RunStep` is a frozen description of one stage: what it reads, what it
 writes, what it costs, and a callable that performs the real work by delegating
 to the pipeline, benchmark, training, and report modules. The step functions
 are pure of Streamlit so they run on a background thread and stay unit-testable.
@@ -74,6 +76,7 @@ class RunStep(BaseModel):
     example_input: Callable[[Paths], str]
     example_output: Callable[[Paths], str]
     run: Callable[[Paths, RunContext], str | None]
+    material: bool = False
 
     def cap_usd(self, study: StudyConfig) -> float | None:
         """Return the summed spend cap across the step's stages, or None when free."""
@@ -700,22 +703,24 @@ def _run_results(paths: Paths, ctx: RunContext) -> str | None:
     return None
 
 
-# --- the eight steps --------------------------------------------------------
+# --- the study steps --------------------------------------------------------
 
 STEPS: tuple[RunStep, ...] = (
     RunStep(
         id="run-agent",
-        title="Talk to the store",
+        title="The conversations",
         purpose=(
-            "A language model plays the support agent while another plays 115 scripted "
-            "customers; a checker marks each conversation pass or fail. Every conversation "
-            "runs live and costs money."
+            "An AI support agent handled 115 scripted customer problems in a fake store, "
+            "twice: once following all the rules, once with one rule removed. A program graded "
+            "each conversation pass or fail from the store database. These transcripts and "
+            "grades are the material every judge is tested on."
         ),
         pipe="run-agent",
         input_station="tasks",
         output_station="conversations",
         stages=("agent",),
         paid=True,
+        material=True,
         learn=(
             "Two language models talk to each other. One plays the store's support agent; the "
             "other plays a customer with a scripted request, one of 115 from a public "
@@ -908,3 +913,80 @@ STEPS: tuple[RunStep, ...] = (
         run=lambda paths, ctx: _run_results(paths, ctx),
     ),
 )
+
+
+# --- material panel helpers -------------------------------------------------
+
+MaterialStatus = Literal["shipped", "regenerating", "missing"]
+
+
+class VariantCounts(BaseModel):
+    """One variant's conversation count and pass rate, read from disk."""
+
+    variant: str
+    conversations: int
+    pass_rate: float
+
+
+class Provenance(BaseModel):
+    """The models and tau-bench commit the shipped conversations came from."""
+
+    agent_model: str
+    user_model: str
+    tau_bench_ref: str
+
+
+def display_index(step: RunStep) -> int | None:
+    """Return a step's card number, or None for the material panel.
+
+    The material panel is unnumbered; the remaining steps are numbered 1..7 in
+    their declared order, independent of the step ids the progress files use.
+    """
+    if step.material:
+        return None
+    number = 0
+    for candidate in STEPS:
+        if candidate.material:
+            continue
+        number += 1
+        if candidate.id == step.id:
+            return number
+    return None
+
+
+def material_status(paths: Paths, *, regenerating: bool = False) -> MaterialStatus:
+    """Return whether the shipped conversations are present, regenerating, or missing."""
+    if regenerating:
+        return "regenerating"
+    if _agent_records(paths):
+        return "shipped"
+    return "missing"
+
+
+def variant_counts(paths: Paths) -> list[VariantCounts]:
+    """Return each present variant's conversation count and pass rate, in order."""
+    counts: list[VariantCounts] = []
+    for variant in _VARIANTS:
+        loaded, _ = pipeline.load_agent_records(paths.cache_dir / "agent", variant)
+        rewards = [_reward(record) for record in loaded.values()]
+        if not rewards:
+            continue
+        counts.append(
+            VariantCounts(
+                variant=variant,
+                conversations=len(rewards),
+                pass_rate=sum(rewards) / len(rewards),
+            )
+        )
+    return counts
+
+
+def provenance(paths: Paths) -> Provenance | None:
+    """Return the agent model, customer model, and tau-bench commit from the records."""
+    for _key, record in sorted(_agent_records(paths).items()):
+        return Provenance(
+            agent_model=str(getattr(record, "agent_model", "")),
+            user_model=str(getattr(record, "user_model", "")),
+            tau_bench_ref=str(getattr(record, "tau_bench_ref", "")),
+        )
+    return None
