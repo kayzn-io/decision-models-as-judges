@@ -12,6 +12,7 @@ import pytest
 from decision_judges.bench.load import (
     ExpectedAction,
     Task,
+    export_tasks,
     is_write_action,
     load_tasks,
     normalize_action,
@@ -19,6 +20,7 @@ from decision_judges.bench.load import (
 )
 
 FIXTURE = Path(__file__).parent / "fixtures" / "tasks_sample.json"
+REPO_ROOT = Path(__file__).resolve().parents[1]
 
 
 def _fixture_source() -> list[object]:
@@ -86,3 +88,41 @@ def test_load_tasks_from_real_package() -> None:
     pytest.importorskip("tau_bench")
     tasks = load_tasks()
     assert len(tasks) == 115
+
+
+def test_export_tasks_writes_round_trippable_file(monkeypatch, tmp_path: Path) -> None:
+    from decision_judges.bench import load as bench_load
+
+    fixture_tasks = load_tasks(source=_fixture_source())
+    monkeypatch.setattr(bench_load, "load_tasks", lambda: fixture_tasks)
+
+    out = tmp_path / "nested" / "tasks.json"
+    count = bench_load.export_tasks(out)
+
+    assert count == len(fixture_tasks)
+    assert out.is_file()
+    reloaded = load_tasks(source=json.loads(out.read_text(encoding="utf-8")))
+    assert reloaded == fixture_tasks
+
+
+@pytest.mark.tau_bench
+def test_export_tasks_from_real_package(tmp_path: Path) -> None:
+    pytest.importorskip("tau_bench")
+    out = tmp_path / "tasks.json"
+
+    count = export_tasks(out)
+
+    assert count == 115
+    reloaded = load_tasks(source=json.loads(out.read_text(encoding="utf-8")))
+    assert reloaded == load_tasks()
+
+
+def test_shipped_tasks_file_has_115_entries() -> None:
+    path = REPO_ROOT / "data" / "tasks.json"
+    assert path.is_file(), "data/tasks.json must ship with the study material"
+    entries = json.loads(path.read_text(encoding="utf-8"))
+    assert len(entries) == 115
+    for entry in entries:
+        assert {"instruction", "actions", "outputs"} <= set(entry)
+        for action in entry["actions"]:
+            assert set(action) == {"name", "kwargs"}

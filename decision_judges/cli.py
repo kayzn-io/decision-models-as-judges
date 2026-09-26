@@ -32,6 +32,15 @@ def version() -> None:
     typer.echo(__version__)
 
 
+@app.command(name="export-tasks")
+def export_tasks(
+    out: Annotated[Path, typer.Option("--out")] = Path("data/tasks.json"),
+) -> None:
+    """Write the tau-bench retail tasks to a JSON file the app reads."""
+    count = bench_load.export_tasks(out)
+    typer.echo(f"wrote {count} tasks to {out}")
+
+
 def _load_tasks(fixture: Path | None) -> list[Task]:
     """Load tasks from a JSON fixture when given, else from tau-bench."""
     if fixture is not None:

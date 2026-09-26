@@ -27,6 +27,7 @@ Package facts (tau-bench @ git 59a200c, ``tau_bench.types`` and
 
 import json
 from collections.abc import Mapping, Sequence
+from pathlib import Path
 
 from pydantic import BaseModel
 
@@ -119,3 +120,26 @@ def load_tasks(domain: str = RETAIL_DOMAIN, source: Sequence[object] | None = No
 
         source = [task.model_dump() for task in TASKS_TEST]
     return [_task_from_native(index, raw) for index, raw in enumerate(source)]
+
+
+def _task_to_native(task: Task) -> dict[str, object]:
+    """Convert a typed Task back into a native-shape mapping ``load_tasks`` reads."""
+    return {
+        "instruction": task.instruction,
+        "actions": [{"name": action.name, "kwargs": action.kwargs} for action in task.actions],
+        "outputs": list(task.outputs),
+    }
+
+
+def export_tasks(path: Path) -> int:
+    """Write the retail tasks to a JSON file in native shape and return the count.
+
+    Load the tau-bench retail tasks, render each back to the native record shape
+    that ``load_tasks(source=...)`` reads, and write them pretty-printed with
+    sorted keys, creating the parent directory when it is absent.
+    """
+    tasks = load_tasks()
+    native = [_task_to_native(task) for task in tasks]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(native, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    return len(tasks)

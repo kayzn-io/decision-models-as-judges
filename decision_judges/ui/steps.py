@@ -35,6 +35,11 @@ _G3_JUDGES = ("code", "llm_cheap", "llm_strong", "jev")
 _G3_REPEATS = 5
 _OPENROUTER_ENV = "OPENROUTER_API_KEY"
 
+# The provenance line naming the shipped requests and the file that holds them.
+REQUESTS_PROVENANCE_LINE = (
+    f"{_RETAIL_TEST_TASKS} customer requests from tau-bench (data/tasks.json)"
+)
+
 
 class StepStatus(BaseModel):
     """A step's readiness and how much of its work is already on disk."""

@@ -57,9 +57,26 @@ def _write_agent_records(agent_dir: Path) -> dict[str, AgentRecord]:
     return records
 
 
+# --- export-tasks ----------------------------------------------------------
+
+
+def test_cli_export_tasks_writes_file(monkeypatch, tmp_path: Path) -> None:
+    from decision_judges.bench import load as bench_load
+
+    fixture_tasks = load_tasks(source=json.loads(FIXTURE.read_text(encoding="utf-8")))
+    monkeypatch.setattr(bench_load, "load_tasks", lambda: fixture_tasks)
+    out = tmp_path / "data" / "tasks.json"
+
+    runner = CliRunner()
+    result = runner.invoke(app, ["export-tasks", "--out", str(out)])
+
+    assert result.exit_code == 0, result.output
+    assert out.is_file()
+    reloaded = load_tasks(source=json.loads(out.read_text(encoding="utf-8")))
+    assert reloaded == fixture_tasks
+
+
 # --- serialize -------------------------------------------------------------
-
-
 def test_cli_serialize_writes_states_and_prints_counts(tmp_path: Path) -> None:
     agent_dir = tmp_path / "cache" / "agent"
     state_dir = tmp_path / "cache" / "state"

@@ -187,3 +187,9 @@ def test_variant_counts_and_provenance_read_from_the_fixture() -> None:
 def test_variant_counts_and_provenance_empty_on_an_empty_tree(tmp_path: Path) -> None:
     assert steps.variant_counts(_paths(tmp_path)) == []
     assert steps.provenance(_paths(tmp_path)) is None
+
+
+def test_requests_provenance_line_names_the_shipped_file() -> None:
+    assert (
+        steps.REQUESTS_PROVENANCE_LINE == "115 customer requests from tau-bench (data/tasks.json)"
+    )

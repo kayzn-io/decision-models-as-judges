@@ -269,6 +269,7 @@ def _provenance(paths: data.Paths) -> None:
     """Fold the models and tau-bench commit behind a 'Where these came from' expander."""
     prov = steps.provenance(paths)
     with st.expander("Where these came from"):
+        st.markdown(f"- {steps.REQUESTS_PROVENANCE_LINE}")
         if prov is not None:
             st.markdown(
                 f"- Support agent: `{prov.agent_model}`\n"
