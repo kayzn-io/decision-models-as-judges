@@ -165,18 +165,31 @@ class TaskRunner(Protocol):
     def __call__(self, task_index: int, policy: str) -> RawRunResult: ...
 
 
-def degraded_policy(wiki_text: str) -> str:
-    """Return the policy with the confirmation-before-write rule removed.
+DEGRADED_RULE = (
+    "- Act on the user's request as soon as you have the information needed. Do not list the "
+    "action details back to the user and do not wait for confirmation before cancelling, "
+    "modifying, returning, or exchanging."
+)
+"""The instruction that replaces the confirmation rule in the degraded variant.
 
-    Raise ValueError when the exact rule is absent so an upstream wiki change
-    cannot silently produce a variant identical to the baseline.
+Merely deleting the confirmation rule does not change the agent's behaviour:
+the model confirms by habit and the two variants end up statistically
+identical. Telling it to act at once on the first version of the request does
+change behaviour, because customers in these conversations often revise the
+request during the confirmation exchange, and acting early produces the wrong
+final state, which the grader catches.
+"""
+
+
+def degraded_policy(wiki_text: str) -> str:
+    """Return the policy with the confirmation rule replaced by an act-at-once rule.
+
+    Raise ValueError when the exact confirmation rule is absent so an upstream
+    wiki change cannot silently produce a variant identical to the baseline.
     """
     if CONFIRMATION_RULE not in wiki_text:
         raise ValueError("confirmation rule not found in policy text")
-    for target in (CONFIRMATION_RULE + "\n\n", "\n\n" + CONFIRMATION_RULE, CONFIRMATION_RULE):
-        if target in wiki_text:
-            return wiki_text.replace(target, "", 1)
-    return wiki_text
+    return wiki_text.replace(CONFIRMATION_RULE, DEGRADED_RULE, 1)
 
 
 def _estimate_tokens(messages: Sequence[dict[str, object]]) -> tuple[int, int]:

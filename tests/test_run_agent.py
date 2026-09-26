@@ -17,6 +17,7 @@ from decision_judges.bench import run_agent as run_agent_mod
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import (
     CONFIRMATION_RULE,
+    DEGRADED_RULE,
     AgentRecord,
     MissingCredentials,
     RawRunResult,
@@ -338,11 +339,13 @@ def test_spend_cap_stops_scheduling(tmp_path: Path) -> None:
     assert summary.completed == 1
 
 
-def test_degraded_policy_removes_confirmation_rule() -> None:
+def test_degraded_policy_replaces_confirmation_rule_with_act_at_once() -> None:
     wiki = EXCERPT.read_text()
     assert CONFIRMATION_RULE in wiki
     degraded = degraded_policy(wiki)
     assert CONFIRMATION_RULE not in degraded
+    assert DEGRADED_RULE in degraded
+    assert len(degraded) > 0
     assert "You should not make up any information" in degraded
 
 
