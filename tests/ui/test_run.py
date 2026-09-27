@@ -104,10 +104,10 @@ def test_material_card_shows_counts_provenance_and_run_only_in_regenerate(
 
     assert not at.exception
     texts = _texts(at)
-    assert any("With the rule" in text for text in texts)
-    assert any("Generated once and saved" in text for text in texts)
+    assert any("Careful agent" in text for text in texts)
+    assert any("Ground truth was fixed before any judge" in text for text in texts)
     labels = [expander.label for expander in at.expander]
-    assert "Where these came from" in labels
+    assert "About these conversations" in labels
     regen = next(e for e in at.expander if e.label == "Regenerate with your own agent")
     assert any(button.key == "run_run-agent" for button in regen.button)
     assert any("$10" in warning.value for warning in at.warning)

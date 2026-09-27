@@ -14,8 +14,8 @@ from decision_judges.ui.flow import Station
 _HERO_TITLE = "Decision models as judges"
 _HERO_TAGLINE = (
     "Can an AI that only picks answers judge other AIs better than one that writes essays? "
-    "A retail support agent already handled 230 customer problems; this app tests the judges "
-    "on those conversations and shows every number's source."
+    "We have 230 support conversations, each with a ground truth. This app tests the judges "
+    "against it and shows every number's source."
 )
 _HEADLINE_TITLE = "Headline result: when to trust the cheap judge"
 _FRONTIER_HEADLINE = (

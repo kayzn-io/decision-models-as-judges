@@ -76,7 +76,7 @@ def test_overview_has_full_size_flow_strip(app_test: AppTest) -> None:
     rendered = _rendered(at)
     assert 'class="flow-strip"' in rendered
     # The full strip carries per-station captions; the compact one does not.
-    assert "115 scripted customer requests" in rendered
+    assert "what each customer asked for" in rendered
 
 
 def test_overview_continue_cta_and_step_hint_on_fixture(app_test: AppTest) -> None:

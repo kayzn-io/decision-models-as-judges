@@ -189,14 +189,8 @@ def test_variant_counts_and_provenance_empty_on_an_empty_tree(tmp_path: Path) ->
     assert steps.provenance(_paths(tmp_path)) is None
 
 
-def test_requests_provenance_line_names_the_shipped_file() -> None:
-    assert (
-        steps.REQUESTS_PROVENANCE_LINE == "115 customer requests from tau-bench (data/tasks.json)"
-    )
-
-
-def test_conversation_excerpt_ends_with_the_checker_verdict() -> None:
-    """The example exists to show the grade, so a real excerpt must end with it."""
+def test_conversation_excerpt_ends_with_the_ground_truth() -> None:
+    """The example exists to show the ground truth, so a real excerpt must end with it."""
     from decision_judges.ui.steps import _conversation_excerpt
 
     class Record:
@@ -219,7 +213,7 @@ def test_conversation_excerpt_ends_with_the_checker_verdict() -> None:
     lines = text.split("\n")
     assert lines[0].startswith("user:")  # the system turn is skipped
     assert "[... 2 turns omitted ...]" in lines
-    assert lines[-1] == "checker: fail"
+    assert lines[-1] == "ground truth: fail"
 
 
 def test_short_conversation_excerpt_has_no_elision() -> None:
@@ -229,4 +223,4 @@ def test_short_conversation_excerpt_has_no_elision() -> None:
         reward = 1.0
         trajectory = [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
 
-    assert _conversation_excerpt(Record()) == "user: hi\nassistant: hello\nchecker: pass"
+    assert _conversation_excerpt(Record()) == "user: hi\nassistant: hello\nground truth: pass"

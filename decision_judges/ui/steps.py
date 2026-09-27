@@ -35,11 +35,6 @@ _G3_JUDGES = ("code", "llm_cheap", "llm_strong", "jev")
 _G3_REPEATS = 5
 _OPENROUTER_ENV = "OPENROUTER_API_KEY"
 
-# The provenance line naming the shipped requests and the file that holds them.
-REQUESTS_PROVENANCE_LINE = (
-    f"{_RETAIL_TEST_TASKS} customer requests from tau-bench (data/tasks.json)"
-)
-
 
 class StepStatus(BaseModel):
     """A step's readiness and how much of its work is already on disk."""
@@ -301,11 +296,11 @@ def _turn_line(turn: dict[str, object]) -> str:
 
 
 def _conversation_excerpt(record: object, *, head: int = 3, tail: int = 2) -> str:
-    """Render a conversation's opening and closing turns and the checker's verdict.
+    """Render a conversation's opening and closing turns and its ground truth.
 
     The system turn is skipped, as it holds the policy rather than the exchange.
     The middle is elided when the conversation is long, and the last line is the
-    grade the checker gave, which is the fact the example exists to point at.
+    ground truth, the correct answer the example exists to point at.
     """
     turns = [t for t in getattr(record, "trajectory", []) if t.get("role") != "system"]
     if len(turns) <= head + tail:
@@ -318,7 +313,7 @@ def _conversation_excerpt(record: object, *, head: int = 3, tail: int = 2) -> st
             + [_turn_line(t) for t in turns[-tail:]]
         )
     verdict = "pass" if _reward(record) >= 1.0 else "fail"
-    return "\n".join([*shown, f"checker: {verdict}"])
+    return "\n".join([*shown, f"ground truth: {verdict}"])
 
 
 def _first_task_instruction(paths: Paths) -> str:
@@ -409,14 +404,14 @@ _SAMPLE_CONVERSATION = (
     'call: find_user_id_by_name_zip(name="Sam Lee", zip="94107")\n'
     'tool result: {"user_id": "sam_lee_8843"}\n'
     "agent: Found it. The black version is the same price, so there is no charge. Confirm?\n"
-    "checker: pass"
+    "ground truth: pass"
 )
 _SAMPLE_READING_COPY = (
     f"{_SAMPLE_CAPTION}\n"
     "request: exchange a delivered keyboard for the same model in another color.\n"
     "policy summary: confirm the details with the customer before changing an order.\n"
     'call: find_user_id_by_name_zip(name="Sam Lee", zip="94107")\n'
-    "reward and expected actions: not present"
+    "ground truth: not present"
 )
 _SAMPLE_VERDICT = f"{_SAMPLE_CAPTION}\n" + json.dumps(
     [
@@ -433,13 +428,13 @@ _SAMPLE_VERDICT = f"{_SAMPLE_CAPTION}\n" + json.dumps(
 )
 _SAMPLE_FINDING = (
     f"{_SAMPLE_CAPTION}\n"
-    "The strong judge agrees with the checker on N out of 115 conversations, and "
+    "The strong judge agrees with the ground truth on N out of 115 conversations, and "
     "the cheap judge keeps most of that agreement at a fraction of the cost."
 )
 _SAMPLE_LABEL = (
     f"{_SAMPLE_CAPTION}\n"
     "why it failed: the agent changed the order without confirming with the "
-    "customer first, so the checker marked it fail."
+    "customer first, so its ground truth is fail."
 )
 _SAMPLE_REPORT = (
     f"{_SAMPLE_CAPTION}\n"
@@ -737,10 +732,9 @@ STEPS: tuple[RunStep, ...] = (
         id="run-agent",
         title="The conversations",
         purpose=(
-            "An AI support agent handled 115 scripted customer problems in a fake store, "
-            "twice: once following all the rules, once with one rule removed. A program graded "
-            "each conversation pass or fail from the store database. These transcripts and "
-            "grades are the material every judge is tested on."
+            "Two hundred and thirty conversations between customers and an AI support agent, "
+            "from two agents: one careful, one rushed. Every conversation comes with a ground "
+            "truth, the correct answer, pass or fail. That is what the judges are tested against."
         ),
         pipe="run-agent",
         input_station="tasks",
@@ -749,16 +743,13 @@ STEPS: tuple[RunStep, ...] = (
         paid=True,
         material=True,
         learn=(
-            "Two language models talk to each other. One plays the store's support agent; the "
-            "other plays a customer with a scripted request, one of 115 from a public "
-            "benchmark. The agent can look up an order and exchange items by calling tools "
-            "against a private copy of the store's database. When the talk ends, a checker "
-            "compares the database to the expected result and marks the conversation pass or "
-            "fail. Every conversation is a live call to a paid model, so this step costs money. "
-            "The same requests run twice: once with the rule 'confirm with the customer before "
-            "changing an order', and once with that rule removed, so later steps have careful "
-            "and careless runs to tell apart. Nothing is judged yet; this step only produces "
-            "the conversations."
+            "Two AI models talk to each other. One plays a store's support agent; the other "
+            "plays a customer with a request, one of 115 the app ships with. The agent looks up "
+            "orders and makes changes for the customer by calling tools. When the talk ends, the "
+            "conversation carries a ground truth: the correct answer, pass or fail. Every "
+            "conversation is a live call to a paid model, so this step costs money. The same "
+            "requests run under two agents, one careful and one rushed, so later steps have both "
+            "kinds to tell apart. Nothing is judged yet; this step only produces the conversations."
         ),
         unlock=_always_ready,
         status=_status_from(_always_ready, _agent_counts),
@@ -769,19 +760,18 @@ STEPS: tuple[RunStep, ...] = (
     RunStep(
         id="serialize",
         title="Prepare the reading copy",
-        purpose="Make the text version each judge reads, with the answer removed.",
+        purpose="Make the text version each judge reads, with the ground truth removed.",
         pipe="serialize",
         input_station="conversations",
         output_station="judge_text",
         stages=(),
         paid=False,
         learn=(
-            "A judge never reads the raw conversation. It reads a text copy with the checker's "
-            "pass or fail result taken out, so it has to decide from what the agent did, not "
-            "from the answer. Two copies are written: a full one with every turn, and a short "
-            "one that trims the tool noise so the small local model can fit it. Taking the "
-            "answer out is the whole point: if a judge could see the result, its verdict would "
-            "mean nothing."
+            "A judge never reads the raw conversation. It reads a text copy with the ground "
+            "truth taken out, so it has to decide from what the agent did, not from the answer. "
+            "Two copies are written: a full one with every turn, and a short one that trims the "
+            "tool noise so the small local model can fit it. Taking the ground truth out is the "
+            "whole point: if a judge could see it, its verdict would mean nothing."
         ),
         unlock=_needs_conversations,
         status=_status_from(_needs_conversations, _serialize_counts),
@@ -805,7 +795,7 @@ STEPS: tuple[RunStep, ...] = (
             "Each judge reads the text copy and answers two questions: did the agent finish the "
             "customer's request, and how good was the outcome. Running every judge on both the "
             "full and the short copy, five times each, lets us measure three things. Accuracy "
-            "is how often a judge agrees with the checker. Agreement beyond chance discounts "
+            "is how often a judge agrees with the ground truth. Agreement beyond chance discounts "
             "the agreement you would get by guessing. Agreement across the five repeats shows "
             "how steady a judge is when asked again. These answers are what every later step "
             "reuses."
@@ -835,7 +825,7 @@ STEPS: tuple[RunStep, ...] = (
             "accuracy. The second checks whether a judge's confidence means what it says: a "
             "judge that says it is ninety percent sure should be right about nine times in ten. "
             "The third asks whether the judges notice the drop in quality between the careful "
-            "runs and the careless ones."
+            "agent and the rushed one."
         ),
         unlock=_needs_verdicts,
         status=_status_from(_needs_verdicts, _analyze_counts),
@@ -861,8 +851,8 @@ STEPS: tuple[RunStep, ...] = (
             "downloads Laya, judges with it as published, then trains it on these "
             "conversations. To keep the test fair, the conversations are split into groups, and "
             "each group is judged by a copy of Laya that never trained on it, so no "
-            "conversation grades a model that already saw it. The trained Laya is then compared "
-            "against the untrained one to show what the training bought."
+            "conversation is judged by a model that already saw it. The trained Laya is then "
+            "compared against the untrained one to show what the training bought."
         ),
         unlock=_needs_states,
         status=_status_from(_needs_states, _laya_counts),
@@ -906,11 +896,11 @@ STEPS: tuple[RunStep, ...] = (
         stages=("g9",),
         paid=True,
         learn=(
-            "Here you are the answer key. Some failures are subtle, and this check needs human "
+            "Here you set the ground truth. Some failures are subtle, and this check needs human "
             "labels to score against. Open the labeling page, read a failed conversation, and "
             "pick the failure type you see. Once your labels exist, this step asks the judges "
             "to pick the same failure type and scores how well they agree with you. Without "
-            "your labels there is nothing to grade the judges on."
+            "your labels there is nothing to score the judges against."
         ),
         unlock=_needs_failures,
         status=_status_from(_needs_failures, _label_counts),

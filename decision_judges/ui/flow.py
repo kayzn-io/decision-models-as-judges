@@ -48,11 +48,11 @@ _LABELS: dict[Station, str] = {
     Station.findings: "Findings",
 }
 _CAPTIONS: dict[Station, str] = {
-    Station.tasks: "115 scripted customer requests",
-    Station.conversations: "what the agent and the simulated customer said",
-    Station.judge_text: "what each judge is allowed to read",
-    Station.verdicts: "every judge answer",
-    Station.findings: "the written results",
+    Station.tasks: "what each customer asked for",
+    Station.conversations: "customer and agent, start to finish",
+    Station.judge_text: "the conversation with the ground truth removed",
+    Station.verdicts: "every answer a judge gave",
+    Station.findings: "what the experiments concluded",
 }
 _TITLE = "Study pipeline: requests to findings"
 

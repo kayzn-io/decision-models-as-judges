@@ -24,9 +24,10 @@ _INTRO = (
     "so the failure types only hold if one rule is applied every time.\n\n"
     "The rule: choose the first cause in the conversation that made the outcome wrong, "
     "not the last symptom.\n\n"
-    "These labels are the truth the failure-type experiment scores every judge against."
+    "Here you set the ground truth for the failure type; the failure-type experiment "
+    "scores every judge against your labels."
 )
-_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
+_CONVERSATION_TERM = "a full exchange between the customer and the agent"
 _KEY_HINT = "Press 1 to 8 to pick a label; the buttons work without it too."
 # Progressive enhancement: the number keys click the matching radio input when the
 # browser runs the script, and the radio stays fully usable when it does not.

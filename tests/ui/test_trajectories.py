@@ -145,7 +145,7 @@ def test_trajectories_has_flow_strip_and_next_link(
 def test_trajectories_shows_legend(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     at = _run(monkeypatch, tmp_path)
     assert not at.exception
-    assert "✓ expected action" in _captions(at)
+    assert "each judge's probability" in _captions(at)
 
 
 def test_trajectories_judge_view_toggle_hides_turns_and_shows_caption(
@@ -158,7 +158,7 @@ def test_trajectories_judge_view_toggle_hides_turns_and_shows_caption(
 
     assert not at.exception
     captions = _captions(at)
-    assert "they are removed before the judge reads" in captions
+    assert "the reading copy is made without it" in captions
     assert "necessary" not in captions
 
 

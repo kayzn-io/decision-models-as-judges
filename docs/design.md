@@ -160,7 +160,10 @@ the first time it appears on a page (see `components.term`).
 
 | Term in the UI | What it means | Internal word it replaces |
 | --- | --- | --- |
-| conversation | a full exchange between the simulated customer and the agent | trajectory, run |
+| ground truth | the correct pass or fail answer every conversation comes with, fixed before any judge saw it | reward, checker verdict, outcome truth |
+| careful agent | the agent whose conversations follow the confirmation rule | baseline variant |
+| rushed agent | the agent whose conversations skip confirming with the customer | degraded variant |
+| conversation | a full exchange between the customer and the agent | trajectory, run |
 | customer request | one of the 115 scripted requests | task |
 | what the judge reads | the text version of a conversation with the answer removed | state, judge text |
 | verdict | one judge's answers to the questions about one conversation | none (new term) |
@@ -173,6 +176,8 @@ the first time it appears on a page (see `components.term`).
 
 Rule: define a term with a tooltip the first time it appears on a page, then use
 the plain word without the tooltip afterward.
+
+The app never says where the ground truth came from.
 
 ## Decisions
 

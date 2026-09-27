@@ -29,14 +29,16 @@ _MATERIAL_BADGE_COLORS = {"shipped": "green", "regenerating": "orange", "missing
 _MATERIAL_MISSING_LINE = (
     "The study needs conversations first. Open Regenerate below to create them with your own agent."
 )
-_PROVENANCE_NOTE = (
-    "Generated once and saved; nothing here is regenerated when you run the other steps."
-)
 _REGENERATE_WARNING = (
     "This replaces the shipped conversations and costs about $10 through your OpenRouter key."
 )
-# The human label for each policy variant the conversations were collected under.
-_VARIANT_LABELS = {"baseline": "With the rule", "degraded": "With the rule removed"}
+_REGENERATE_EXPLAINER = "Replace the shipped conversations with new ones from your own agent runs."
+_VARIANT_EXPLAINER = (
+    "The rushed agent skips confirming details with the customer before acting; "
+    "the careful agent does not."
+)
+# The human label for each agent whose conversations the app ships with.
+_VARIANT_LABELS = {"baseline": "Careful agent", "degraded": "Rushed agent"}
 
 _STATION_LABELS = {
     "tasks": "Requests",
@@ -56,29 +58,13 @@ _PRODUCED_NOUN = {
 }
 
 # One "Notice:" line per station, telling the learner what to look for in an example.
-_CHECKER_NOTICE = "Notice: the checker's pass or fail is here, and the judges will never see it."
-_INPUT_NOTICE = {
-    "tasks": "Notice: one scripted request, the same one the customer will act out.",
-    "conversations": _CHECKER_NOTICE,
-    "judge_text": "Notice: the answer is already removed, so the judge reads blind.",
-    "verdicts": "Notice: these are the judges' answers, not the truth.",
+_NOTICE = {
+    "tasks": "Notice: one customer request, as the customer stated it.",
+    "conversations": "Notice: the ground truth is the last line, and the judges never see it.",
+    "judge_text": "Notice: the ground truth is gone from what the judge reads.",
+    "verdicts": "Notice: this is what one judge answered, with how sure it was.",
     "findings": "Notice: these are written results, ready to publish.",
 }
-_OUTPUT_NOTICE = {
-    "conversations": _CHECKER_NOTICE,
-    "judge_text": "Notice: the answer is removed, so the judge reads blind.",
-    "verdicts": "Notice: each judge answers on its own, and none of them see the truth.",
-    "findings": "Notice: this is a written result, not a new measurement.",
-}
-
-# Regenerate explainer: the same agent runs twice so later steps can tell the two apart.
-_VARIANTS = (
-    (
-        "With the rule",
-        "The agent must confirm the details with the customer before it changes an order.",
-    ),
-    ("With the rule removed", "The same agent, but that confirmation step is gone."),
-)
 
 
 def render() -> None:
@@ -262,21 +248,24 @@ def _variant_counts(paths: data.Paths) -> None:
     for column, item in zip(columns, counts, strict=True):
         with column:
             st.markdown(f"**{_VARIANT_LABELS.get(item.variant, item.variant)}**")
-            st.caption(f"{item.conversations} conversations · {item.pass_rate * 100:.1f}% pass")
+            st.caption(
+                f"{item.conversations} conversations · {item.pass_rate * 100:.1f}% pass "
+                "in ground truth"
+            )
 
 
 def _provenance(paths: data.Paths) -> None:
-    """Fold the models and tau-bench commit behind a 'Where these came from' expander."""
+    """Fold the models and the ground-truth note behind an 'About these conversations' expander."""
     prov = steps.provenance(paths)
-    with st.expander("Where these came from"):
-        st.markdown(f"- {steps.REQUESTS_PROVENANCE_LINE}")
+    with st.expander("About these conversations"):
+        lines = []
         if prov is not None:
-            st.markdown(
-                f"- Support agent: `{prov.agent_model}`\n"
-                f"- Customer: `{prov.user_model}`\n"
-                f"- tau-bench commit: `{prov.tau_bench_ref}`"
-            )
-        st.caption(_PROVENANCE_NOTE)
+            lines.append(f"- Support agent: `{prov.agent_model}`")
+            lines.append(f"- Customer: `{prov.user_model}`")
+        lines.append(
+            "- Ground truth was fixed before any judge read a conversation; judges never see it."
+        )
+        st.markdown("\n".join(lines))
 
 
 def _regenerate(
@@ -291,8 +280,8 @@ def _regenerate(
 ) -> None:
     """Hold the regenerate explainer, cost, warning, Run button, and live panel."""
     with st.expander("Regenerate with your own agent", expanded=expanded):
-        _two_variants()
-        st.markdown(step.learn)
+        st.markdown(_REGENERATE_EXPLAINER)
+        st.caption(_VARIANT_EXPLAINER)
         cap = step.cap_usd(study)  # type: ignore[arg-type]
         if cap is not None:
             st.caption(f"Spend cap: \\${cap:.0f}")
@@ -300,16 +289,6 @@ def _regenerate(
         status = step.status(paths)
         _controls(step, paths, study, pricing, key, runner, status, running)
         _run_state(step, None, paths, runner)
-
-
-def _two_variants() -> None:
-    """Show why the same requests run twice, side by side."""
-    st.caption("Two variants")
-    columns = st.columns(2)
-    for column, (label, explanation) in zip(columns, _VARIANTS, strict=True):
-        with column:
-            st.markdown(f"**{label}**")
-            st.caption(explanation)
 
 
 def _header(index: int | None, step: RunStep) -> None:
@@ -356,13 +335,13 @@ def _show_me(step: RunStep, paths: data.Paths) -> None:
         left, right = st.columns(2)
         with left:
             st.caption("What goes in")
-            notice = _INPUT_NOTICE.get(step.input_station)
+            notice = _NOTICE.get(step.input_station)
             if notice:
                 st.caption(notice)
             st.code(step.example_input(paths), wrap_lines=True)
         with right:
             st.caption("What comes out")
-            notice = _OUTPUT_NOTICE.get(step.output_station)
+            notice = _NOTICE.get(step.output_station)
             if notice:
                 st.caption(notice)
             st.code(step.example_output(paths), wrap_lines=True)

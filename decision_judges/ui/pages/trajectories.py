@@ -1,6 +1,6 @@
 """Trajectories page: one run's conversation beside its ground truth and verdicts."""
 
-import json
+from collections.abc import Callable
 from typing import Any
 
 import pandas as pd
@@ -16,19 +16,17 @@ from decision_judges.ui.flow import Station
 
 _DEFAULT_PROFILE = "full"
 _DEFAULT_INJECTION = "none"
-_PURPOSE = "Read one conversation beside the checker's verdict and every judge's verdict."
+_PURPOSE = "Read one conversation beside its ground truth and every judge's verdict."
 _WHY = "Seeing one conversation end to end makes the summary numbers concrete."
 _NEXT_HINT = "The experiments turn many conversations like this one into one score per judge."
 _JUDGE_VIEW = "Show only what the judge reads"
-_JUDGE_VIEW_CAPTION = (
-    "The judge never sees the pass or fail result or the expected actions; "
-    "they are removed before the judge reads."
-)
-_CONVERSATION_TERM = "a full exchange between the simulated customer and the agent"
+_JUDGE_VIEW_CAPTION = "The judge never sees the ground truth; the reading copy is made without it."
+_CONVERSATION_TERM = "a full exchange between the customer and the agent"
+# The reader-facing name for each internal variant value.
+_VARIANT_LABELS = {"baseline": "Careful agent", "degraded": "Rushed agent"}
 _LEGEND = (
-    "✓ expected action, ✗ not among the expected actions; percentages are each "
-    "judge's probability that the call was necessary and that its arguments were "
-    "consistent."
+    "Percentages are each judge's probability that the call was necessary and that its "
+    "arguments were consistent."
 )
 _HELP_QUESTIONS = ("verdict", "completed")
 
@@ -73,7 +71,6 @@ def render() -> None:
 
     steps = data.step_states(states, variant, profile, task_id)
     step_frames = views.step_scores(steps, grouped)
-    expected = views.expected_step_flags(task, record) if task is not None else None
 
     judge_view = st.toggle(_JUDGE_VIEW, value=False, key="judge_view")
     conversation, ground_truth = st.columns([3, 2])
@@ -81,7 +78,7 @@ def render() -> None:
         if judge_view:
             _judge_view(state)
         else:
-            _conversation(record, step_frames, expected, sentence)
+            _conversation(record, step_frames, sentence)
             if any(not frame.empty for frame in step_frames.values()):
                 st.caption(_LEGEND)
     with ground_truth:
@@ -124,23 +121,23 @@ def _verdict_config(frame: pd.DataFrame) -> dict[str, Any]:
     return config
 
 
-def _actions_table(frame: pd.DataFrame) -> None:
-    """Render the expected-actions table, wrapping the wide argument column."""
-    st.dataframe(
-        frame,
-        column_config={
-            "action": st.column_config.TextColumn("Action", width="medium"),
-            "matched": st.column_config.CheckboxColumn("Matched", width="small", disabled=True),
-        },
-        hide_index=True,
-        width="stretch",
-    )
-
-
-def _select_default(label: str, options: list[str], default: str, key: str) -> str:
+def _select_default(
+    label: str,
+    options: list[str],
+    default: str,
+    key: str,
+    format_func: Callable[[str], str] | None = None,
+) -> str:
     """Render a selectbox defaulting to ``default`` when it is among options."""
     index = options.index(default) if default in options else 0
+    if format_func is not None:
+        return str(st.selectbox(label, options, index=index, key=key, format_func=format_func))
     return str(st.selectbox(label, options, index=index, key=key))
+
+
+def _variant_label(variant: str) -> str:
+    """Return the reader-facing name for an internal variant value."""
+    return _VARIANT_LABELS.get(variant, variant)
 
 
 def _current(key: str, options: list[str], fallback: str) -> str:
@@ -172,7 +169,9 @@ def _select(
         columns = st.columns(count)
         cursor = 0
         with columns[cursor]:
-            variant = _select_default("Variant", variants, desired["variant"], "variant")
+            variant = _select_default(
+                "Variant", variants, desired["variant"], "variant", format_func=_variant_label
+            )
         cursor += 1
 
         task_ids = sorted({tid for candidate, tid in records if candidate == variant})
@@ -235,7 +234,6 @@ def _write_query_params(variant: str, task_id: str, injection: str) -> None:
 def _conversation(
     record: AgentRecord,
     step_frames: dict[int, pd.DataFrame],
-    expected: list[bool] | None,
     injected: str = "",
 ) -> None:
     """Render the trajectory as chat messages with per-step judge scores inline.
@@ -258,7 +256,7 @@ def _conversation(
                     for call in turn.tool_calls:
                         st.code(call, language="json", wrap_lines=True)
                         pending.append(call.split("(", 1)[0])
-                        _step_scores(step_index, step_frames, expected)
+                        _step_scores(step_index, step_frames)
                         step_index += 1
             elif turn.role == "tool":
                 name = pending.pop(0) if pending else "tool"
@@ -275,18 +273,14 @@ def _conversation(
 def _step_scores(
     step_index: int,
     step_frames: dict[int, pd.DataFrame],
-    expected: list[bool] | None,
 ) -> None:
     """Render one compact caption per judge under a tool call, when scores exist."""
     frame = step_frames.get(step_index)
     if frame is None or frame.empty:
         return
-    mark = ""
-    if expected is not None and step_index < len(expected):
-        mark = "✓ " if expected[step_index] else "✗ "
     for _, row in frame.iterrows():
         st.caption(
-            f"{mark}{row['judge_id']}: necessary {formatting.pct(float(row['necessary']))}, "
+            f"{row['judge_id']}: necessary {formatting.pct(float(row['necessary']))}, "
             f"arguments_consistent {formatting.pct(float(row['arguments_consistent']))}"
         )
 
@@ -301,27 +295,15 @@ def _reward_badge(passed: bool) -> None:
 
 
 def _ground_truth(record: AgentRecord, task: Task | None) -> None:
-    """Render the reward badge, instruction, expected actions, and outputs."""
+    """Render the ground-truth badge and the customer request."""
     st.subheader("Ground truth")
     _reward_badge(record.reward >= 1.0)
+    st.caption("Ground truth")
     if task is None:
         st.caption("Task definitions are not loaded.")
         return
+    st.markdown("**Customer request**")
     st.write(task.instruction)
-    action_rows = [
-        {
-            "action": f"{action.name}({json.dumps(action.kwargs, sort_keys=True)})",
-            "matched": matched,
-        }
-        for action, matched in views.matched_expected_actions(task, record)
-    ]
-    _actions_table(pd.DataFrame(action_rows, columns=["action", "matched"]))
-    if task.outputs:
-        st.write("Required outputs:")
-        for output in task.outputs:
-            st.write(f"- {output}")
-    else:
-        st.caption("No required outputs.")
 
 
 def _verdicts(state: StateRecord | None, grouped: dict[str, list[Verdict]]) -> None:

@@ -34,16 +34,16 @@ _JUDGE_STEP = 3
 _ANALYZE_STEP = 4
 
 _G2_MEASURE = "G2 scores every tool call: was it needed, and were its arguments consistent."
-_G3_MEASURE = "G3 scores each run's pass or fail verdict against the outcome truth."
+_G3_MEASURE = "G3 scores each run's pass or fail verdict against the ground truth."
 _G4_MEASURE = "G4 tests whether aggregating six atomic questions beats one broad question."
 _G10_MEASURE = (
     "G10 compares the local decision model against the hosted judges on the short reading copy."
 )
 _G5_MEASURE = "G5 replays the outcome verdicts as a confidence-gated cascade of cost and accuracy."
 _G6_MEASURE = "G6 measures how closely each judge's probabilities track observed outcomes."
-_G8_MEASURE = "G8 estimates each judge's baseline-to-degraded regression with bootstrap intervals."
+_G8_MEASURE = "G8 estimates each judge's careful-to-rushed regression with bootstrap intervals."
 _G9_MEASURE = "G9 scores each judge's failure-taxonomy labels against the owner's hand labels."
-_G7_MEASURE = "G7 measures whether an injected evaluator-directed sentence flips a fail to a pass."
+_G7_MEASURE = "G7 measures whether a sentence planted to trick the judge flips a fail to a pass."
 
 _HOW_TO_READ: dict[str, list[tuple[str, str]]] = {
     "g2": [
@@ -79,10 +79,10 @@ _HOW_TO_READ: dict[str, list[tuple[str, str]]] = {
         ("Brier", "squared error of the probability"),
     ],
     "g8": [
-        ("Est delta", "the estimated drop from baseline to degraded"),
+        ("Est delta", "the estimated drop from the careful agent to the rushed one"),
         ("Lo, Hi", "the bootstrap interval around the estimate"),
         ("Covers truth", "whether the interval contains the real gap"),
-        ("True delta", "the real baseline-to-degraded gap from ground truth"),
+        ("True delta", "the real drop in ground truth"),
     ],
     "g9": [
         ("Accuracy", "share matching ground truth"),
@@ -423,7 +423,7 @@ def _g8_tab(paths: data.Paths) -> None:
                 hi="hi",
                 point="est_delta",
                 truth_x="true_delta",
-                title="Baseline-to-degraded delta by judge",
+                title="Careful-to-rushed delta by judge",
             )
         )
 
@@ -469,7 +469,7 @@ def _g7_tab(paths: data.Paths) -> None:
     has_recompute = bool(items) and bool(verdicts)
     if summary is None and not has_recompute:
         components.empty_state(
-            "G7 measures whether an injected evaluator-directed sentence flips a fail "
+            "G7 measures whether a sentence planted to trick the judge flips a fail "
             "verdict to pass.",
             "judges judge --gate g7 --variant baseline --variant degraded",
             run_step=_JUDGE_STEP,
