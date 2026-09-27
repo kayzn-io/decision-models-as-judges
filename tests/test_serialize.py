@@ -187,10 +187,14 @@ def test_leakage_guard_passes_on_clean_text() -> None:
     assert_no_leakage("user: hello\nassistant: hi there", _task(), _small_record())
 
 
-def test_leakage_guard_raises_on_required_output() -> None:
-    task = _task(outputs=["SENTINEL_OUTPUT_42"])
-    with pytest.raises(LeakageError):
-        assert_no_leakage("the answer is SENTINEL_OUTPUT_42 today", task, _small_record())
+def test_leakage_guard_allows_the_agent_to_state_a_required_output() -> None:
+    """A required output is something the agent must say; saying it is not a leak."""
+    task = _task(outputs=["346.93"])
+    assert_no_leakage(
+        "assistant: Total refund amount: $346.93. This will be refunded to your card.",
+        task,
+        _small_record(),
+    )
 
 
 def test_leakage_guard_raises_on_database_hash() -> None:
@@ -265,3 +269,14 @@ def test_serialize_is_deterministic() -> None:
     second = serialize(record, task, StateProfile.full)
     assert first.text == second.text
     assert first.state_hash == second.state_hash
+
+
+def test_leakage_guard_ignores_the_english_word_reward() -> None:
+    """Customers and agents say 'rewarding' and 'reward yourself'; only the grade key is a leak."""
+    text = "assistant: Cooking can be a fun and rewarding hobby. Reward yourself after mailing it."
+    assert_no_leakage(text, _task(), _small_record())
+
+
+def test_leakage_guard_still_catches_the_grade_key() -> None:
+    with pytest.raises(LeakageError):
+        assert_no_leakage('tool: {"reward": 1.0, "r_actions": []}', _task(), _small_record())

@@ -86,7 +86,13 @@ _HEX64 = re.compile(r"(?<![0-9a-fA-F])[0-9a-fA-F]{64}(?![0-9a-fA-F])")
 # Literal ground-truth markers. These name the reward and its breakdown or the
 # reference-action list as they appear in a run's stored metadata; none of them
 # belong in a legitimate transcript, so their presence signals a leak.
-_LEAK_MARKERS = ("reward", "expected_actions", "r_actions", "r_outputs")
+_LEAK_MARKERS = ('"reward"', "reward:", "expected_actions", "r_actions", "r_outputs")
+"""Answer-key metadata as it appears in serialized records or harness output.
+
+The grade is matched in its key forms only ('"reward"' from JSON, 'reward:' from
+a rendered field) so that the ordinary English word in a transcript, such as a
+customer describing a rewarding hobby, does not read as a leak.
+"""
 
 
 class LeakageError(ValueError):
@@ -96,22 +102,23 @@ class LeakageError(ValueError):
 def assert_no_leakage(text: str, task: Task, record: AgentRecord) -> None:
     """Raise LeakageError if text carries ground truth a judge must not see.
 
-    The check is deliberately conservative and independent of the agent's own
-    (legitimate) tool calls. It rejects, case-insensitively: the literal reward
-    and reward-breakdown / reference-action metadata keys ('reward',
-    'expected_actions', 'r_actions', 'r_outputs'); each non-empty required
-    output string from the task (the graded answer); and any 64-character hex
-    run, which would be a database row hash rather than transcript content.
-    The record is accepted so callers pass the run whose ground truth is at
-    stake; the guard reads only the text and the task's outputs.
+    The check rejects, case-insensitively, the answer-key metadata keys
+    ('reward', 'expected_actions', 'r_actions', 'r_outputs') and any
+    64-character hex run, which would be a database row hash rather than
+    transcript content.
+
+    It does not reject a task's required output strings. Those are facts the
+    agent is graded on stating to the customer (a refund total, an order
+    status), so a passing transcript contains them because the agent said them.
+    A judge reading the agent's words learns only what the agent said, not that
+    the grader wanted it said; rejecting these would drop the agent's successes
+    from the study and bias every judge's score. The task is accepted so the
+    signature stays stable for callers and tests.
     """
     lowered = text.lower()
     for marker in _LEAK_MARKERS:
         if marker in lowered:
             raise LeakageError(f"leaked ground-truth marker: {marker!r}")
-    for output in task.outputs:
-        if output and output.lower() in lowered:
-            raise LeakageError("leaked required output string")
     if _HEX64.search(text):
         raise LeakageError("leaked 64-character hex hash")
 

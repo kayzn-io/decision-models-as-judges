@@ -174,12 +174,12 @@ def test_serialize_step_runs_leakage_guard() -> None:
     leaky = [
         {"role": "user", "content": "hi"},
         _assistant_call("c0", _GET, {"order_id": "#W1"}),
-        _tool("c0", _GET, "the graded answer is SENTINEL_LEAK_42"),
+        _tool("c0", _GET, '{"r_actions": ["cancel"], "reward": 1.0}'),
         _assistant_call("c1", _CANCEL, {"order_id": "#W1"}),
     ]
     record = _record(trajectory=leaky)
-    task = _task(outputs=["SENTINEL_LEAK_42"])
-    step = enumerate_steps(record)[1]  # cancel; its state includes the leaked tool result
+    task = _task()
+    step = enumerate_steps(record)[1]  # cancel; its state includes the leaked harness output
 
     with pytest.raises(LeakageError):
         serialize_step(record, task, step, StateProfile.full)
