@@ -13,7 +13,7 @@ import streamlit as st
 
 from decision_judges.bench.run_agent import MissingCredentials
 from decision_judges.runner import StepAlreadyRunning, StepRunner
-from decision_judges.ui import components, data, flow, keys, steps
+from decision_judges.ui import components, data, flow, keys, notes, steps
 from decision_judges.ui.steps import RunContext, RunStep, StepStatus
 
 _PURPOSE = (
@@ -266,6 +266,8 @@ def _provenance(paths: data.Paths) -> None:
             "- Ground truth was fixed before any judge read a conversation; judges never see it."
         )
         st.markdown("\n".join(lines))
+        with st.expander(notes.TECHNICAL_NOTES_TITLE, expanded=False):
+            st.markdown(notes.technical_notes(prov))
 
 
 def _regenerate(

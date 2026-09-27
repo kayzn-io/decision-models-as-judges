@@ -113,6 +113,22 @@ def test_material_card_shows_counts_provenance_and_run_only_in_regenerate(
     assert any("$10" in warning.value for warning in at.warning)
 
 
+def test_material_card_has_collapsed_technical_notes_with_full_provenance(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    labels = [expander.label for expander in at.expander]
+    assert "About these conversations" in labels
+    assert "Technical notes" in labels
+    notes = next(e for e in at.expander if e.label == "Technical notes")
+    assert notes.proto.expanded is False
+    joined = "\n".join(block.value for block in notes.markdown)
+    assert "Sierra Research" in joined
+
+
 def test_material_card_missing_asks_for_conversations_and_opens_regenerate(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

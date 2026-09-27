@@ -72,6 +72,12 @@ _FORBIDDEN = {
 
 _SAMPLE_CAPTION = "# example (your own appears here after the step runs)"
 
+# notes.py is the single exemption from the jargon ban. It is the one place the
+# provenance is told in full, hidden two levels deep behind the About these
+# conversations expander and then the Technical notes expander, so it may use
+# the source words (tau-bench, scripted, grading code) the rest of the UI hides.
+_JARGON_ALLOWLIST = {"notes.py"}
+
 
 def _docstring_ids(tree: ast.Module) -> set[int]:
     """Return the id() of every docstring Constant node, to exempt from the scan."""
@@ -121,11 +127,25 @@ def test_owned_ui_prose_avoids_internal_jargon() -> None:
     """No learner-facing string uses the internal jargon the rewrite replaced."""
     hits: list[str] = []
     for path in _targets():
+        if path.name in _JARGON_ALLOWLIST:
+            continue
         for text in _prose_strings(path):
             for label, pattern in _FORBIDDEN.items():
                 if pattern.search(text):
                     hits.append(f"{path.name}: {label}: {text!r}")
     assert not hits, "jargon found in UI prose:\n" + "\n".join(hits)
+
+
+def test_only_the_notes_module_tells_the_provenance() -> None:
+    """No module other than notes.py inlines the provenance story, keyed on tau-bench."""
+    hits: list[str] = []
+    for path in _targets():
+        if path.name in _JARGON_ALLOWLIST:
+            continue
+        for text in _prose_strings(path):
+            if _FORBIDDEN["tau-bench"].search(text):
+                hits.append(f"{path.name}: {text!r}")
+    assert not hits, "the provenance leaked outside notes.py:\n" + "\n".join(hits)
 
 
 def _paths(root: Path) -> Paths:

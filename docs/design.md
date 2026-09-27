@@ -177,7 +177,7 @@ the first time it appears on a page (see `components.term`).
 Rule: define a term with a tooltip the first time it appears on a page, then use
 the plain word without the tooltip afterward.
 
-The app never says where the ground truth came from.
+The main experience never says where the ground truth came from; the full account lives only in Technical notes, collapsed inside About these conversations.
 
 ## Decisions
 
