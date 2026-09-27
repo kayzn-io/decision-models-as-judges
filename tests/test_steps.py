@@ -193,3 +193,40 @@ def test_requests_provenance_line_names_the_shipped_file() -> None:
     assert (
         steps.REQUESTS_PROVENANCE_LINE == "115 customer requests from tau-bench (data/tasks.json)"
     )
+
+
+def test_conversation_excerpt_ends_with_the_checker_verdict() -> None:
+    """The example exists to show the grade, so a real excerpt must end with it."""
+    from decision_judges.ui.steps import _conversation_excerpt
+
+    class Record:
+        reward = 0.0
+        trajectory = [
+            {"role": "system", "content": "policy"},
+            {"role": "user", "content": "I want a refund."},
+            {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [{"function": {"name": "get_order_details"}}],
+            },
+            {"role": "tool", "content": "{...}"},
+            {"role": "assistant", "content": "Refunded."},
+            {"role": "user", "content": "Thanks."},
+            {"role": "assistant", "content": "Anything else?"},
+        ]
+
+    text = _conversation_excerpt(Record(), head=2, tail=2)
+    lines = text.split("\n")
+    assert lines[0].startswith("user:")  # the system turn is skipped
+    assert "[... 2 turns omitted ...]" in lines
+    assert lines[-1] == "checker: fail"
+
+
+def test_short_conversation_excerpt_has_no_elision() -> None:
+    from decision_judges.ui.steps import _conversation_excerpt
+
+    class Record:
+        reward = 1.0
+        trajectory = [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
+
+    assert _conversation_excerpt(Record()) == "user: hi\nassistant: hello\nchecker: pass"

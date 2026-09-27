@@ -286,16 +286,39 @@ def _results_counts(paths: Paths) -> StepStatus:
 
 def _format_turns(trajectory: list[dict[str, object]], limit: int = 4) -> str:
     """Render the first turns of a trajectory as short role-prefixed lines."""
-    lines: list[str] = []
-    for turn in trajectory[:limit]:
-        role = str(turn.get("role", "?"))
-        content = str(turn.get("content", "")).strip()
-        calls = turn.get("tool_calls") or []
-        if isinstance(calls, list) and calls:
-            names = [str(call.get("function", {}).get("name", "?")) for call in calls]
-            content = (content + " " if content else "") + "calls: " + ", ".join(names)
-        lines.append(f"{role}: {content}".strip()[:200])
-    return "\n".join(lines)
+    return "\n".join(_turn_line(turn) for turn in trajectory[:limit])
+
+
+def _turn_line(turn: dict[str, object]) -> str:
+    """Render one turn as a short role-prefixed line, naming any tool calls."""
+    role = str(turn.get("role", "?"))
+    content = str(turn.get("content", "")).strip()
+    calls = turn.get("tool_calls") or []
+    if isinstance(calls, list) and calls:
+        names = [str(call.get("function", {}).get("name", "?")) for call in calls]
+        content = (content + " " if content else "") + "calls: " + ", ".join(names)
+    return f"{role}: {content}".strip()[:200]
+
+
+def _conversation_excerpt(record: object, *, head: int = 3, tail: int = 2) -> str:
+    """Render a conversation's opening and closing turns and the checker's verdict.
+
+    The system turn is skipped, as it holds the policy rather than the exchange.
+    The middle is elided when the conversation is long, and the last line is the
+    grade the checker gave, which is the fact the example exists to point at.
+    """
+    turns = [t for t in getattr(record, "trajectory", []) if t.get("role") != "system"]
+    if len(turns) <= head + tail:
+        shown = [_turn_line(t) for t in turns]
+    else:
+        omitted = len(turns) - head - tail
+        shown = (
+            [_turn_line(t) for t in turns[:head]]
+            + [f"[... {omitted} turns omitted ...]"]
+            + [_turn_line(t) for t in turns[-tail:]]
+        )
+    verdict = "pass" if _reward(record) >= 1.0 else "fail"
+    return "\n".join([*shown, f"checker: {verdict}"])
 
 
 def _first_task_instruction(paths: Paths) -> str:
@@ -317,9 +340,8 @@ def _first_conversation(paths: Paths, *, failing: bool = False) -> str:
     for (_variant, _task_id), record in sorted(_agent_records(paths).items()):
         if failing and _reward(record) >= 1.0:
             continue
-        trajectory = getattr(record, "trajectory", [])
-        if trajectory:
-            return _format_turns(trajectory)
+        if getattr(record, "trajectory", []):
+            return _conversation_excerpt(record)
     return ""
 
 
