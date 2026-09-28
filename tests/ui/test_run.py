@@ -40,8 +40,10 @@ def _run_buttons(at: AppTest) -> list[str]:
 
 
 def _texts(at: AppTest) -> list[str]:
-    """Return every rendered markdown and caption value for substring assertions."""
-    return [block.value for block in [*at.markdown, *at.caption]]
+    """Return every rendered markdown, caption, and progress-bar label for substring assertions."""
+    texts = [block.value for block in [*at.markdown, *at.caption]]
+    texts += [getattr(bar, "text", "") or "" for bar in at.get("progress")]
+    return texts
 
 
 def _await_finished(root: Path, step_id: str, timeout: float = 30.0) -> Progress:
@@ -451,13 +453,23 @@ def test_draw_conclusions_panel_says_no_new_judge_calls(
 
 
 def test_format_last_item_reads_like_a_sentence_for_judge_steps() -> None:
+    from decision_judges.config import load_study
     from decision_judges.ui import steps
     from decision_judges.ui.pages.run import _format_last_item
 
+    study = load_study(_UI_ROOT / "config" / "study.toml")
     judge_step = next(s for s in steps.STEPS if s.id == "judge-outcome")
+    line = _format_last_item(
+        "retail-42 · jev · pass", judge_step, study, "Careful agent, short text"
+    )
+    assert line == (
+        "Conversation retail-42, short text, judged by "
+        f"Jev (decision model) ({study.models.jev}): pass"
+    )
+    # The free rule-based judge has no model to name, and an unphased step names no version.
     assert (
-        _format_last_item("retail-42 · jev · pass", judge_step)
-        == "Conversation retail-42, judged by Jev (decision model): pass"
+        _format_last_item("retail-1 · code · fail", judge_step, study, None)
+        == "Conversation retail-1, judged by Rule-based check (free): fail"
     )
 
 
@@ -466,8 +478,8 @@ def test_format_last_item_leaves_non_judge_lines_alone() -> None:
     from decision_judges.ui.pages.run import _format_last_item
 
     serialize_step = next(s for s in steps.STEPS if s.id == "serialize")
-    assert _format_last_item("baseline · 2 runs", serialize_step) == "baseline · 2 runs"
-    assert _format_last_item(None, serialize_step) == ""
+    assert _format_last_item("baseline · 2 runs", serialize_step, None, None) == "baseline · 2 runs"
+    assert _format_last_item(None, serialize_step, None, None) == ""
 
 
 def test_running_panel_names_the_batch_and_shows_overall(
@@ -488,6 +500,8 @@ def test_running_panel_names_the_batch_and_shows_overall(
                     phase_count=4,
                     overall_done=3504,
                     overall_total=9200,
+                    spent_usd=12.5,
+                    cap_usd=75.0,
                 )
             )
         while not (ctx.cancel is not None and ctx.cancel.is_cancelled):  # type: ignore[attr-defined]
@@ -508,7 +522,9 @@ def test_running_panel_names_the_batch_and_shows_overall(
     assert any("Batch 2 of 4: Careful agent, short text" in text for text in texts)
     assert any("1,204 of 2,300 judge calls in this batch" in text for text in texts)
     assert any("Overall: 3,504 of 9,200" in text for text in texts)
-    assert any("judged by Jev (decision model): pass" in text for text in texts)
+    assert any("short text, judged by Jev (decision model) (" in text for text in texts)
+    assert any("across all batches" in text for text in texts)
+    assert any("Spent $" in text and "cap for this step" in text for text in texts)
 
     at.button(key="stop_judge-outcome").click().run()
     _await_finished(root, "judge-outcome")

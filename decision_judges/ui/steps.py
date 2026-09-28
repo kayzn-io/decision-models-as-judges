@@ -1018,6 +1018,14 @@ def judge_display_name(judge_id: str) -> str:
     return _JUDGE_DISPLAY.get(judge_id, judge_id)
 
 
+def judge_model_label(judge_id: str, study: object) -> str | None:
+    """Return the model id shown beside a judge's name, or None for free rule-based judges."""
+    if judge_id == "code" or not isinstance(study, StudyConfig):
+        return None
+    model = _judge_model_id(judge_id, study)
+    return model or None
+
+
 def _judge_model_id(name: str, study: StudyConfig) -> str:
     """Return the model id shown beside a judge, empty for the rule-based one."""
     models = study.models

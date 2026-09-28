@@ -446,10 +446,12 @@ def _running_panel(step: RunStep, runner: StepRunner) -> None:
         st.caption("Starting…")
         _stop_button(step, runner)
         return
+    study, _pricing = data.load_study_and_pricing(data.Paths.from_env())
     _progress_bars(step, status)
     _dollar_meter(status)
-    st.caption(
-        f"Elapsed {_elapsed(status.started_at, None)} · {_format_last_item(status.last_item, step)}"
+    st.markdown(
+        f"Elapsed {_elapsed(status.started_at, None)} · "
+        f"{_format_last_item(status.last_item, step, study, getattr(status, 'phase', None))}"
     )
     _stop_button(step, runner)
 
@@ -465,33 +467,38 @@ def _progress_bars(step: RunStep, status: object) -> None:
     total = getattr(status, "total", 0) or 0
     phase = getattr(status, "phase", None)
     if phase is None:
-        st.progress(min(done / (total or 1), 1.0), text=f"{done} of {total}")
+        noun = "judge calls" if step.pipe == "judge" else "items"
+        st.progress(min(done / (total or 1), 1.0), text=f"{done:,} of {total:,} {noun}")
         return
     index = getattr(status, "phase_index", None) or 1
     count = getattr(status, "phase_count", None) or 1
     st.markdown(f"**Batch {index} of {count}: {phase}**")
-    st.progress(min(done / (total or 1), 1.0))
     noun = "judge calls" if step.pipe == "judge" else "items"
-    st.caption(f"{done:,} of {total:,} {noun} in this batch")
-    _overall_bar(status)
+    st.progress(min(done / (total or 1), 1.0), text=f"{done:,} of {total:,} {noun} in this batch")
+    _overall_bar(step, status)
 
 
-def _overall_bar(status: object) -> None:
+def _overall_bar(step: RunStep, status: object) -> None:
     """Render the progress across every batch when their totals are known."""
     overall_total = getattr(status, "overall_total", None)
     if not overall_total:
         return
     overall_done = getattr(status, "overall_done", 0) or 0
-    st.progress(min(overall_done / overall_total, 1.0))
-    st.caption(f"Overall: {overall_done:,} of {overall_total:,}")
+    noun = "judge calls" if step.pipe == "judge" else "items"
+    st.progress(
+        min(overall_done / overall_total, 1.0),
+        text=f"Overall: {overall_done:,} of {overall_total:,} {noun} across all batches",
+    )
 
 
-def _format_last_item(last_item: str | None, step: RunStep) -> str:
+def _format_last_item(
+    last_item: str | None, step: RunStep, study: object, phase: str | None
+) -> str:
     """Return the last judged item as a sentence, or the raw line when it is not one.
 
     A judge step reports ``task · judge · verdict``; this reads it back as a
-    sentence naming the conversation, the judge, and its verdict. Any other line
-    is left as it is.
+    sentence naming the conversation, the text version being judged, the judge
+    with its model, and the verdict. Any other line is left as it is.
     """
     if not last_item:
         return ""
@@ -501,7 +508,24 @@ def _format_last_item(last_item: str | None, step: RunStep) -> str:
     if len(parts) != 3:
         return last_item
     task_id, judge_id, label = parts
-    return f"Conversation {task_id}, judged by {steps.judge_display_name(judge_id)}: {label}"
+    judge = steps.judge_display_name(judge_id)
+    model = steps.judge_model_label(judge_id, study)
+    who = f"{judge} ({model})" if model else judge
+    version = _text_version(phase)
+    where = f", {version}" if version else ""
+    return f"Conversation {task_id}{where}, judged by {who}: {label}"
+
+
+def _text_version(phase: str | None) -> str | None:
+    """Return the text version named in a batch label, if it names one."""
+    if not phase:
+        return None
+    lowered = phase.lower()
+    if "short text" in lowered:
+        return "short text"
+    if "full text" in lowered:
+        return "full text"
+    return None
 
 
 def _dollar_meter(status: object) -> None:
@@ -511,7 +535,7 @@ def _dollar_meter(status: object) -> None:
         return
     spent = getattr(status, "spent_usd", 0.0)
     ratio = min(spent / cap, 1.0)
-    st.progress(ratio, text=f"${spent:.2f} of ${cap:.0f}")
+    st.progress(ratio, text=f"Spent ${spent:.2f} of the ${cap:.0f} cap for this step")
     if ratio >= 0.8:
         st.caption(":orange[Approaching the spend cap.]")
 
