@@ -22,6 +22,7 @@ from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
 from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome
+from decision_judges.gates.names import as_points, judge_name, signal_name
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import brier, ece, reliability_bins
 from decision_judges.progress import CancelToken, ProgressCallback
@@ -331,17 +332,55 @@ class G6Calibration(Gate):
         return figure
 
     def _findings(self, summary: pd.DataFrame) -> str:
-        """Return two to three factual sentences on best calibration and recalibration."""
+        """Return three plain paragraphs: what calibration is, the numbers, the choice."""
         if summary.empty:
-            return "No verdicts were available to analyze."
-        best = summary.sort_values("ece").iloc[0]
+            return "No conversations were available to analyze."
+        ordered = summary.sort_values("ece")
+        best = ordered.iloc[0]
+        worst = ordered.iloc[-1]
         improved = int((summary["ece_after_isotonic"] < summary["ece"] - 1e-9).sum())
         total = len(summary)
         mean_delta = float((summary["ece"] - summary["ece_after_isotonic"]).mean())
+
+        what = (
+            "Calibration asks whether a judge's confidence means what it says: when a judge "
+            "says 90%, it should be right about 9 times in 10."
+        )
+        numbers = (
+            f"The best case, {judge_name(str(best['judge']))} on "
+            f"{signal_name(str(best['signal']))}, is off by {as_points(float(best['ece']))} on "
+            f"average, while the worst, {judge_name(str(worst['judge']))} on "
+            f"{signal_name(str(worst['signal']))}, is off by {as_points(float(worst['ece']))}."
+        )
+        if mean_delta > 0:
+            numbers += (
+                " A correction fitted on other conversations lowered the error for "
+                f"{improved} of {total} judge-and-signal pairs, by about {as_points(mean_delta)} "
+                "on average."
+            )
+        else:
+            numbers += (
+                " A correction fitted on other conversations did not lower the error on average "
+                f"across the {total} judge-and-signal pairs."
+            )
+        return "\n\n".join([what, numbers, self._calibration_meaning(summary, float(best["ece"]))])
+
+    def _calibration_meaning(self, summary: pd.DataFrame, best_ece: float) -> str:
+        """Return an honest sentence on whose confidence is usable as it stands."""
+        if best_ece > 0.10:
+            return (
+                "Every judge is off by more than 10 points, so no judge's confidence should be "
+                "taken at face value here; a stated probability is a rough hint, not a number to "
+                "act on. Fit the correction on separate conversations before trusting any of it."
+            )
+        usable: list[str] = []
+        for judge, ece_value in zip(summary["judge"], summary["ece"], strict=True):
+            name = judge_name(str(judge))
+            if float(ece_value) <= 0.10 and name not in usable:
+                usable.append(name)
+        listed = ", ".join(usable)
         return (
-            f"Signal {str(best['signal'])!r} from judge {str(best['judge'])!r} was the "
-            f"best calibrated at ECE {float(best['ece']):.3f}. Isotonic recalibration lowered "
-            f"ECE for {improved} of {total} judge-signal pairs, a mean reduction of "
-            f"{mean_delta:.3f}. Recalibration is fit with cross-validation, so the gains "
-            f"reflect held-out folds rather than a map scored on its own data."
+            f"You could act on the confidence from {listed} directly, since it lands within 10 "
+            "points of the truth; the rest need the correction fitted on separate conversations "
+            "first."
         )

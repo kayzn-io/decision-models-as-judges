@@ -20,6 +20,7 @@ from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.cache import Cache
 from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome, _verdict_choice
+from decision_judges.gates.names import as_points, judge_name, variant_name
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import bootstrap_delta
 from decision_judges.progress import CancelToken, ProgressCallback
@@ -45,6 +46,39 @@ def _mean(values: Sequence[float]) -> float:
 def _excludes_zero(lo: float, hi: float) -> bool:
     """Return whether a closed interval lies entirely above or below zero."""
     return lo > 0.0 or hi < 0.0
+
+
+def _join_names(names: Sequence[str]) -> str:
+    """Join names as 'a', 'a and b', or 'a, b, and c'."""
+    items = list(names)
+    if len(items) <= 1:
+        return items[0] if items else ""
+    if len(items) == 2:
+        return f"{items[0]} and {items[1]}"
+    return ", ".join(items[:-1]) + f", and {items[-1]}"
+
+
+def _change_phrase(delta: float) -> str:
+    """Describe a pass-rate change as a drop, a rise, or no change."""
+    if delta < 0:
+        return f"a drop of {as_points(delta)}"
+    if delta > 0:
+        return f"a rise of {as_points(delta)}"
+    return "no change"
+
+
+def _bound_phrase(delta: float) -> str:
+    """Describe one interval bound as points worse, points better, or no change."""
+    if delta < 0:
+        return f"{as_points(delta)} worse"
+    if delta > 0:
+        return f"{as_points(delta)} better"
+    return "no change"
+
+
+def _capitalize(text: str) -> str:
+    """Capitalize the first character of a sentence, leaving the rest unchanged."""
+    return text[:1].upper() + text[1:] if text else text
 
 
 def pass_labels(
@@ -260,50 +294,120 @@ class G8Regression(Gate):
         return figure
 
     def _missing_findings(self, variants: set[str]) -> str:
-        """Return a finding naming which of the two required variants are present."""
-        present = ", ".join(sorted(variants)) if variants else "none"
+        """Return a finding naming which of the two required agents are present."""
+        present = (
+            ", ".join(variant_name(v) for v in sorted(variants)) if variants else "neither of them"
+        )
         return (
-            "The regression analysis needs both the baseline and degraded variants, "
-            f"but the items cover only: {present}."
+            "This experiment needs both the careful agent and the rushed agent, but the "
+            f"conversations cover only: {present}."
         )
 
     def _findings(self, frame: pd.DataFrame, td: float) -> str:
-        """Return two to three factual sentences on detection, coverage, and alarms."""
+        """Return three plain paragraphs: what was tested, the numbers, the choice."""
         if frame.empty:
-            return "No verdicts were available to analyze the regression."
-        detected = [
-            str(j) for j, flag in zip(frame["judge"], frame["detected"], strict=True) if flag
-        ]
-        covered = [
-            str(j) for j, flag in zip(frame["judge"], frame["covers_truth"], strict=True) if flag
-        ]
+            return "No conversations were available to analyze the regression."
+        what = (
+            "The rushed agent skips confirming with customers; this experiment asks whether each "
+            "judge notices that it does worse."
+        )
+        return "\n\n".join([what, self._numbers(frame, td), self._alarm_and_meaning(frame, td)])
+
+    def _numbers(self, frame: pd.DataFrame, td: float) -> str:
+        """Return the true gap, each judge's estimate, and a classification sentence."""
+        direction = "less often" if td < 0 else "more often" if td > 0 else "just as often"
+        small = abs(td) < 0.05
+        tail = ", a gap small enough to be hard to detect." if small else "."
+        truth = (
+            f"In the ground truth the rushed agent passed {as_points(td)} {direction} than the "
+            f"careful agent{tail}"
+        )
+        clauses: list[str] = []
+        right_size: list[str] = []
+        exaggerated: list[str] = []
+        missed: list[str] = []
+        for judge, est, lo, hi, detected, covers in zip(
+            frame["judge"],
+            frame["est_delta"],
+            frame["lo"],
+            frame["hi"],
+            frame["detected"],
+            frame["covers_truth"],
+            strict=True,
+        ):
+            name = judge_name(str(judge))
+            interval = (
+                f"somewhere between {_bound_phrase(float(lo))} and {_bound_phrase(float(hi))}"
+            )
+            change = _change_phrase(float(est))
+            clauses.append(f"{_capitalize(name)} saw {change}, {interval}.")
+            if not bool(detected):
+                missed.append(name)
+            elif bool(covers):
+                right_size.append(name)
+            else:
+                exaggerated.append(name)
+        groups: list[str] = []
+        if right_size:
+            groups.append(f"{_join_names(right_size)} got the size about right")
+        if exaggerated:
+            groups.append(f"{_join_names(exaggerated)} exaggerated the drop")
+        if missed:
+            groups.append(f"{_join_names(missed)} missed it")
+        classification = _capitalize("; ".join(groups)) + "." if groups else ""
+        return " ".join([truth, *clauses, classification]).strip()
+
+    def _alarm_and_meaning(self, frame: pd.DataFrame, td: float) -> str:
+        """Return the false-alarm result and an honest note on exaggeration."""
         alarms = [
-            str(j)
+            judge_name(str(j))
             for j, flag in zip(frame["judge"], frame["false_alarm"], strict=True)
             if flag is True
         ]
         skipped = [
-            str(j)
+            judge_name(str(j))
             for j, flag in zip(frame["judge"], frame["false_alarm"], strict=True)
             if flag is None
         ]
-
-        detect_text = ", ".join(detected) if detected else "no judges"
-        cover_text = ", ".join(covered) if covered else "no judges"
-        sentences = [
-            f"The true degraded-minus-baseline pass-rate delta is {td:.2f}.",
-            f"Detected the regression: {detect_text}; covered the true delta: {cover_text}.",
-        ]
         if alarms:
-            sentences.append(
-                "Raised a false alarm on the baseline variant: " + ", ".join(alarms) + "."
+            alarm = (
+                f"{_capitalize(_join_names(alarms))} reported a drop when shown two halves of the "
+                "careful agent's own conversations, a false alarm."
             )
         elif skipped:
-            sentences.append(
+            alarm = (
                 "The false-alarm test was skipped for "
-                + ", ".join(skipped)
-                + " for lack of four repeats."
+                f"{_join_names(skipped)} for lack of four repeats per conversation."
             )
         else:
-            sentences.append("No judge raised a false alarm on the baseline variant.")
-        return " ".join(sentences)
+            alarm = (
+                "None of the judges reported a drop when shown two halves of the careful agent's "
+                "own conversations."
+            )
+        exaggerated = [
+            judge_name(str(j))
+            for j, det, cov in zip(
+                frame["judge"], frame["detected"], frame["covers_truth"], strict=True
+            )
+            if bool(det) and not bool(cov)
+        ]
+        right_size = [
+            judge_name(str(j))
+            for j, det, cov in zip(
+                frame["judge"], frame["detected"], frame["covers_truth"], strict=True
+            )
+            if bool(det) and bool(cov)
+        ]
+        meaning_parts: list[str] = []
+        if exaggerated:
+            meaning_parts.append(
+                f"{_capitalize(_join_names(exaggerated))} treated the rushed agent's behaviour as "
+                "failure rather than judging its results, so the drop they report is larger than "
+                "the real regression"
+            )
+        if right_size:
+            meaning_parts.append(f"{_join_names(right_size)} is the estimate you could trust here")
+        elif abs(td) < 0.05:
+            meaning_parts.append("the true gap is so small that no judge pins it down well")
+        meaning = _capitalize("; ".join(meaning_parts)) + "." if meaning_parts else ""
+        return " ".join(part for part in (alarm, meaning) if part)

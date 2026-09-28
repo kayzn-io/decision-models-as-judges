@@ -111,8 +111,8 @@ def test_g6_tab_shows_calibration_metrics_and_toggles(
 def test_g8_tab_notes_single_variant(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     at = _run(monkeypatch, tmp_path, _UI_ROOT)
     assert not at.exception
-    assert "baseline" in _captions(at)
-    assert "degraded" in _captions(at)
+    assert "careful agent" in _captions(at)
+    assert "rushed agent" in _captions(at)
 
 
 def _markdown(at: AppTest) -> str:

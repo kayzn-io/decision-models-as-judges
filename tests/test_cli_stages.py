@@ -421,7 +421,7 @@ def test_cli_analyze_g8_single_variant_note(tmp_path: Path) -> None:
     result = runner.invoke(app, _analyze_args(tmp_path, agent_dir, state_dir, "g8"))
 
     assert result.exit_code == 0, result.output
-    assert "baseline" in result.output and "degraded" in result.output
+    assert "careful agent" in result.output and "rushed agent" in result.output
 
 
 def test_cli_analyze_g5_zero_coverage(tmp_path: Path) -> None:

@@ -230,6 +230,25 @@ def test_analyze_all_three_signals_produce_rows() -> None:
     assert set(summary["signal"]) == {"completed_noul", "verdict_pass_prob", "verdict_confidence"}
 
 
+def test_findings_speak_plainly_for_a_newcomer() -> None:
+    hashes = [f"h{i}" for i in range(20)]
+    truths = [_PASS if i % 2 == 0 else _FAIL for i in range(20)]
+    items = [_item(h, t) for h, t in zip(hashes, truths, strict=True)]
+    calibrated = _completed_verdicts(
+        "calibrated", {h: (1.0 if t == _PASS else 0.0) for h, t in zip(hashes, truths, strict=True)}
+    )
+    overconfident = _completed_verdicts("overconfident", {h: 0.9 for h in hashes})
+
+    findings = G6Calibration().analyze(calibrated + overconfident, items).findings
+
+    assert "9 times in 10" in findings
+    assert "off by" in findings
+    assert "points" in findings
+    assert "did the agent complete the request" in findings
+    for raw in ("completed_noul", "verdict_pass_prob", "llm_strong"):
+        assert raw not in findings
+
+
 # --- delegation and run ----------------------------------------------------
 
 

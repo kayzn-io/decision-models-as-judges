@@ -276,6 +276,19 @@ def test_analyze_three_tier_table_and_chart_present() -> None:
     assert result.findings.strip() != ""
 
 
+def test_findings_speak_plainly_for_a_newcomer() -> None:
+    verdicts, items = _analyze_inputs()
+
+    findings = _gate().analyze(verdicts, items).findings
+
+    assert "A cascade asks the cheap judge first" in findings
+    assert "the strong text model" in findings
+    assert "per conversation" in findings
+    assert "%" in findings
+    for raw in ("llm_strong", "jev", "baseline", "degraded"):
+        assert raw not in findings
+
+
 # --- delegation and run ----------------------------------------------------
 
 

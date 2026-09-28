@@ -230,7 +230,15 @@ def test_analyze_detects_regression_for_accurate_judge_only() -> None:
     noisy = frame[frame["judge"] == "noisy"].iloc[0]
     assert bool(noisy["detected"]) is False
 
-    assert "acc" in result.findings
+    findings = result.findings
+    assert "acc" in findings.lower()
+    assert "noisy" in findings.lower()
+    assert "points less often" in findings
+    assert "about right" in findings
+    assert "missed it" in findings
+    assert "careful agent" in findings and "rushed agent" in findings
+    for raw in ("baseline", "degraded"):
+        assert raw not in findings
     assert isinstance(result.charts["g8_intervals"], Figure)
 
 
@@ -240,7 +248,9 @@ def test_analyze_reports_missing_variant_and_empty_tables() -> None:
     result = G8Regression().analyze(_analysis_verdicts(), items)
 
     assert result.tables["g8_summary"].empty
-    assert "baseline" in result.findings and "degraded" in result.findings
+    assert "careful agent" in result.findings and "rushed agent" in result.findings
+    for raw in ("baseline", "degraded"):
+        assert raw not in result.findings
     assert isinstance(result.charts["g8_intervals"], Figure)
 
 

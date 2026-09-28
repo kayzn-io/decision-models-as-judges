@@ -21,6 +21,7 @@ from decision_judges.cache import Cache
 from decision_judges.config import PricingTable
 from decision_judges.gates.base import Gate, GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome
+from decision_judges.gates.names import as_money, as_percent, as_points, judge_name
 from decision_judges.judges.base import Judge
 from decision_judges.metrics import accuracy
 from decision_judges.progress import CancelToken, ProgressCallback
@@ -329,26 +330,88 @@ class G5Cascade(Gate):
         return figure
 
     def _findings(self, frontier: pd.DataFrame, reference: pd.DataFrame) -> str:
-        """Return two to three factual sentences on the best accuracy per dollar."""
+        """Return three plain paragraphs: what a cascade is, the numbers, the choice."""
         if frontier.empty:
-            return "No covered items were available to analyze."
+            return "No conversations were available to analyze."
         priced = frontier[frontier["cost_per_item"] > 0]
         if priced.empty:
-            return "Every cascade point cost nothing, so accuracy per dollar is undefined."
+            return "Every cascade point cost nothing, so cost cannot be compared."
         priced = priced.assign(value=priced["accuracy"] / priced["cost_per_item"])
         best = priced.sort_values("value", ascending=False).iloc[0]
-        slow = reference[reference["judge"] == self._slow_judge]
-        text = (
-            f"A cascade at threshold {float(best['t']):.2f} gives the best accuracy per dollar, "
-            f"reaching {float(best['accuracy']):.2f} accuracy at "
-            f"${float(best['cost_per_item']):.5f} per item with an escalation rate of "
-            f"{float(best['escalation_rate']):.2f}."
+        strong = judge_name(self._slow_judge)
+
+        what = (
+            "A cascade asks the cheap judge first and only pays for "
+            f"{strong} when the cheap judge is unsure."
         )
-        if not slow.empty:
-            slow_row = slow.iloc[0]
-            text += (
-                f" Escalating every item to {self._slow_judge} reaches "
-                f"{float(slow_row['accuracy']):.2f} accuracy at "
-                f"${float(slow_row['cost_per_item']):.5f} per item."
+        best_acc = float(best["accuracy"])
+        best_cost = float(best["cost_per_item"])
+        share = as_percent(float(best["escalation_rate"]))
+        numbers = [
+            f"The best cascade sets its confidence bar at {as_percent(float(best['t']))}, "
+            f"reaches {as_percent(best_acc)} accuracy at {as_money(best_cost)} per conversation, "
+            f"and sends {share} of conversations on to {strong}."
+        ]
+        numbers.append(self._compare_to_strong(reference, best_acc, best_cost, strong))
+        numbers.append(self._compare_to_cheap(reference))
+        meaning = self._cascade_meaning(reference, best_acc)
+        body = " ".join(part for part in numbers if part)
+        return "\n\n".join([what, body, meaning])
+
+    def _compare_to_strong(
+        self, reference: pd.DataFrame, best_acc: float, best_cost: float, strong: str
+    ) -> str:
+        """Return a sentence comparing the cascade with sending everything to the strong model."""
+        slow = reference[reference["judge"] == self._slow_judge]
+        if slow.empty:
+            return ""
+        s_acc = float(slow.iloc[0]["accuracy"])
+        s_cost = float(slow.iloc[0]["cost_per_item"])
+        saving = (s_cost - best_cost) / s_cost if s_cost > 0 else 0.0
+        direction = "more" if best_acc >= s_acc else "less"
+        return (
+            f"Sending every conversation to {strong} reaches {as_percent(s_acc)} accuracy at "
+            f"{as_money(s_cost)} per conversation, so the cascade costs {as_percent(saving)} less "
+            f"while scoring about {as_points(best_acc - s_acc)} {direction}."
+        )
+
+    def _compare_to_cheap(self, reference: pd.DataFrame) -> str:
+        """Return a sentence on the cheap judge alone when it is present."""
+        cheap = reference[reference["judge"] == _CHEAP_JUDGE]
+        if cheap.empty:
+            return ""
+        c_acc = float(cheap.iloc[0]["accuracy"])
+        c_cost = float(cheap.iloc[0]["cost_per_item"])
+        return (
+            f"{judge_name(_CHEAP_JUDGE).capitalize()} on its own reaches {as_percent(c_acc)} "
+            f"accuracy at {as_money(c_cost)} per conversation."
+        )
+
+    def _cascade_meaning(self, reference: pd.DataFrame, best_acc: float) -> str:
+        """Return an honest sentence on whether the cascade is worth it here."""
+        slow = reference[reference["judge"] == self._slow_judge]
+        cheap = reference[reference["judge"] == _CHEAP_JUDGE]
+        strong = judge_name(self._slow_judge)
+        if slow.empty:
+            return (
+                "For someone choosing a judge, the cascade trades some accuracy for a lower cost "
+                "per conversation."
             )
-        return text
+        s_acc = float(slow.iloc[0]["accuracy"])
+        if not cheap.empty and float(cheap.iloc[0]["accuracy"]) >= s_acc - 0.02:
+            c_cost = float(cheap.iloc[0]["cost_per_item"])
+            return (
+                f"For someone choosing a judge, paying for {strong} buys little here: "
+                f"{judge_name(_CHEAP_JUDGE)} on its own is already about as accurate at "
+                f"{as_money(c_cost)} per conversation, so the cheaper judge is the better default."
+            )
+        if best_acc >= s_acc - 0.02:
+            return (
+                "For someone choosing a judge, the cascade is worth it here: it stays within "
+                f"{as_points(best_acc - s_acc)} of {strong} while costing far less per "
+                "conversation."
+            )
+        return (
+            "For someone choosing a judge, the cascade saves money but gives up more than a "
+            f"couple of points against {strong}, so it is worth it only when cost matters most."
+        )
