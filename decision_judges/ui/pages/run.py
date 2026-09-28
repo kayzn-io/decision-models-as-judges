@@ -206,6 +206,7 @@ def _numbered_card(
     status = step.status(paths)
     _header(index, step)
     _pills(step, study, ledger, status)
+    _plan_section(step, paths, study)
     _show_me(step, paths)
     _controls(step, paths, study, pricing, key, runner, status, running)
     _run_state(step, index, paths, runner)
@@ -329,6 +330,14 @@ def _pills(step: RunStep, study: object, ledger: object, status: StepStatus) -> 
     st.markdown(line)
     if status.detail:
         st.caption(status.detail)
+
+
+def _plan_section(step: RunStep, paths: data.Paths, study: object) -> None:
+    """Render the plan-of-work panel for a step that declares one."""
+    if step.plan is None:
+        return
+    plan = step.plan(paths, study)  # type: ignore[arg-type]
+    components.plan_panel(plan, step.cap_usd(study))  # type: ignore[arg-type]
 
 
 def _show_me(step: RunStep, paths: data.Paths) -> None:

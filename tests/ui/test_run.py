@@ -401,3 +401,32 @@ def test_stopped_step_with_spend_cap_shows_cap_guidance(
     warnings = [w.value for w in at.warning]
     assert any("Regenerating stopped early" in w for w in warnings)
     assert any("config/study.toml" in w for w in warnings)
+
+
+def test_ask_the_judges_shows_the_plan_panel(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    texts = _texts(at)
+    assert any("What happens when you press Run" in text for text in texts)
+    assert any("Rule-based check (free)" in text for text in texts)
+    assert any("Fast text model" in text for text in texts)
+    assert any("Strong text model" in text for text in texts)
+    assert any("Jev (decision model)" in text for text in texts)
+    assert any("openai/gpt-4o-mini" in text for text in texts)
+    assert any("openai/gpt-5" in text for text in texts)
+    assert any("jev-1.13.0" in text for text in texts)
+    assert any("2 questions" in text and "5 times" in text for text in texts)
+
+
+def test_draw_conclusions_panel_says_no_new_judge_calls(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    _root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+
+    assert not at.exception
+    assert any("No new judge calls" in text for text in _texts(at))

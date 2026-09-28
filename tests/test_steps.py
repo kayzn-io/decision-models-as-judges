@@ -224,3 +224,123 @@ def test_short_conversation_excerpt_has_no_elision() -> None:
         trajectory = [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
 
     assert _conversation_excerpt(Record()) == "user: hi\nassistant: hello\nground truth: pass"
+
+
+def _step(step_id: str) -> steps.RunStep:
+    """Return the step with a given id."""
+    return next(step for step in steps.STEPS if step.id == step_id)
+
+
+def test_run_plan_calls_formula_scales_to_the_full_study() -> None:
+    """calls is conversations times text versions times the summed per-judge repeats."""
+    from decision_judges.ui.steps import JudgeLine, RunPlan
+
+    judges = [
+        JudgeLine(name=name, model_id="m", paid=True, repeats=5) for name in ("a", "b", "c", "d")
+    ]
+    plan = RunPlan.build(
+        judges=judges,
+        conversations=230,
+        questions=2,
+        text_versions=["full text", "short text"],
+    )
+    assert plan.calls == 230 * len(["full text", "short text"]) * (5 + 5 + 5 + 5)
+    assert plan.calls == 9200
+
+
+def test_ask_the_judges_plan_reads_names_and_models_from_the_study() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    plan = _step("judge-outcome").plan(_paths(_FIXTURE), study)  # type: ignore[misc]
+
+    assert plan.conversations == 2
+    assert plan.questions == 2
+    assert len(plan.text_versions) == 2
+    assert [line.repeats for line in plan.judges] == [5, 5, 5, 5]
+    assert plan.calls == 2 * 2 * (5 + 5 + 5 + 5)
+
+    names = [line.name for line in plan.judges]
+    assert "Rule-based check (free)" in names
+    assert "Fast text model" in names
+    assert "Strong text model" in names
+    assert "Jev (decision model)" in names
+
+    model_ids = [line.model_id for line in plan.judges]
+    assert study.models.llm_cheap in model_ids
+    assert study.models.llm_strong in model_ids
+    assert study.models.jev in model_ids
+
+
+def test_ask_the_judges_sentence_names_the_questions_and_repeats() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    sentence = _step("judge-outcome").plan(_paths(_FIXTURE), study).sentence()  # type: ignore[misc]
+    assert "2 questions" in sentence
+    assert "5 times" in sentence
+    assert "80 judge calls" in sentence
+
+
+def test_full_study_sentence_reads_as_the_owner_asked() -> None:
+    """At the study's own size the sentence names 230 conversations and 9,200 calls."""
+    from decision_judges.ui.steps import JudgeLine, RunPlan
+
+    judges = [
+        JudgeLine(name="Rule-based check (free)", model_id="", paid=False, repeats=5),
+        JudgeLine(name="Fast text model", model_id="m", paid=True, repeats=5),
+        JudgeLine(name="Strong text model", model_id="m", paid=True, repeats=5),
+        JudgeLine(name="Jev (decision model)", model_id="m", paid=True, repeats=5),
+    ]
+    plan = RunPlan.build(
+        judges=judges,
+        conversations=230,
+        questions=2,
+        text_versions=["full text", "short text"],
+    )
+    assert plan.sentence() == (
+        "Asks 4 judges 2 questions about 230 conversations, 5 times each, "
+        "on 2 versions of the text: 9,200 judge calls."
+    )
+
+
+def test_draw_conclusions_plan_makes_no_new_judge_calls() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    plan = _step("analyze").plan(_paths(_FIXTURE), study)  # type: ignore[misc]
+    assert plan.calls == 0
+    assert plan.judges == []
+    assert plan.free_note is not None
+    assert "no new judge calls" in plan.free_note.lower()
+    assert plan.sentence() == plan.free_note
+
+
+def test_steps_without_judge_calls_report_zero_calls_and_a_note() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    for step_id in ("serialize", "analyze", "results"):
+        plan = _step(step_id).plan(_paths(_FIXTURE), study)  # type: ignore[misc]
+        assert plan.calls == 0, step_id
+        assert plan.free_note, step_id
+
+
+def test_every_numbered_step_carries_a_plan_and_the_material_panel_has_none() -> None:
+    for step in steps.STEPS:
+        if step.material:
+            assert step.plan is None, step.id
+        else:
+            assert step.plan is not None, step.id
+
+
+def test_label_plan_covers_the_labeled_failures() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    plan = _step("label").plan(_paths(_FIXTURE), study)  # type: ignore[misc]
+    assert plan.conversations == 1
+    names = [line.name for line in plan.judges]
+    assert "Jev (decision model)" in names
+    assert "Strong text model" in names
+    assert "Laya, trained on these conversations (free, local)" in names
+
+
+def test_laya_plan_is_free_and_local() -> None:
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    plan = _step("laya").plan(_paths(_FIXTURE), study)  # type: ignore[misc]
+    assert all(line.paid is False for line in plan.judges)
+    assert plan.free_note is not None
+    names = [line.name for line in plan.judges]
+    assert "Laya, as published (free, local)" in names
+    assert "Laya, trained on these conversations (free, local)" in names

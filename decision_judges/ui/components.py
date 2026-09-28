@@ -17,6 +17,7 @@ from decision_judges.ui.views import Turn
 if TYPE_CHECKING:
     from decision_judges.ui import data
     from decision_judges.ui.flow import Station
+    from decision_judges.ui.steps import JudgeLine, RunPlan
 
 _ASSETS = Path(__file__).parent / "assets"
 LOGO = _ASSETS / "kayzn-logo.png"
@@ -204,6 +205,48 @@ def how_to_read(rows: Sequence[tuple[str, str]]) -> None:
         lines = ["| Column | Meaning |", "| --- | --- |"]
         lines += [f"| {name} | {meaning} |" for name, meaning in rows]
         st.markdown("\n".join(lines))
+
+
+_PLAN_TITLE = "What happens when you press Run"
+
+
+def _plan_row(line: "JudgeLine") -> str:
+    """Return one markdown table row for a judge line."""
+    model = f"`{line.model_id}`" if line.model_id else "none"
+    cost = "paid" if line.paid else "free"
+    return f"| {line.name} | {model} | {line.repeats} | {cost} |"
+
+
+def _plan_table(judges: "list[JudgeLine]") -> str:
+    """Return the compact judge table as markdown: header plus one row per judge."""
+    header = ["| Judge | Model | Repeats | Cost |", "| --- | --- | --- | --- |"]
+    return "\n".join(header + [_plan_row(line) for line in judges])
+
+
+def _spend_line(cap_usd: float | None) -> str | None:
+    """Return the one-line spend note naming the step's cap, when it is paid."""
+    if cap_usd is None:
+        return None
+    return f"Paid calls count against this step's cap of \\${cap_usd:.0f}."
+
+
+def plan_panel(plan: "RunPlan", cap_usd: float | None) -> None:
+    """Render the bordered 'what happens' panel: sentence, judge table, spend note.
+
+    The panel is the one thing a reader must see before pressing Run, so it sits
+    unfolded above the examples. A step that calls judges shows the one-sentence
+    summary, a compact table of judges with their models, repeats, and cost, and
+    either the plan's own note or a one-line spend note. A step with no judge
+    calls shows only the sentence explaining what it computes instead.
+    """
+    with st.container(border=True):
+        st.markdown(f"**{_PLAN_TITLE}**")
+        st.markdown(plan.sentence())
+        if plan.calls:
+            st.markdown(_plan_table(plan.judges))
+            note = plan.free_note or _spend_line(cap_usd)
+            if note:
+                st.caption(note)
 
 
 def keyboard_hint(text: str) -> None:

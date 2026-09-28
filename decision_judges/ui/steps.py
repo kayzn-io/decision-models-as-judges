@@ -45,6 +45,86 @@ class StepStatus(BaseModel):
     detail: str = ""
 
 
+class JudgeLine(BaseModel):
+    """One judge in a run plan: its display name, model, cost, and repeat count."""
+
+    name: str
+    model_id: str
+    paid: bool
+    repeats: int
+
+
+def _count_phrase(count: int, noun: str) -> str:
+    """Return a thousands-formatted count and its singular or plural noun."""
+    label = noun if count == 1 else f"{noun}s"
+    return f"{count:,} {label}"
+
+
+def _times_phrase(repeats: set[int]) -> str:
+    """Return the repeat phrase, naming a shared count or deferring to the table."""
+    if len(repeats) == 1:
+        count = next(iter(repeats))
+        return "1 time each" if count == 1 else f"{count} times each"
+    return "with the repeats shown"
+
+
+class RunPlan(BaseModel):
+    """What one step does when Run is pressed: judges, volume, and total calls."""
+
+    judges: list[JudgeLine]
+    conversations: int
+    questions: int
+    text_versions: list[str]
+    calls: int
+    free_note: str | None = None
+
+    @classmethod
+    def build(
+        cls,
+        *,
+        judges: list[JudgeLine],
+        conversations: int,
+        questions: int,
+        text_versions: list[str],
+        free_note: str | None = None,
+    ) -> "RunPlan":
+        """Build a plan, computing calls from conversations, versions, and repeats.
+
+        Both questions are answered in one call, so a judge makes one call per
+        conversation per text version per repeat. The total is the conversation
+        count times the number of text versions times the summed per-judge
+        repeats.
+        """
+        calls = conversations * len(text_versions) * sum(line.repeats for line in judges)
+        return cls(
+            judges=judges,
+            conversations=conversations,
+            questions=questions,
+            text_versions=text_versions,
+            calls=calls,
+            free_note=free_note,
+        )
+
+    def sentence(self) -> str:
+        """Return the one-sentence summary shown above the judge table.
+
+        A step with no judge calls explains what it computes instead, taken from
+        its free note. A step that calls judges names the judges, the questions,
+        the conversations, the repeats, the text versions, and the call total.
+        """
+        if self.calls == 0:
+            return self.free_note or "This step makes no judge calls."
+        repeats = {line.repeats for line in self.judges}
+        return (
+            f"Asks {_count_phrase(len(self.judges), 'judge')} "
+            f"{_count_phrase(self.questions, 'question')} about "
+            f"{_count_phrase(self.conversations, 'conversation')}, "
+            f"{_times_phrase(repeats)}, on "
+            f"{_count_phrase(len(self.text_versions), 'version')} of the text: "
+            f"{self.calls:,} judge calls."
+        )
+
+
 class RunContext(BaseModel):
     """The live study context a step runs against, including the visitor's key."""
 
@@ -76,6 +156,7 @@ class RunStep(BaseModel):
     example_input: Callable[[Paths], str]
     example_output: Callable[[Paths], str]
     run: Callable[[Paths, RunContext], str | None]
+    plan: Callable[[Paths, StudyConfig], RunPlan] | None = None
     material: bool = False
 
     def cap_usd(self, study: StudyConfig) -> float | None:
@@ -161,6 +242,11 @@ def _verdict_count(paths: Paths) -> int:
 def _failing_count(paths: Paths) -> int:
     """Return how many recorded runs did not fully pass."""
     return sum(1 for record in _agent_records(paths).values() if _reward(record) < 1.0)
+
+
+def _conversation_total(paths: Paths) -> int:
+    """Return how many conversations are recorded on disk across variants."""
+    return len(_agent_records(paths))
 
 
 def _reward(record: object) -> float:
@@ -725,6 +811,150 @@ def _run_results(paths: Paths, ctx: RunContext) -> str | None:
     return None
 
 
+# --- run plans --------------------------------------------------------------
+
+_JUDGE_DISPLAY = {
+    "code": "Rule-based check (free)",
+    "llm_cheap": "Fast text model",
+    "llm_strong": "Strong text model",
+    "jev": "Jev (decision model)",
+    "laya_base": "Laya, as published (free, local)",
+    "laya_ft": "Laya, trained on these conversations (free, local)",
+}
+_JUDGE_PAID = {
+    "code": False,
+    "llm_cheap": True,
+    "llm_strong": True,
+    "jev": True,
+    "laya_base": False,
+    "laya_ft": False,
+}
+_FULL_TEXT = "full text"
+_SHORT_TEXT = "short text"
+
+
+def _judge_model_id(name: str, study: StudyConfig) -> str:
+    """Return the model id shown beside a judge, empty for the rule-based one."""
+    models = study.models
+    ids = {
+        "code": "",
+        "llm_cheap": models.llm_cheap,
+        "llm_strong": models.llm_strong,
+        "jev": models.jev,
+        "laya_base": models.laya.repo_id,
+        "laya_ft": models.laya.repo_id,
+    }
+    return ids[name]
+
+
+def _judge_line(name: str, study: StudyConfig, repeats: int) -> JudgeLine:
+    """Build one judge line from its short name, the study, and a repeat count."""
+    return JudgeLine(
+        name=_JUDGE_DISPLAY[name],
+        model_id=_judge_model_id(name, study),
+        paid=_JUDGE_PAID[name],
+        repeats=repeats,
+    )
+
+
+def _plan_serialize(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for the reading copy: no judge calls, two text versions per conversation."""
+    conversations = _conversation_total(paths)
+    return RunPlan.build(
+        judges=[],
+        conversations=conversations,
+        questions=0,
+        text_versions=[],
+        free_note=(
+            f"No judge calls. Writes each of the {conversations:,} conversations in two text "
+            "versions, plus one copy per action and an altered copy of every failed conversation."
+        ),
+    )
+
+
+def _plan_judge_outcome(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Ask the judges: four judges, two questions, five repeats, two versions."""
+    judges = [_judge_line(name, study, _G3_REPEATS) for name in _G3_JUDGES]
+    return RunPlan.build(
+        judges=judges,
+        conversations=_conversation_total(paths),
+        questions=2,
+        text_versions=[_FULL_TEXT, _SHORT_TEXT],
+    )
+
+
+def _plan_analyze(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Draw conclusions: reuses the verdicts, three experiments, no calls."""
+    return RunPlan.build(
+        judges=[],
+        conversations=_conversation_total(paths),
+        questions=0,
+        text_versions=[],
+        free_note=(
+            "No new judge calls; this step reuses the verdicts from step 2. It draws three "
+            "experiments: when to trust the cheap judge, whether confidence means what it "
+            "says, and whether the judges notice a real drop in quality."
+        ),
+    )
+
+
+def _plan_laya(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Teach the local model: two free local judges on the short text."""
+    judges = [
+        _judge_line("laya_base", study, _G3_REPEATS),
+        _judge_line("laya_ft", study, _G3_REPEATS),
+    ]
+    return RunPlan.build(
+        judges=judges,
+        conversations=_conversation_total(paths),
+        questions=2,
+        text_versions=[_SHORT_TEXT],
+        free_note=(
+            "Runs on your own machine, so these calls are free. Training happens here too and "
+            "is free. Laya as published and Laya trained on these conversations answer the same "
+            "two questions, then the two are compared."
+        ),
+    )
+
+
+def _plan_gates(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Test the judges harder: the four judges at their per-judge repeats."""
+    repeats = study.g2.repeats
+    judges = [_judge_line(name, study, repeats.get(name, 1)) for name in _G3_JUDGES]
+    return RunPlan.build(
+        judges=judges,
+        conversations=_conversation_total(paths),
+        questions=1,
+        text_versions=[_FULL_TEXT],
+    )
+
+
+def _plan_label(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Be the judge yourself: three judges over the labeled failures, once."""
+    judges = [
+        _judge_line("jev", study, 1),
+        _judge_line("llm_strong", study, 1),
+        _judge_line("laya_ft", study, 1),
+    ]
+    return RunPlan.build(
+        judges=judges,
+        conversations=_failing_count(paths),
+        questions=1,
+        text_versions=[_FULL_TEXT],
+    )
+
+
+def _plan_results(paths: Paths, study: StudyConfig) -> RunPlan:
+    """Plan for Write it up: no judge calls, only assembly of the findings."""
+    return RunPlan.build(
+        judges=[],
+        conversations=_conversation_total(paths),
+        questions=0,
+        text_versions=[],
+        free_note="No judge calls. Gathers every finding, table, and chart into the report.",
+    )
+
+
 # --- the study steps --------------------------------------------------------
 
 STEPS: tuple[RunStep, ...] = (
@@ -778,6 +1008,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_conversation, _SAMPLE_CONVERSATION),
         example_output=_example(_first_state_text, _SAMPLE_READING_COPY),
         run=lambda paths, ctx: _run_serialize(paths, ctx),
+        plan=_plan_serialize,
     ),
     RunStep(
         id="judge-outcome",
@@ -805,6 +1036,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_judge_outcome(paths, ctx),
+        plan=_plan_judge_outcome,
     ),
     RunStep(
         id="analyze",
@@ -832,6 +1064,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_verdict_json, _SAMPLE_VERDICT),
         example_output=_example(_first_findings, _SAMPLE_FINDING),
         run=lambda paths, ctx: _run_analyze(paths, ctx),
+        plan=_plan_analyze,
     ),
     RunStep(
         id="laya",
@@ -859,6 +1092,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_laya(paths, ctx),
+        plan=_plan_laya,
     ),
     RunStep(
         id="gates",
@@ -885,6 +1119,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_state_text, _SAMPLE_READING_COPY),
         example_output=_example(_first_verdict_json, _SAMPLE_VERDICT),
         run=lambda paths, ctx: _run_gates(paths, ctx),
+        plan=_plan_gates,
     ),
     RunStep(
         id="label",
@@ -907,6 +1142,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_failing_conversation, _SAMPLE_CONVERSATION),
         example_output=_example(_first_findings, _SAMPLE_LABEL),
         run=lambda paths, ctx: _run_label(paths, ctx),
+        plan=_plan_label,
     ),
     RunStep(
         id="results",
@@ -928,6 +1164,7 @@ STEPS: tuple[RunStep, ...] = (
         example_input=_example(_first_findings, _SAMPLE_FINDING),
         example_output=_example(_first_findings, _SAMPLE_REPORT),
         run=lambda paths, ctx: _run_results(paths, ctx),
+        plan=_plan_results,
     ),
 )
 
