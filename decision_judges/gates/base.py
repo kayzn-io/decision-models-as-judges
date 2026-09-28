@@ -6,6 +6,7 @@ cache, and analyzes the resulting verdicts into tables, charts, and findings.
 """
 
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
@@ -21,6 +22,12 @@ from decision_judges.spend import Reservation, Spend
 from decision_judges.types import Question, Verdict
 
 _OUTPUT_TOKEN_ESTIMATE = 500
+
+# A judge whose first calls all fail identically is misconfigured, not merely
+# unlucky, so the run stops scheduling it after this many actual calls when they
+# all carry an error with the same leading text.
+_FIRST_CALLS_WATCHED = 5
+_ERROR_MATCH_CHARS = 60
 
 
 def _verdict_label(verdict: Verdict) -> str:
@@ -73,6 +80,11 @@ class Gate(ABC):
 
     gate_id: str
     stage: str
+    last_stopped: dict[str, str]
+    """Judge ids stopped mid-run, mapped to the shared error that stopped them.
+
+    Populated by :meth:`run`; empty after a run in which no judge was stopped.
+    """
 
     @property
     @abstractmethod
@@ -120,6 +132,12 @@ class Gate(ABC):
         returned in that order. When ``on_progress`` is given, a snapshot is
         reported after each call; when ``cancel`` is set mid-plan, the loop stops
         cleanly and returns the verdicts produced so far.
+
+        A judge whose first actual calls all fail identically is stopped: once
+        its first ``_FIRST_CALLS_WATCHED`` cache misses all carry an error with
+        the same leading text, its remaining plan entries are skipped, left
+        uncached so a later run retries them, and the shared error is recorded in
+        :attr:`last_stopped`. Other judges keep running.
         """
         questions = self.questions()
         plan = sorted(
@@ -134,11 +152,17 @@ class Gate(ABC):
         total = len(plan)
         started_at = utc_now_iso()
         verdicts: list[Verdict] = []
+        self.last_stopped = {}
+        windows: dict[str, list[str]] = defaultdict(list)
         for judge, item, repeat in plan:
             if cancel is not None and cancel.is_cancelled:
                 break
-            verdict = self._call_or_error(judge, item, repeat, questions, cache, spend)
+            if judge.judge_id in self.last_stopped:
+                continue
+            verdict, made_call = self._call_or_error(judge, item, repeat, questions, cache, spend)
             verdicts.append(verdict)
+            if made_call:
+                self._note_call(judge.judge_id, verdict, windows)
             if on_progress is not None:
                 on_progress(
                     Progress(
@@ -155,6 +179,23 @@ class Gate(ABC):
                 )
         return verdicts
 
+    def _note_call(self, judge_id: str, verdict: Verdict, windows: dict[str, list[str]]) -> None:
+        """Fold one actual call into a judge's first-calls window and maybe stop it.
+
+        The judge is stopped when its first ``_FIRST_CALLS_WATCHED`` actual calls
+        all carry an error sharing the same first ``_ERROR_MATCH_CHARS``
+        characters.
+        """
+        window = windows[judge_id]
+        if len(window) >= _FIRST_CALLS_WATCHED:
+            return
+        window.append(verdict.error or "")
+        if len(window) < _FIRST_CALLS_WATCHED:
+            return
+        prefixes = {text[:_ERROR_MATCH_CHARS] for text in window}
+        if len(prefixes) == 1 and all(window):
+            self.last_stopped[judge_id] = window[0]
+
     def _call_or_error(
         self,
         judge: Judge,
@@ -163,17 +204,18 @@ class Gate(ABC):
         questions: Sequence[Question],
         cache: Cache,
         spend: Spend,
-    ) -> Verdict:
-        """Return the judge's verdict, or an error verdict when it rejects a question.
+    ) -> tuple[Verdict, bool]:
+        """Return the judge's verdict and whether it made an actual call.
 
         A judge that cannot answer a gate's questions raises ``ValueError``; that
         is recorded as one error verdict so a single incompatible judge does not
-        crash the run for the others.
+        crash the run for the others. Such a rejection counts as an actual call.
         """
         try:
             return self._one_call(judge, item, repeat, questions, cache, spend)
         except ValueError as exc:
-            return build_verdict(judge, item.state, repeat, [], latency_ms=0, error=str(exc))
+            verdict = build_verdict(judge, item.state, repeat, [], latency_ms=0, error=str(exc))
+            return verdict, True
 
     def _one_call(
         self,
@@ -183,20 +225,22 @@ class Gate(ABC):
         questions: Sequence[Question],
         cache: Cache,
         spend: Spend,
-    ) -> Verdict:
+    ) -> tuple[Verdict, bool]:
         """Return the cached verdict or reserve spend, judge, and settle on a miss.
 
-        A cached verdict whose ``error`` is set records that a call failed, not
-        what the judge thinks, so it never counts as done: it is treated as a
-        miss, the judge runs again, and the new verdict overwrites it. A cached
-        verdict without an error short-circuits and reserves no spend.
+        The boolean is True when the judge actually ran (a cache miss) and False
+        when a cached verdict short-circuited the call. A cached verdict whose
+        ``error`` is set records that a call failed, not what the judge thinks, so
+        it never counts as done: it is treated as a miss, the judge runs again,
+        and the new verdict overwrites it. A cached verdict without an error
+        short-circuits and reserves no spend.
         """
         key = cache_key(
             judge.judge_id, judge.model_id, judge.prompt_version, item.state.state_hash, repeat
         )
         cached = cache.peek(key, Verdict)
         if cached is not None and cached.error is None:
-            return cached
+            return cached, False
 
         reservation = self._reserve(judge, item, spend)
         try:
@@ -208,7 +252,7 @@ class Gate(ABC):
             raise
         if reservation is not None:
             spend.settle(reservation, verdict.usage)
-        return verdict
+        return verdict, True
 
     def _reserve(self, judge: Judge, item: Item, spend: Spend) -> Reservation | None:
         """Reserve estimated spend for a paid judge, or nothing for a local one."""

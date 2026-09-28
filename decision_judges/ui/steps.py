@@ -606,6 +606,30 @@ def _run_serialize(paths: Paths, ctx: RunContext) -> str | None:
     return None
 
 
+def _stopped_reason_from(last_stopped: Mapping[str, str]) -> str | None:
+    """Turn a gate's stopped judges into one warning line for the Run page.
+
+    Each stopped judge becomes a fragment naming it and the error that stopped
+    it; multiple judges join with '; '. Returns None when no judge was stopped.
+    """
+    if not last_stopped:
+        return None
+    fragments = [
+        f"{judge_id} stopped after 5 failed calls: {reason}"
+        for judge_id, reason in last_stopped.items()
+    ]
+    return "; ".join(fragments) + " Other judges continued."
+
+
+def _merge_reasons(reasons: list[str | None]) -> str | None:
+    """Join distinct non-empty stop reasons in order, or None when there are none."""
+    seen: list[str] = []
+    for reason in reasons:
+        if reason and reason not in seen:
+            seen.append(reason)
+    return "; ".join(seen) or None
+
+
 def _run_gate(
     paths: Paths,
     ctx: RunContext,
@@ -614,8 +638,12 @@ def _run_gate(
     variant: str,
     judge_names: list[str],
     repeats: Mapping[str, int] | int | None,
-) -> None:
-    """Judge one gate over one variant and profile, then analyze and record it."""
+) -> str | None:
+    """Judge one gate over one variant and profile, then analyze and record it.
+
+    Return a stopped reason naming any judge the gate stopped after repeated
+    identical failures, or None when every scheduled judge ran to completion.
+    """
     from decision_judges.cache import Cache
     from decision_judges.report import write_findings
 
@@ -627,7 +655,7 @@ def _run_gate(
         gate_id, paths.cache_dir / "state", paths.cache_dir / "agent", state_profile, variant, tasks
     )
     if not items:
-        return
+        return None
     specs = pipeline.judge_specs_from(judge_names, ctx.study)
     judges = pipeline.build_judges(
         specs,
@@ -664,20 +692,24 @@ def _run_gate(
     )
     findings = pipeline.analyze_gate(gate, analysis_verdicts, analysis_items, paths.results_dir)
     write_findings(paths.results_dir, gate_id, findings)
+    return _stopped_reason_from(gate.last_stopped)
 
 
 def _run_judge_outcome(paths: Paths, ctx: RunContext) -> str | None:
     """Judge G3 outcomes on the full and compact views for both variants.
 
-    Gate runs raise or finish; this step reports no early-stop reason and
-    returns None.
+    Return a reason naming any judge a gate stopped after repeated identical
+    failures so the Run page warns, keeping finished work; None otherwise.
     """
+    reasons: list[str | None] = []
     for variant in _variants_present(paths):
         for profile in ("full", "compact"):
             if ctx.cancel is not None and ctx.cancel.is_cancelled:
-                return None
-            _run_gate(paths, ctx, "g3", profile, variant, list(_G3_JUDGES), _G3_REPEATS)
-    return None
+                return _merge_reasons(reasons)
+            reasons.append(
+                _run_gate(paths, ctx, "g3", profile, variant, list(_G3_JUDGES), _G3_REPEATS)
+            )
+    return _merge_reasons(reasons)
 
 
 def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
@@ -719,17 +751,18 @@ def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
 def _run_laya(paths: Paths, ctx: RunContext) -> str | None:
     """Judge Laya zero-shot, fine-tune it across folds, and score the local model.
 
-    Cross-validation returns fold manifests and reports no early-stop reason, so
-    this step returns None.
+    Return a reason naming any judge a gate stopped after repeated identical
+    failures; None otherwise.
     """
     from decision_judges.cli import _resolve_base
     from decision_judges.gates.g3_outcome import G3Outcome
     from decision_judges.training import finetune_laya as training
 
+    reasons: list[str | None] = []
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return None
-        _run_gate(paths, ctx, "g3", "compact", variant, ["laya_base"], 1)
+            return _merge_reasons(reasons)
+        reasons.append(_run_gate(paths, ctx, "g3", "compact", variant, ["laya_base"], 1))
 
     variant = "baseline"
     states = pipeline.read_states(paths.cache_dir / "state", variant, StateProfile.compact)
@@ -753,44 +786,46 @@ def _run_laya(paths: Paths, ctx: RunContext) -> str | None:
 
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return None
-        _run_gate(paths, ctx, "g3", "compact", variant, ["laya_ft"], 1)
-    _run_gate(paths, ctx, "g10", "compact", "baseline", ["laya_base", "laya_ft"], 1)
-    return None
+            return _merge_reasons(reasons)
+        reasons.append(_run_gate(paths, ctx, "g3", "compact", variant, ["laya_ft"], 1))
+    reasons.append(_run_gate(paths, ctx, "g10", "compact", "baseline", ["laya_base", "laya_ft"], 1))
+    return _merge_reasons(reasons)
 
 
 def _run_gates(paths: Paths, ctx: RunContext) -> str | None:
     """Probe the judges with per-step, robustness, decomposition, and triage gates.
 
-    Gate runs raise or finish; this step reports no early-stop reason and
-    returns None.
+    Return a reason naming any judge a gate stopped after repeated identical
+    failures; None otherwise.
     """
+    reasons: list[str | None] = []
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return None
-        _run_gate(paths, ctx, "g2", "full", variant, list(_G3_JUDGES), None)
-        _run_gate(paths, ctx, "g7", "full", variant, ["llm_strong"], 5)
-        _run_gate(paths, ctx, "g4", "full", variant, ["llm_strong"], 1)
-        _run_gate(paths, ctx, "g1", "full", variant, ["llm_strong"], 1)
-    return None
+            return _merge_reasons(reasons)
+        reasons.append(_run_gate(paths, ctx, "g2", "full", variant, list(_G3_JUDGES), None))
+        reasons.append(_run_gate(paths, ctx, "g7", "full", variant, ["llm_strong"], 5))
+        reasons.append(_run_gate(paths, ctx, "g4", "full", variant, ["llm_strong"], 1))
+        reasons.append(_run_gate(paths, ctx, "g1", "full", variant, ["llm_strong"], 1))
+    return _merge_reasons(reasons)
 
 
 def _run_label(paths: Paths, ctx: RunContext) -> str | None:
     """Score the taxonomy judge against hand labels, when any labels exist.
 
-    Gate runs raise or finish; this step reports no early-stop reason and
-    returns None.
+    Return a reason naming any judge a gate stopped after repeated identical
+    failures; None otherwise.
     """
     from decision_judges.labels import LabelStore
 
     store = LabelStore.under(paths.data_dir)
     if not store.latest():
         return None
+    reasons: list[str | None] = []
     for variant in _variants_present(paths):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
-            return None
-        _run_gate(paths, ctx, "g9", "full", variant, ["llm_strong"], 1)
-    return None
+            return _merge_reasons(reasons)
+        reasons.append(_run_gate(paths, ctx, "g9", "full", variant, ["llm_strong"], 1))
+    return _merge_reasons(reasons)
 
 
 def _run_results(paths: Paths, ctx: RunContext) -> str | None:

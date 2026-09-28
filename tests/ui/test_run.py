@@ -403,6 +403,24 @@ def test_stopped_step_with_spend_cap_shows_cap_guidance(
     assert any("config/study.toml" in w for w in warnings)
 
 
+def test_stopped_step_with_unauthorized_model_shows_model_key_guidance(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    root, at = _local_app(monkeypatch, tmp_path)
+    _plant_stopped(
+        root,
+        "judge-outcome",
+        "jev stopped after 5 failed calls: 401 User not found. Other judges continued.",
+    )
+
+    at.run()
+
+    assert not at.exception
+    warnings = [w.value for w in at.warning]
+    assert any("Step 2 stopped early" in w for w in warnings)
+    assert any("not enabled for this model" in w for w in warnings)
+
+
 def test_ask_the_judges_shows_the_plan_panel(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path
 ) -> None:

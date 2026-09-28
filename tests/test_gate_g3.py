@@ -293,6 +293,58 @@ def test_retry_of_errored_cache_reserves_and_settles_spend(tmp_path: Path) -> No
     assert spend.spent("g3") == pytest.approx((1000 * 0.15 + 100 * 0.60) / 1_000_000)
 
 
+# --- stop a judge after five identical failures ----------------------------
+
+
+def test_judge_that_fails_first_five_calls_stops_while_others_continue(tmp_path: Path) -> None:
+    truth = {f"h{i}": "pass" for i in range(8)}
+    items = [_item(h, "pass") for h in truth]
+    good = FakeJudge("good", "none", "pv", _perfect(truth), paid=False)
+    bad = FakeJudge("jev", "none", "pv", lambda h, r: (None, "401 User not found."), paid=False)
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 0.0})
+    gate = G3Outcome()
+
+    verdicts = gate.run(items, [good, bad], cache, spend, repeats=1)
+
+    assert len(good.calls) == 8
+    assert len(bad.calls) == 5
+    assert len(verdicts) == 13
+    assert "jev" in gate.last_stopped
+    assert "401 User not found." in gate.last_stopped["jev"]
+
+    ordered = sorted(truth)
+    skipped = [cache_key("jev", "none", "pv", h, 0) for h in ordered[5:]]
+    assert all(cache.peek(key, Verdict) is None for key in skipped)
+
+
+def test_varying_errors_do_not_stop_the_judge(tmp_path: Path) -> None:
+    truth = {f"h{i}": "pass" for i in range(6)}
+    items = [_item(h, "pass") for h in truth]
+    bad = FakeJudge("jev", "none", "pv", lambda h, r: (None, f"error at {h}"), paid=False)
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 0.0})
+    gate = G3Outcome()
+
+    gate.run(items, [bad], cache, spend, repeats=1)
+
+    assert len(bad.calls) == 6
+    assert gate.last_stopped == {}
+
+
+def test_last_stopped_is_empty_on_a_clean_run(tmp_path: Path) -> None:
+    truth = {"h0": "pass", "h1": "fail"}
+    items = [_item(h, label) for h, label in truth.items()]
+    judge = FakeJudge("a", "none", "pv", _perfect(truth), paid=False)
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 0.0})
+    gate = G3Outcome()
+
+    gate.run(items, [judge], cache, spend, repeats=1)
+
+    assert gate.last_stopped == {}
+
+
 # --- questions / prompt version -------------------------------------------
 
 

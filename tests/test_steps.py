@@ -344,3 +344,28 @@ def test_laya_plan_is_free_and_local() -> None:
     names = [line.name for line in plan.judges]
     assert "Laya, as published (free, local)" in names
     assert "Laya, trained on these conversations (free, local)" in names
+
+
+def test_stopped_reason_from_formats_a_single_judge() -> None:
+    from decision_judges.ui.steps import _stopped_reason_from
+
+    assert _stopped_reason_from({"jev": "401 User not found."}) == (
+        "jev stopped after 5 failed calls: 401 User not found. Other judges continued."
+    )
+
+
+def test_stopped_reason_from_joins_multiple_judges() -> None:
+    from decision_judges.ui.steps import _stopped_reason_from
+
+    message = _stopped_reason_from({"jev": "401 User not found.", "laya_base": "boom error"})
+    assert message is not None
+    assert "jev stopped after 5 failed calls: 401 User not found." in message
+    assert "laya_base stopped after 5 failed calls: boom error" in message
+    assert "; " in message
+    assert message.endswith("Other judges continued.")
+
+
+def test_stopped_reason_from_empty_is_none() -> None:
+    from decision_judges.ui.steps import _stopped_reason_from
+
+    assert _stopped_reason_from({}) is None

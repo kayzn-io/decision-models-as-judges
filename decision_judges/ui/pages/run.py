@@ -523,6 +523,11 @@ def _stop_guidance(reason: str) -> str:
     lowered = reason.lower()
     if "credentials" in lowered or "api key" in lowered:
         return "Add a valid OpenRouter key in the sidebar and run again."
+    if "401" in lowered or "not found" in lowered or "unauthorized" in lowered:
+        return (
+            "Your key is not enabled for this model. Check the model page on "
+            "OpenRouter for your account, then run again; finished work is kept."
+        )
     if "spend cap" in lowered:
         return (
             "The spend cap for this step is reached; raise it in config/study.toml "
