@@ -2,6 +2,8 @@
 
 from pathlib import Path
 
+import pytest
+
 from decision_judges.config import load_study
 from decision_judges.ui import steps
 from decision_judges.ui.data import Paths
@@ -369,3 +371,34 @@ def test_stopped_reason_from_empty_is_none() -> None:
     from decision_judges.ui.steps import _stopped_reason_from
 
     assert _stopped_reason_from({}) is None
+
+
+def test_run_gate_builds_judges_with_the_session_key_installed(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The Jev client copies the key when built, so judges are built inside the key context."""
+    import os
+
+    from decision_judges.config import load_pricing
+
+    seen: dict[str, str | None] = {}
+
+    def fake_build_judges(*args: object, **kwargs: object) -> list[object]:
+        seen["key_at_build"] = os.environ.get("OPENROUTER_API_KEY")
+        return []
+
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    monkeypatch.setattr(steps.pipeline, "build_judges", fake_build_judges)
+    monkeypatch.setattr(steps.pipeline, "items_for_gate", lambda *a, **k: [object()])
+    monkeypatch.setattr(steps.pipeline, "load_agent_records", lambda *a, **k: ({}, []))
+    monkeypatch.setattr(steps.pipeline, "run_gate", lambda *a, **k: [])
+    monkeypatch.setattr(steps.pipeline, "verdicts_for_analysis", lambda *a, **k: ([], []))
+    monkeypatch.setattr(steps.pipeline, "analyze_gate", lambda *a, **k: "")
+    monkeypatch.setattr(steps, "_load_tasks", lambda paths: {})
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    pricing = load_pricing(_FIXTURE / "config" / "pricing.toml")
+    monkeypatch.setenv("JUDGES_ROOT", str(tmp_path))
+    paths = Paths.from_env()
+    ctx = steps.RunContext(study=study, pricing=pricing, key="sk-or-session-key")
+    steps._run_gate(paths, ctx, "g3", "full", "baseline", ["code"], 1)
+    assert seen["key_at_build"] == "sk-or-session-key"

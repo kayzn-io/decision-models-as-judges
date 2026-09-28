@@ -657,19 +657,22 @@ def _run_gate(
     if not items:
         return None
     specs = pipeline.judge_specs_from(judge_names, ctx.study)
-    judges = pipeline.build_judges(
-        specs,
-        study=ctx.study,
-        tasks=tasks,
-        records=records,
-        rubric_path=pipeline.gate_rubric_path(gate),
-        prompt_version=pipeline.gate_prompt_version(gate),
-    )
     cache = Cache(paths.cache_dir / "judge")
     spend = Spend(ctx.pricing, ctx.study.spend_caps, paths.results_dir / "spend.json")
     if repeats is None:
         repeats = pipeline.default_repeats(gate_id, ctx.study, judge_names)
+    # The judges are built inside the key context because the Jev client copies
+    # the key out of the environment when it is constructed, while the text
+    # model clients read it later, at call time.
     with _openrouter_key(ctx.key):
+        judges = pipeline.build_judges(
+            specs,
+            study=ctx.study,
+            tasks=tasks,
+            records=records,
+            rubric_path=pipeline.gate_rubric_path(gate),
+            prompt_version=pipeline.gate_prompt_version(gate),
+        )
         verdicts = pipeline.run_gate(
             gate,
             items,
@@ -692,7 +695,7 @@ def _run_gate(
     )
     findings = pipeline.analyze_gate(gate, analysis_verdicts, analysis_items, paths.results_dir)
     write_findings(paths.results_dir, gate_id, findings)
-    return _stopped_reason_from(gate.last_stopped)
+    return _stopped_reason_from(getattr(gate, "last_stopped", {}))
 
 
 def _run_judge_outcome(paths: Paths, ctx: RunContext) -> str | None:

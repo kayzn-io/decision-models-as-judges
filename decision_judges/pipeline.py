@@ -272,6 +272,10 @@ def judge_specs_from(names: Sequence[str], study: StudyConfig) -> list[JudgeSpec
     return specs
 
 
+class MissingJevKey(RuntimeError):
+    """Raised when a Jev client is built without a key, which would fail every call."""
+
+
 def jev_client_kwargs(route: JevRoute) -> dict[str, str | None]:
     """Return the TypeSafe client keyword arguments for a Jev route.
 
@@ -280,8 +284,18 @@ def jev_client_kwargs(route: JevRoute) -> dict[str, str | None]:
     its own default base url.
     """
     if route.provider == "openrouter":
-        return {"api_key": os.environ.get(route.api_key_env), "base_url": route.base_url}
-    return {"api_key": os.environ.get("TYPESAFE_API_KEY")}
+        key = os.environ.get(route.api_key_env)
+        if not key:
+            raise MissingJevKey(
+                f"{route.api_key_env} is not set; the Jev client needs the key when it is built."
+            )
+        return {"api_key": key, "base_url": route.base_url}
+    key = os.environ.get("TYPESAFE_API_KEY")
+    if not key:
+        raise MissingJevKey(
+            "TYPESAFE_API_KEY is not set; the Jev client needs the key when it is built."
+        )
+    return {"api_key": key}
 
 
 def build_judges(

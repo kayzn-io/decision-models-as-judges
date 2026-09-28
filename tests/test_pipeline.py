@@ -801,3 +801,13 @@ def test_verdicts_for_analysis_g7_unions_originals_and_injected(tmp_path: Path) 
     assert Injection.none in injections
     assert {Injection.final_message, Injection.tool_result, Injection.control} <= injections
     assert len(verdicts) == 4
+
+
+def test_jev_client_kwargs_refuses_a_missing_key(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A Jev client built without a key would fail every call with 401; refuse up front."""
+    from decision_judges.config import JevRoute
+    from decision_judges.pipeline import MissingJevKey, jev_client_kwargs
+
+    monkeypatch.delenv("OPENROUTER_API_KEY", raising=False)
+    with pytest.raises(MissingJevKey):
+        jev_client_kwargs(JevRoute())
