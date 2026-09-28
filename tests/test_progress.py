@@ -36,6 +36,27 @@ def test_progress_round_trips_json() -> None:
     assert Progress.model_validate_json(progress.model_dump_json()) == progress
 
 
+def test_progress_round_trips_the_phase_fields() -> None:
+    progress = Progress(
+        step_id="g3",
+        done=1204,
+        total=2300,
+        started_at=utc_now_iso(),
+        phase="Careful agent, short text",
+        phase_index=2,
+        phase_count=4,
+        overall_done=3504,
+        overall_total=9200,
+    )
+    restored = Progress.model_validate_json(progress.model_dump_json())
+    assert restored == progress
+    assert restored.phase == "Careful agent, short text"
+    assert restored.phase_index == 2
+    assert restored.phase_count == 4
+    assert restored.overall_done == 3504
+    assert restored.overall_total == 9200
+
+
 # --- Gate.run --------------------------------------------------------------
 
 

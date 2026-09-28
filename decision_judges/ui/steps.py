@@ -35,6 +35,72 @@ _G3_JUDGES = ("code", "llm_cheap", "llm_strong", "jev")
 _G3_REPEATS = 5
 _OPENROUTER_ENV = "OPENROUTER_API_KEY"
 
+# The batch labels shown while a step runs. Each names the agent whose
+# conversations are being judged, capitalized when it stands alone and
+# lower-case when it follows an experiment name.
+_AGENT_LABELS = {"baseline": "Careful agent", "degraded": "Rushed agent"}
+_AGENT_PHRASE = {"baseline": "careful agent", "degraded": "rushed agent"}
+# The plain name of each text version a judge reads, keyed by its profile.
+_PROFILE_TEXT = {"full": "full text", "compact": "short text"}
+
+
+class PhaseReporter:
+    """Wrap a progress callback so each batch it forwards names itself.
+
+    Built from the ordered batch labels and each batch's planned total, it hands
+    out one callback per batch through :meth:`phase`. Every :class:`Progress`
+    that callback forwards carries the batch label, its one-based index, the
+    batch count, and the overall count across all batches: the sum of the earlier
+    batches' totals plus this batch's done, over the sum of every batch total.
+    When any batch total is unknown the overall counts are left None.
+    """
+
+    def __init__(
+        self,
+        base: ProgressCallback | None,
+        labels: list[str],
+        totals: list[int | None],
+    ) -> None:
+        self._base = base
+        self._labels = labels
+        self._totals = totals
+        self._count = len(labels)
+        if self._totals and all(total is not None for total in self._totals):
+            self._overall_total: int | None = sum(
+                total for total in self._totals if total is not None
+            )
+        else:
+            self._overall_total = None
+
+    def phase(self, index: int) -> ProgressCallback:
+        """Return a callback that stamps forwarded progress with batch ``index``."""
+
+        def callback(progress: Progress) -> None:
+            self.report(index, progress)
+
+        return callback
+
+    def report(self, index: int, progress: Progress) -> None:
+        """Forward one snapshot stamped with the batch at ``index`` (zero-based)."""
+        if self._base is None:
+            return
+        if self._overall_total is not None:
+            earlier = sum(total for total in self._totals[:index] if total is not None)
+            overall_done: int | None = earlier + progress.done
+        else:
+            overall_done = None
+        self._base(
+            progress.model_copy(
+                update={
+                    "phase": self._labels[index],
+                    "phase_index": index + 1,
+                    "phase_count": self._count,
+                    "overall_done": overall_done,
+                    "overall_total": self._overall_total,
+                }
+            )
+        )
+
 
 class StepStatus(BaseModel):
     """A step's readiness and how much of its work is already on disk."""
@@ -698,27 +764,52 @@ def _run_gate(
     return _stopped_reason_from(getattr(gate, "last_stopped", {}))
 
 
+def _variant_conversation_count(paths: Paths, variant: str) -> int:
+    """Return how many conversations are recorded on disk for one variant."""
+    records, _ = pipeline.load_agent_records(paths.cache_dir / "agent", variant)
+    return len(records)
+
+
 def _run_judge_outcome(paths: Paths, ctx: RunContext) -> str | None:
     """Judge G3 outcomes on the full and compact views for both variants.
 
-    Return a reason naming any judge a gate stopped after repeated identical
-    failures so the Run page warns, keeping finished work; None otherwise.
+    Each variant and text version is one named batch, so the Run page can show
+    which batch is running and the progress across all of them. Return a reason
+    naming any judge a gate stopped after repeated identical failures so the Run
+    page warns, keeping finished work; None otherwise.
     """
+    profiles = ("full", "compact")
+    batches = [(variant, profile) for variant in _variants_present(paths) for profile in profiles]
+    labels = [f"{_AGENT_LABELS[variant]}, {_PROFILE_TEXT[profile]}" for variant, profile in batches]
+    totals: list[int | None] = [
+        _variant_conversation_count(paths, variant) * len(_G3_JUDGES) * _G3_REPEATS
+        for variant, _ in batches
+    ]
+    reporter = PhaseReporter(ctx.on_progress, labels, totals)
+
     reasons: list[str | None] = []
-    for variant in _variants_present(paths):
-        for profile in ("full", "compact"):
-            if ctx.cancel is not None and ctx.cancel.is_cancelled:
-                return _merge_reasons(reasons)
-            reasons.append(
-                _run_gate(paths, ctx, "g3", profile, variant, list(_G3_JUDGES), _G3_REPEATS)
-            )
+    for index, (variant, profile) in enumerate(batches):
+        if ctx.cancel is not None and ctx.cancel.is_cancelled:
+            return _merge_reasons(reasons)
+        phase_ctx = ctx.model_copy(update={"on_progress": reporter.phase(index)})
+        reasons.append(
+            _run_gate(paths, phase_ctx, "g3", profile, variant, list(_G3_JUDGES), _G3_REPEATS)
+        )
     return _merge_reasons(reasons)
+
+
+_ANALYZE_LABELS = {
+    "g5": "When to trust the cheap judge",
+    "g6": "Whether confidence means what it says",
+    "g8": "Whether the judges notice a drop in quality",
+}
 
 
 def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
     """Reduce cached verdicts into the cascade, calibration, and regression findings.
 
-    A read-and-write reduction with no early-stop reason; returns None.
+    Each experiment is one named batch. A read-and-write reduction with no
+    early-stop reason; returns None.
     """
     from decision_judges.report import write_findings
 
@@ -727,6 +818,8 @@ def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
     profile = StateProfile.full
     started = utc_now_iso()
     gate_ids = ("g5", "g6", "g8")
+    labels = [_ANALYZE_LABELS[gate_id] for gate_id in gate_ids]
+    reporter = PhaseReporter(ctx.on_progress, labels, [1, 1, 1])
     for index, gate_id in enumerate(gate_ids):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
             return None
@@ -738,34 +831,58 @@ def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
         if verdicts:
             findings = pipeline.analyze_gate(registry[gate_id], verdicts, items, paths.results_dir)
             write_findings(paths.results_dir, gate_id, findings)
-        if ctx.on_progress is not None:
-            ctx.on_progress(
-                Progress(
-                    step_id="analyze",
-                    done=index + 1,
-                    total=len(gate_ids),
-                    last_item=gate_id,
-                    started_at=started,
-                )
-            )
+        reporter.report(
+            index,
+            Progress(step_id="analyze", done=1, total=1, last_item=gate_id, started_at=started),
+        )
     return None
+
+
+def _fold_index(last_item: str | None) -> int:
+    """Return the fold number embedded in a training progress line, or 0."""
+    if not last_item:
+        return 0
+    parts = last_item.split()
+    if len(parts) >= 2 and parts[0] == "fold" and parts[1].isdigit():
+        return int(parts[1])
+    return 0
 
 
 def _run_laya(paths: Paths, ctx: RunContext) -> str | None:
     """Judge Laya zero-shot, fine-tune it across folds, and score the local model.
 
-    Return a reason naming any judge a gate stopped after repeated identical
-    failures; None otherwise.
+    Each stage is a named batch: Laya as published per variant, one batch per
+    training fold, Laya trained per variant, and the comparison. Return a reason
+    naming any judge a gate stopped after repeated identical failures; None
+    otherwise.
     """
     from decision_judges.cli import _resolve_base
     from decision_judges.gates.g3_outcome import G3Outcome
     from decision_judges.training import finetune_laya as training
 
+    folds = 5
+    variants = _variants_present(paths)
+    labels = (
+        [f"Laya as published: {_AGENT_PHRASE[variant]}" for variant in variants]
+        + [f"Training fold {fold + 1} of {folds}" for fold in range(folds)]
+        + [f"Laya trained: {_AGENT_PHRASE[variant]}" for variant in variants]
+        + ["Comparison"]
+    )
+    reporter = PhaseReporter(ctx.on_progress, labels, [None] * len(labels))
+    train_offset = len(variants)
+    ft_offset = train_offset + folds
+    comparison_index = ft_offset + len(variants)
+
     reasons: list[str | None] = []
-    for variant in _variants_present(paths):
+    for index, variant in enumerate(variants):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
             return _merge_reasons(reasons)
-        reasons.append(_run_gate(paths, ctx, "g3", "compact", variant, ["laya_base"], 1))
+        phase_ctx = ctx.model_copy(update={"on_progress": reporter.phase(index)})
+        reasons.append(_run_gate(paths, phase_ctx, "g3", "compact", variant, ["laya_base"], 1))
+
+    def _train_progress(progress: Progress) -> None:
+        fold = min(_fold_index(progress.last_item), folds - 1)
+        reporter.report(train_offset + fold, progress)
 
     variant = "baseline"
     states = pipeline.read_states(paths.cache_dir / "state", variant, StateProfile.compact)
@@ -777,38 +894,59 @@ def _run_laya(paths: Paths, ctx: RunContext) -> str | None:
         rewards,
         G3Outcome().questions(),
         paths.repo_root / "models",
-        k=5,
+        k=folds,
         seed=ctx.study.seed,
         epochs=2,
         learning_rate=2e-5,
         batch_size=8,
         device="cpu",
-        on_progress=ctx.on_progress,
+        on_progress=_train_progress,
         cancel=ctx.cancel,
     )
 
-    for variant in _variants_present(paths):
+    for index, variant in enumerate(variants):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
             return _merge_reasons(reasons)
-        reasons.append(_run_gate(paths, ctx, "g3", "compact", variant, ["laya_ft"], 1))
-    reasons.append(_run_gate(paths, ctx, "g10", "compact", "baseline", ["laya_base", "laya_ft"], 1))
+        phase_ctx = ctx.model_copy(update={"on_progress": reporter.phase(ft_offset + index)})
+        reasons.append(_run_gate(paths, phase_ctx, "g3", "compact", variant, ["laya_ft"], 1))
+    comparison_ctx = ctx.model_copy(update={"on_progress": reporter.phase(comparison_index)})
+    reasons.append(
+        _run_gate(paths, comparison_ctx, "g10", "compact", "baseline", ["laya_base", "laya_ft"], 1)
+    )
     return _merge_reasons(reasons)
+
+
+# Each robustness experiment: its gate, its plain name, the judges it asks, and
+# their repeats (None lets the gate pick its own per-judge repeats).
+_GATE_EXPERIMENTS: tuple[tuple[str, str, tuple[str, ...], int | None], ...] = (
+    ("g2", "Every action", _G3_JUDGES, None),
+    ("g7", "Planted sentence", ("llm_strong",), 5),
+    ("g4", "Small questions", ("llm_strong",), 1),
+    ("g1", "Difficulty guess", ("llm_strong",), 1),
+)
 
 
 def _run_gates(paths: Paths, ctx: RunContext) -> str | None:
     """Probe the judges with per-step, robustness, decomposition, and triage gates.
 
-    Return a reason naming any judge a gate stopped after repeated identical
-    failures; None otherwise.
+    Each experiment run against each agent is one named batch. Return a reason
+    naming any judge a gate stopped after repeated identical failures; None
+    otherwise.
     """
+    batches = [
+        (variant, gate_id, experiment, judges, repeats)
+        for variant in _variants_present(paths)
+        for gate_id, experiment, judges, repeats in _GATE_EXPERIMENTS
+    ]
+    labels = [f"{experiment}: {_AGENT_PHRASE[variant]}" for variant, _, experiment, _, _ in batches]
+    reporter = PhaseReporter(ctx.on_progress, labels, [None] * len(labels))
+
     reasons: list[str | None] = []
-    for variant in _variants_present(paths):
+    for index, (variant, gate_id, _experiment, judges, repeats) in enumerate(batches):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
             return _merge_reasons(reasons)
-        reasons.append(_run_gate(paths, ctx, "g2", "full", variant, list(_G3_JUDGES), None))
-        reasons.append(_run_gate(paths, ctx, "g7", "full", variant, ["llm_strong"], 5))
-        reasons.append(_run_gate(paths, ctx, "g4", "full", variant, ["llm_strong"], 1))
-        reasons.append(_run_gate(paths, ctx, "g1", "full", variant, ["llm_strong"], 1))
+        phase_ctx = ctx.model_copy(update={"on_progress": reporter.phase(index)})
+        reasons.append(_run_gate(paths, phase_ctx, gate_id, "full", variant, list(judges), repeats))
     return _merge_reasons(reasons)
 
 
@@ -869,6 +1007,15 @@ _JUDGE_PAID = {
 }
 _FULL_TEXT = "full text"
 _SHORT_TEXT = "short text"
+
+
+def judge_display_name(judge_id: str) -> str:
+    """Return the learner-facing name for a judge id, or the id when unknown.
+
+    Shares the names shown in each step's run plan, so the running panel and the
+    plan table name the same judge the same way.
+    """
+    return _JUDGE_DISPLAY.get(judge_id, judge_id)
 
 
 def _judge_model_id(name: str, study: StudyConfig) -> str:

@@ -448,3 +448,67 @@ def test_draw_conclusions_panel_says_no_new_judge_calls(
 
     assert not at.exception
     assert any("No new judge calls" in text for text in _texts(at))
+
+
+def test_format_last_item_reads_like_a_sentence_for_judge_steps() -> None:
+    from decision_judges.ui import steps
+    from decision_judges.ui.pages.run import _format_last_item
+
+    judge_step = next(s for s in steps.STEPS if s.id == "judge-outcome")
+    assert (
+        _format_last_item("retail-42 · jev · pass", judge_step)
+        == "Conversation retail-42, judged by Jev (decision model): pass"
+    )
+
+
+def test_format_last_item_leaves_non_judge_lines_alone() -> None:
+    from decision_judges.ui import steps
+    from decision_judges.ui.pages.run import _format_last_item
+
+    serialize_step = next(s for s in steps.STEPS if s.id == "serialize")
+    assert _format_last_item("baseline · 2 runs", serialize_step) == "baseline · 2 runs"
+    assert _format_last_item(None, serialize_step) == ""
+
+
+def test_running_panel_names_the_batch_and_shows_overall(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    def slow_fake(paths: object, ctx: object) -> None:
+        started = utc_now_iso()
+        if ctx.on_progress is not None:  # type: ignore[attr-defined]
+            ctx.on_progress(  # type: ignore[attr-defined]
+                Progress(
+                    step_id="judge-outcome",
+                    done=1204,
+                    total=2300,
+                    started_at=started,
+                    last_item="retail-42 · jev · pass",
+                    phase="Careful agent, short text",
+                    phase_index=2,
+                    phase_count=4,
+                    overall_done=3504,
+                    overall_total=9200,
+                )
+            )
+        while not (ctx.cancel is not None and ctx.cancel.is_cancelled):  # type: ignore[attr-defined]
+            time.sleep(0.02)
+
+    monkeypatch.setattr("decision_judges.ui.steps._run_judge_outcome", slow_fake)
+    root, at = _local_app(monkeypatch, tmp_path)
+    at.run()
+    at.session_state[keys.SESSION_KEY] = _FAKE_KEY
+    at.run()
+
+    at.button(key="run_judge-outcome").click().run()
+    _await_running(root, "judge-outcome")
+    at.run()
+
+    assert not at.exception
+    texts = _texts(at)
+    assert any("Batch 2 of 4: Careful agent, short text" in text for text in texts)
+    assert any("1,204 of 2,300 judge calls in this batch" in text for text in texts)
+    assert any("Overall: 3,504 of 9,200" in text for text in texts)
+    assert any("judged by Jev (decision model): pass" in text for text in texts)
+
+    at.button(key="stop_judge-outcome").click().run()
+    _await_finished(root, "judge-outcome")

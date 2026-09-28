@@ -31,6 +31,11 @@ class Progress(BaseModel):
     error: str | None = None
     cancelled: bool = False
     stopped_reason: str | None = None
+    phase: str | None = None
+    phase_index: int | None = None
+    phase_count: int | None = None
+    overall_done: int | None = None
+    overall_total: int | None = None
 
 
 ProgressCallback = Callable[[Progress], None]

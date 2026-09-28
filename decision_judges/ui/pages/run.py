@@ -446,11 +446,62 @@ def _running_panel(step: RunStep, runner: StepRunner) -> None:
         st.caption("Starting…")
         _stop_button(step, runner)
         return
-    total = status.total or 1
-    st.progress(min(status.done / total, 1.0), text=f"{status.done} of {status.total}")
+    _progress_bars(step, status)
     _dollar_meter(status)
-    st.caption(f"Elapsed {_elapsed(status.started_at, None)} · {status.last_item or ''}")
+    st.caption(
+        f"Elapsed {_elapsed(status.started_at, None)} · {_format_last_item(status.last_item, step)}"
+    )
     _stop_button(step, runner)
+
+
+def _progress_bars(step: RunStep, status: object) -> None:
+    """Render the batch bar, naming the running batch and the overall progress.
+
+    An unphased step keeps its single bar. A phased step gets a bold line naming
+    the running batch, the batch bar with its count beneath, and, when the totals
+    across all batches are known, a second bar for the progress across them.
+    """
+    done = getattr(status, "done", 0) or 0
+    total = getattr(status, "total", 0) or 0
+    phase = getattr(status, "phase", None)
+    if phase is None:
+        st.progress(min(done / (total or 1), 1.0), text=f"{done} of {total}")
+        return
+    index = getattr(status, "phase_index", None) or 1
+    count = getattr(status, "phase_count", None) or 1
+    st.markdown(f"**Batch {index} of {count}: {phase}**")
+    st.progress(min(done / (total or 1), 1.0))
+    noun = "judge calls" if step.pipe == "judge" else "items"
+    st.caption(f"{done:,} of {total:,} {noun} in this batch")
+    _overall_bar(status)
+
+
+def _overall_bar(status: object) -> None:
+    """Render the progress across every batch when their totals are known."""
+    overall_total = getattr(status, "overall_total", None)
+    if not overall_total:
+        return
+    overall_done = getattr(status, "overall_done", 0) or 0
+    st.progress(min(overall_done / overall_total, 1.0))
+    st.caption(f"Overall: {overall_done:,} of {overall_total:,}")
+
+
+def _format_last_item(last_item: str | None, step: RunStep) -> str:
+    """Return the last judged item as a sentence, or the raw line when it is not one.
+
+    A judge step reports ``task · judge · verdict``; this reads it back as a
+    sentence naming the conversation, the judge, and its verdict. Any other line
+    is left as it is.
+    """
+    if not last_item:
+        return ""
+    if step.pipe != "judge":
+        return last_item
+    parts = last_item.split(" · ")
+    if len(parts) != 3:
+        return last_item
+    task_id, judge_id, label = parts
+    return f"Conversation {task_id}, judged by {steps.judge_display_name(judge_id)}: {label}"
 
 
 def _dollar_meter(status: object) -> None:

@@ -402,3 +402,93 @@ def test_run_gate_builds_judges_with_the_session_key_installed(
     ctx = steps.RunContext(study=study, pricing=pricing, key="sk-or-session-key")
     steps._run_gate(paths, ctx, "g3", "full", "baseline", ["code"], 1)
     assert seen["key_at_build"] == "sk-or-session-key"
+
+
+# --- PhaseReporter and phase-aware progress --------------------------------
+
+
+def test_phase_reporter_carries_labels_indices_and_overall() -> None:
+    from decision_judges.progress import Progress
+    from decision_judges.ui.steps import PhaseReporter
+
+    seen: list[Progress] = []
+    reporter = PhaseReporter(seen.append, ["Careful agent", "Rushed agent"], [3, 5])
+
+    reporter.phase(0)(Progress(step_id="g3", done=3, total=3, started_at="t"))
+    reporter.phase(1)(Progress(step_id="g3", done=2, total=5, started_at="t"))
+
+    first, second = seen
+    assert first.phase == "Careful agent"
+    assert first.phase_index == 1
+    assert first.phase_count == 2
+    assert first.overall_done == 3
+    assert first.overall_total == 8
+
+    assert second.phase == "Rushed agent"
+    assert second.phase_index == 2
+    assert second.phase_count == 2
+    assert second.overall_done == 5
+    assert second.overall_total == 8
+
+
+def test_phase_reporter_leaves_overall_none_when_a_total_is_unknown() -> None:
+    from decision_judges.progress import Progress
+    from decision_judges.ui.steps import PhaseReporter
+
+    seen: list[Progress] = []
+    reporter = PhaseReporter(seen.append, ["First", "Second"], [None, None])
+
+    reporter.phase(1)(Progress(step_id="g", done=4, total=10, started_at="t"))
+
+    assert seen[0].phase == "Second"
+    assert seen[0].phase_index == 2
+    assert seen[0].phase_count == 2
+    assert seen[0].overall_done is None
+    assert seen[0].overall_total is None
+
+
+def test_phase_reporter_without_a_base_is_a_no_op() -> None:
+    from decision_judges.progress import Progress
+    from decision_judges.ui.steps import PhaseReporter
+
+    reporter = PhaseReporter(None, ["only"], [1])
+    # Must not raise when there is no downstream callback.
+    reporter.phase(0)(Progress(step_id="g", done=1, total=1, started_at="t"))
+
+
+def test_run_judge_outcome_labels_the_two_careful_agent_batches(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from decision_judges.config import load_pricing
+    from decision_judges.progress import Progress
+    from decision_judges.ui.steps import RunContext
+
+    def fake_run_gate(paths, ctx, gate_id, profile, variant, judge_names, repeats):  # type: ignore[no-untyped-def]
+        if ctx.on_progress is not None:
+            for done in (1, 2):
+                ctx.on_progress(Progress(step_id=gate_id, done=done, total=40, started_at="t"))
+        return None
+
+    monkeypatch.setattr(steps, "_run_gate", fake_run_gate)
+
+    seen: list[Progress] = []
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    pricing = load_pricing(_FIXTURE / "config" / "pricing.toml")
+    ctx = RunContext(study=study, pricing=pricing, on_progress=seen.append)
+
+    result = steps._run_judge_outcome(_paths(_FIXTURE), ctx)
+
+    assert result is None
+    assert seen
+    assert all(p.phase_count == 2 for p in seen)
+    labels = [p.phase for p in seen]
+    assert "Careful agent, full text" in labels
+    assert "Careful agent, short text" in labels
+    assert all(p.overall_total == 80 for p in seen)
+    # The last full-text report sits at 40 of 80 overall; the short-text batch continues past it.
+    full_reports = [p for p in seen if p.phase == "Careful agent, full text"]
+    short_reports = [p for p in seen if p.phase == "Careful agent, short text"]
+    assert full_reports[-1].overall_done == 2
+    assert short_reports[-1].overall_done == 42
+    assert [p.phase_index for p in full_reports] == [1, 1]
+    assert [p.phase_index for p in short_reports] == [2, 2]
