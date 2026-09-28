@@ -58,6 +58,26 @@ class Cache:
         self._write(path, value)
         return value
 
+    def peek(self, key: str, model_type: type[T]) -> T | None:
+        """Return the cached value for a key without computing on a miss.
+
+        Return None when no file exists or the stored file fails JSON parsing or
+        model validation. Unlike ``get_or_call`` this never computes, quarantines,
+        or writes, so a caller can inspect a stored value before deciding to keep
+        or replace it.
+        """
+        path = self._path(key)
+        if not path.is_file():
+            return None
+        try:
+            return model_type.model_validate_json(path.read_text(encoding="utf-8"))
+        except (ValueError, ValidationError):
+            return None
+
+    def put(self, key: str, value: BaseModel) -> None:
+        """Write a value for a key atomically, replacing any existing file."""
+        self._write(self._path(key), value)
+
     def iter_keys(self, prefix: str = "") -> Iterator[str]:
         """Yield stored keys, excluding quarantined files, matching an optional prefix."""
         if not self.root.is_dir():

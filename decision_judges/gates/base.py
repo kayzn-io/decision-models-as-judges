@@ -184,20 +184,24 @@ class Gate(ABC):
         cache: Cache,
         spend: Spend,
     ) -> Verdict:
-        """Return the cached verdict or reserve spend, judge, and settle on a miss."""
+        """Return the cached verdict or reserve spend, judge, and settle on a miss.
+
+        A cached verdict whose ``error`` is set records that a call failed, not
+        what the judge thinks, so it never counts as done: it is treated as a
+        miss, the judge runs again, and the new verdict overwrites it. A cached
+        verdict without an error short-circuits and reserves no spend.
+        """
         key = cache_key(
             judge.judge_id, judge.model_id, judge.prompt_version, item.state.state_hash, repeat
         )
-
-        def call() -> Verdict:
-            return judge.judge(item.state, questions, repeat)
-
-        if cache.exists(key):
-            return cache.get_or_call(key, Verdict, call)
+        cached = cache.peek(key, Verdict)
+        if cached is not None and cached.error is None:
+            return cached
 
         reservation = self._reserve(judge, item, spend)
         try:
-            verdict = cache.get_or_call(key, Verdict, call)
+            verdict = judge.judge(item.state, questions, repeat)
+            cache.put(key, verdict)
         except BaseException:
             if reservation is not None:
                 spend.cancel(reservation)

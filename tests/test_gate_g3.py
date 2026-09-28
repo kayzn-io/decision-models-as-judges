@@ -8,7 +8,7 @@ from matplotlib.figure import Figure
 
 from decision_judges.bench.load import Task
 from decision_judges.bench.run_agent import AgentRecord
-from decision_judges.cache import Cache
+from decision_judges.cache import Cache, cache_key
 from decision_judges.config import load_pricing
 from decision_judges.gates.base import GateResult, Item
 from decision_judges.gates.g3_outcome import G3Outcome
@@ -234,6 +234,63 @@ def test_per_judge_repeats_mapping_is_honored(tmp_path: Path) -> None:
 
     assert len(jev.calls) == 6
     assert len(llm.calls) == 3
+
+
+# --- errored-verdict retry -------------------------------------------------
+
+
+def test_errored_cached_verdict_is_retried_and_replaced(tmp_path: Path) -> None:
+    truth = {"h0": "pass"}
+    items = [_item("h0", "pass")]
+    judge = FakeJudge("a", "none", "pv-a", _perfect(truth), paid=False)
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 0.0})
+    key = cache_key("a", "none", "pv-a", "h0", 0)
+    cache.put(key, _make_verdict(judge, items[0].state, 0, None, error="401 User not found"))
+
+    verdicts = G3Outcome().run(items, [judge], cache, spend, repeats=1)
+
+    assert judge.calls == [("h0", 0)]
+    stored = cache.peek(key, Verdict)
+    assert stored is not None
+    assert stored.error is None
+    assert stored.answers != []
+    assert verdicts[0].error is None
+
+
+def test_successful_cached_verdict_still_short_circuits(tmp_path: Path) -> None:
+    truth = {"h0": "pass"}
+    items = [_item("h0", "pass")]
+    judge = FakeJudge("a", "none", "pv-a", _perfect(truth), paid=False)
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 0.0})
+    key = cache_key("a", "none", "pv-a", "h0", 0)
+    cache.put(key, _make_verdict(judge, items[0].state, 0, "pass"))
+
+    verdicts = G3Outcome().run(items, [judge], cache, spend, repeats=1)
+
+    assert judge.calls == []
+    assert verdicts[0].error is None
+
+
+def test_retry_of_errored_cache_reserves_and_settles_spend(tmp_path: Path) -> None:
+    items = [_item("h0", "pass")]
+    judge = FakeJudge(
+        "llm",
+        _PRICED_MODEL,
+        "pv",
+        _perfect({"h0": "pass"}),
+        usage=Usage(input_tokens=1000, output_tokens=100),
+    )
+    cache = Cache(tmp_path / "cache")
+    spend = _spend(tmp_path, {"g3": 50.0})
+    key = cache_key("llm", _PRICED_MODEL, "pv", "h0", 0)
+    cache.put(key, _make_verdict(judge, items[0].state, 0, None, error="401 User not found"))
+
+    G3Outcome().run(items, [judge], cache, spend, repeats=1)
+
+    assert judge.calls == [("h0", 0)]
+    assert spend.spent("g3") == pytest.approx((1000 * 0.15 + 100 * 0.60) / 1_000_000)
 
 
 # --- questions / prompt version -------------------------------------------

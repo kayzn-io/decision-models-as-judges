@@ -113,6 +113,40 @@ def test_iter_keys_excludes_quarantine(tmp_path: Path) -> None:
     assert list(cache.iter_keys()) == [key]
 
 
+def test_peek_returns_none_when_absent(tmp_path: Path) -> None:
+    cache = Cache(tmp_path)
+    key = cache_key("j", "m", "v1", "s", 0)
+    assert cache.peek(key, Sample) is None
+
+
+def test_peek_returns_value_without_computing(tmp_path: Path) -> None:
+    cache = Cache(tmp_path)
+    key = cache_key("j", "m", "v1", "s", 0)
+    cache.get_or_call(key, Sample, lambda: Sample(name="x", value=1))
+    assert cache.peek(key, Sample) == Sample(name="x", value=1)
+
+
+def test_peek_returns_none_on_invalid_and_leaves_file(tmp_path: Path) -> None:
+    cache = Cache(tmp_path)
+    key = cache_key("j", "m", "v1", "s", 0)
+    path = tmp_path / key[:2] / f"{key}.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text('{"unexpected": true}')
+    assert cache.peek(key, Sample) is None
+    assert path.is_file()
+
+
+def test_put_writes_and_overwrites_atomically(tmp_path: Path) -> None:
+    cache = Cache(tmp_path)
+    key = cache_key("j", "m", "v1", "s", 0)
+    cache.put(key, Sample(name="first", value=1))
+    assert cache.peek(key, Sample) == Sample(name="first", value=1)
+    cache.put(key, Sample(name="second", value=2))
+    assert cache.peek(key, Sample) == Sample(name="second", value=2)
+    files = [p.name for p in (tmp_path / key[:2]).iterdir()]
+    assert files == [f"{key}.json"]
+
+
 def test_atomic_write_leaves_no_temp_files(tmp_path: Path) -> None:
     cache = Cache(tmp_path)
     key = cache_key("j", "m", "v1", "s", 0)
