@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2701,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user's identity correctly and documented the return request for the hose and backpack. However, the agent was unable to complete the exchange for hiking boots as it stated that the order status changed to 'return requested' after the return was submitted, violating policy on modifying a non-delivered order for the exchange. Since the exchange was not completed as requested and an option was available, this results in a failure of the conversation. The confirmation steps and overall interaction otherwise followed the policy.",
+  "repeat": 1,
+  "state_hash": "443899f8a4b5a47fa2b87cbadfb607e2d5053f8dd0b25af45bbc87ff32965b3c",
+  "usage": {
+    "input_tokens": 5125,
+    "output_tokens": 127
+  }
+}

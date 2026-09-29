@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2589,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user and submitted a return request for the hose and backpack. However, the exchange for the hiking boots could not be processed because the order's status changed to 'return requested.' As a result, the exchange was not completed as per policy, which requires orders to be in 'delivered' status for exchanges. Therefore, the outcome does not satisfy the pass conditions.",
+  "repeat": 2,
+  "state_hash": "d46793a01cd8fb2af1a4fde09d4295db1911bf6e191f44e9b945d368997ee4bb",
+  "usage": {
+    "input_tokens": 5098,
+    "output_tokens": 108
+  }
+}

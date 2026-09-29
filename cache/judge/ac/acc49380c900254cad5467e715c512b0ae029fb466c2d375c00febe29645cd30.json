@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.6,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1847,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent initiated a conversation with the user, authenticated them correctly, and provided relevant information about the order. However, the agent failed to carry out the primary request for a return and refund because the refund was requested to be redirected from PayPal to an AMEX card, which was not a valid option at that moment. The user specifically requested to speak with a human to resolve this, indicating a failure to successfully address the user's needs within the scope of the current interaction. The conversation was not resolved, as the user was not aided satisfactorily.",
+  "repeat": 1,
+  "state_hash": "a498aa9a44d611b2dda180c3c4c75ed5699b80279b92603a33497678bd3810d1",
+  "usage": {
+    "input_tokens": 3025,
+    "output_tokens": 139
+  }
+}

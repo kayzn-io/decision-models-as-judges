@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2458,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed to successfully process the user's request to exchange items because they couldn't locate the specified order and confirmed that the user's item request was incorrect based on available orders. Although the user was authenticated, and the GC balance was correctly communicated, the primary request to exchange items was not met. Therefore, the overall outcome of the conversation does not meet the criteria for a pass.",
+  "repeat": 1,
+  "state_hash": "ef81c2e8e78ee422ba76c49631bc859736ce3e907ce6cdb288957a856124ddc8",
+  "usage": {
+    "input_tokens": 2772,
+    "output_tokens": 104
+  }
+}

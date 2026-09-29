@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.7,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1533,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user and made a change to the product in the order. However, when the user requested to update the shipping address, the agent stated that it couldn't be performed due to the order status and did not confirm with the user again before changing the address, which is against policy. As such, the final outcome did not fully meet the requirement of confirming the user's request correctly before acting, leading to a failure in the conversation outcome.",
+  "repeat": 1,
+  "state_hash": "324b2e7c202e8b322e5f874d82ac9eca3325cba33460c61899a28e75784bec1d",
+  "usage": {
+    "input_tokens": 3612,
+    "output_tokens": 119
+  }
+}

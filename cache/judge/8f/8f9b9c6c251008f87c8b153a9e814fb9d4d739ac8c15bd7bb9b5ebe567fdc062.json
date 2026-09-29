@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1587,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user by verifying the email and matching the full name and zip code. The agent then confirmed the user's intent to cancel the entire order before processing the cancellation. All actions were conducted according to policy, and the agent provided accurate final information regarding the refund. There is a slight uncertainty (0.1) in the confidence due to the initial inability to find the user by email, but it was rectified by successfully matching the name and zip code.",
+  "repeat": 4,
+  "state_hash": "fc0ab8b6154cdcfccfbb403b37199eb00e48f38bac4f49260f592971077b1f2f",
+  "usage": {
+    "input_tokens": 2887,
+    "output_tokens": 122
+  }
+}

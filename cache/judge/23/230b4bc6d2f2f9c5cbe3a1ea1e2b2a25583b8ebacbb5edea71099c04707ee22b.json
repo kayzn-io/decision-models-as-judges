@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2645,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did authenticate the user and processed the return requests; however, it submitted the refunds to the same payment methods specified by the user instead of to the opposite ones as per the user's instructions. The user expressed dissatisfaction and requested a human representative, indicating that the agent did not meet the user's original request. Hence, this does not align with the outcome quality standards defined in the policy.",
+  "repeat": 2,
+  "state_hash": "9e8fc7d7713bdf52d9ef599a188ab47bc962582a54564d8c6e38fcb1aa55f16f",
+  "usage": {
+    "input_tokens": 2939,
+    "output_tokens": 107
+  }
+}

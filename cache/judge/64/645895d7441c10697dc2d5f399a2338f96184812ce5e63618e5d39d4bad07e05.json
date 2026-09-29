@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2505,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user before processing any order changes. The agent correctly identified the user's tablet order, confirmed that it was delivered and communicated the policy regarding refunds for lost items. The agent then proceeded to cancel the charger order and the boot order (though the kettle was also included in the order cancellation, this was within policy). Finally, the return request for the sneakers was handled appropriately, with the user confirming the return before it was submitted. All actions were in compliance with the stated policy.",
+  "repeat": 2,
+  "state_hash": "1e1e4805e55092349230fdafa4a4db6c58bebbe0847a11e796de7d1b31b57707",
+  "usage": {
+    "input_tokens": 4629,
+    "output_tokens": 129
+  }
+}

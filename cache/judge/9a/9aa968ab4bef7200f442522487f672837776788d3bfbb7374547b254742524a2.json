@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.85,
+        "pass": 0.15000000000000002
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2321,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did authenticate the user before providing product details, but ultimately did not fulfill the user's request as there were mechanical keyboards available just over the budget. The user explicitly stated they wanted to return their current keyboard if none were available under $200, but the agent did not confirm any return action which is required by policy. Therefore, the outcome is a failure based on the final action in the user's request.",
+  "repeat": 1,
+  "state_hash": "0d76520ae3b5e367e6f5388646f8ffb14c676ae7a0ad17558e9ce5a0dadca008",
+  "usage": {
+    "input_tokens": 3690,
+    "output_tokens": 111
+  }
+}
