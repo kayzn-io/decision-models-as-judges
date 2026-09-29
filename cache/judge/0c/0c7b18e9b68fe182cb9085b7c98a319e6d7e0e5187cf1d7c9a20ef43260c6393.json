@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.62,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.66,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.66,
+        "pass": 0.33999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 44900,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly via name + zip, identified the two pending t-shirt orders, requested explicit confirmation including payment method, performed the modifications to the specified purple, S, v-neck, polyester variant, and accurately reported the resulting small price differences. However, earlier in the conversation the agent stated there were 11 available t-shirt options when the product data showed only 10 available variants. This is incorrect and constitutes stating information unsupported by the tools, which meets a fail condition despite the later order-handling being compliant and correct.",
+  "repeat": 4,
+  "state_hash": "afcf2fa6069af2a0e58ff60e4790dd7ab6f76e48858aff052e001697bb9d6108",
+  "usage": {
+    "input_tokens": 5056,
+    "output_tokens": 2021
+  }
+}

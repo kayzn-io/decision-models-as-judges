@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.55,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.72,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.72,
+        "pass": 0.28
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 47202,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly authenticated the user using full name and zip, identified the correct pending t-shirt orders, requested explicit confirmation before making changes, used the correct in-stock variant (purple, S, polyester, v-neck), executed the modifications via tools, and accurately reported the small price differences and payment method. However, earlier it incorrectly stated there were 11 t-shirt options available when the tool data shows 10 available variants (two were unavailable). This constitutes stating unsupported information and means the initial user request was not answered correctly, so overall the conversation does not meet the full pass bar despite the order modifications being handled correctly.",
+  "repeat": 2,
+  "state_hash": "afcf2fa6069af2a0e58ff60e4790dd7ab6f76e48858aff052e001697bb9d6108",
+  "usage": {
+    "input_tokens": 5056,
+    "output_tokens": 2449
+  }
+}
