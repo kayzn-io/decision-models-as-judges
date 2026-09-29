@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.83,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.73,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.27,
+        "pass": 0.73
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24630,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified the user using full name plus corrected zip code, matched to a single user ID, and only then shared account/order information. It retrieved the user details and the most recent order\u2019s details via tools, and reported the amount paid consistent with the item prices and items listed. No changes or writes were made, so no confirmation was required. The response did not fabricate unsupported details and stayed within policy. A minor potential concern is that the stated \u201ctotal\u201d could omit taxes/shipping if those existed, but the tool output supports the given figure as at least the items total, and there\u2019s no evidence contradicting the agent\u2019s claim here. Overall, the request was completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "1ddcc90bb3d07bac2700498cc48336b4ffc398651520e01361eb7791288f728b",
+  "usage": {
+    "input_tokens": 1596,
+    "output_tokens": 1876
+  }
+}

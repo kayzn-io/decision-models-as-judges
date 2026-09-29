@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12457,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not use the provided tools to verify the user or retrieve order details, did not present camera options within the bookshelf\u2019s price or initiate any exchange/return workflow, and did not seek confirmation for any order-changing action. Instead, it deferred the request without evidence from tools or offering a compliant path forward. This fails the pass bar of completing the user\u2019s request in line with policy.",
+  "repeat": 2,
+  "state_hash": "73a0f0e6d667996a618ea6ba129e16b7f0ee8d227ce5480d40f5bfa51ff978c0",
+  "usage": {
+    "input_tokens": 700,
+    "output_tokens": 951
+  }
+}

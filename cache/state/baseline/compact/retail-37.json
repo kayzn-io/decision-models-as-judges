@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "ee0decf2cf90ab8688614bdb93f03863197a6a4bf5487eab844b933cc787b88f",
+  "step_index": null,
+  "task_id": "retail-37",
+  "text": "Your name is Daiki Sanchez, and you live in 46236, your email is daikisanchez1479@example.com. You just placed an order but you realize that your card has only $1150 credit left, but the order total is more than $1160. You wonder if the agent can help split the payment with another card. If not, you wonder what the most expensive item and its price, and if you can just cancel that item. If not, you wonder if you can switch all items to their cheapest options and bring the cost down to $1150. If so, do it. If not, you wonder if the agent can just cancel the order so that you can order again. You are a bit anxious and want to get things done quickly, and you speak very briefly.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_email(email=daikisanchez1479@example.com)\n- find_user_id_by_name_zip(first_name=Daiki, last_name=Sanchez, zip=46236)\n- get_user_details(user_id=daiki_sanchez_3253)\n- get_order_details(order_id=#W9348897)\n- cancel_pending_order(order_id=#W9348897, reason=no longer needed)\nYou\u2019re welcome! Your order has been cancelled and the refund is being processed. If you decide to place a new order or need any assistance in the future, feel free to reach out. Have a great day!",
+  "token_estimate": 335,
+  "truncated": false,
+  "variant": "baseline"
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15486,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent canceled the entire order and issued a refund without first authenticating the user, without confirming the cancellation (an order-changing write), and without demonstrating that it checked the requested alternatives (split payment, removing the most expensive item, or switching to cheaper options). The final refund details and card last four are presented without visible tool support. These actions violate the stated policy to authenticate, act only after confirmation for writes, and only on the user\u2019s own orders. Therefore, the conversation fails the pass bar.",
+  "repeat": 4,
+  "state_hash": "d3be76da97c36cc8a0a7bbd7fd3d7e949bfb150c5ef162ac797f580c97784d96",
+  "usage": {
+    "input_tokens": 901,
+    "output_tokens": 1705
+  }
+}

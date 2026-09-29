@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15011,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated only via name+ZIP lookup, then fetched several orders, but proceeded to execute a return on four item IDs from order #W9571698 with refund to a gift card (payment_method_id=gift_card_7250692). This violates multiple requirements: (1) no explicit confirmation from the user before performing an order-changing write; (2) the user requested to return only the more expensive of two tablets with refund to credit card first\u2014there is no attempt or confirmation of credit card refund availability, nor any evidence that CC refund was impossible; (3) the agent returned multiple items (four) rather than just the single more expensive tablet unless escalated, and there is no user confirmation of escalation to \u201creturn everything\u201d on the order; (4) no clear final information back to the user. Thus, the outcome does not meet the pass bar.",
+  "repeat": 3,
+  "state_hash": "e8cee053c2956b85883cd50645ed7f19711962cf91aa99bc6bba66cb298b21ad",
+  "usage": {
+    "input_tokens": 768,
+    "output_tokens": 1616
+  }
+}

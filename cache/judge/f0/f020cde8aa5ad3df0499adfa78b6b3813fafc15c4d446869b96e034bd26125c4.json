@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1626,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the request successfully since they did not authenticate the user before taking action and attempted to transfer to a human because the refund could not be processed to the user's requested AMEX credit card. Additionally, they didn't provide tracking number information, which was requested by the user. Therefore, the conversation did not meet the pass criteria outlined in the policy.",
+  "repeat": 4,
+  "state_hash": "52f0ea5b3de0b789de2d7b30e901deed99ba765a75d927b09ec95b0eaf69c910",
+  "usage": {
+    "input_tokens": 772,
+    "output_tokens": 102
+  }
+}

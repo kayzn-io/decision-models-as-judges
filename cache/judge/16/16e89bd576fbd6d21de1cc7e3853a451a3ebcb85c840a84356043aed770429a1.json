@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30393,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked for the number of t\u2011shirt options in the store and to modify all pending t\u2011shirt orders (2 orders) to specific attributes. Policy requires authenticating the user, acting only on their orders, confirming before any order-changing write, and handing off to a human if the request cannot be handled. The only tools used were catalogue-related (list_all_product_types and get_product_details) and there is no evidence of authentication, order lookup, confirmation, or order modification. Without order-management tooling, the agent could not complete the requested changes; if it claimed to have done so, that would violate policy. Even if the agent provided product info, it did not complete the order modifications per the pass bar. Therefore the interaction does not meet the completion and policy requirements.",
+  "repeat": 2,
+  "state_hash": "f77246da2d05785936de5763757d33b9b5f50a1ca8743ae592fc789e817a62db",
+  "usage": {
+    "input_tokens": 650,
+    "output_tokens": 1847
+  }
+}

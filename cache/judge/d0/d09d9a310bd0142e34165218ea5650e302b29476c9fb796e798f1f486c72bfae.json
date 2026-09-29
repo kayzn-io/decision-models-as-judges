@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 27495,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was correctly verified via the provided email, and the address update was handled properly with explicit confirmation and a successful tool write. However, the jacket exchange contained critical issues: after confirmation, the agent used a new_item_id (8733974883) that does not appear in the product details, and stated the item was updated to red, half-zip, size L even though the product data only shows a red/half-zip variant in size S. The agent also asserted a price difference refund without tool-supported evidence. These constitute unsupported/fabricated details and an improper order modification per policy (must not invent missing facts; actions must be supported by tools). Therefore, overall the interaction fails the pass bar despite the correct address update.",
+  "repeat": 3,
+  "state_hash": "5153d4622f9243d25cb6fa5be3eebbcff0b76d4bbf0da53d97ed2d61f2bb8726",
+  "usage": {
+    "input_tokens": 3556,
+    "output_tokens": 1805
+  }
+}

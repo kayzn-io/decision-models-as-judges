@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24723,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name plus zip and matched to a single user via tools. It inspected the user's orders with read-only calls, identified the pending ones, and requested explicit confirmation including a cancellation reason before performing any changes. After the user confirmed, it executed the cancellations through the proper tool for both pending orders and then reported accurate order numbers and refund amounts. No writes were performed without confirmation, and actions were limited to the authenticated user's account. While some tool outputs shown are truncated, the agent's conclusions are consistent, and the key cancellations are fully supported by the tool results. Overall, the interaction adheres to the policy.",
+  "repeat": 2,
+  "state_hash": "68441fe31f29178d2a6fcd6b7c1b70614c9286848d366cbdc7bce7bb5406d390",
+  "usage": {
+    "input_tokens": 2866,
+    "output_tokens": 1894
+  }
+}

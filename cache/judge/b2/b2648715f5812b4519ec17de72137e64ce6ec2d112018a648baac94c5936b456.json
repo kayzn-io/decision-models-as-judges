@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.32,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.73,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.73,
+        "pass": 0.27
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 31111,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified the user by matching full name and zip to a single account and performed the requested address update accurately. When the user asked to revert, the agent appropriately requested the full original address and declined to proceed without sufficient details, which aligns with policy. However, before changing the stored user address, the agent did not state the exact change and obtain explicit confirmation to proceed, as required by policy. This missing confirmation prior to a write is a fail condition. Final information provided (that the address remains as 101 Highway, New York, NY 10001, USA) was correct, but the lack of explicit pre-change confirmation means the interaction does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "a2b1f5d3960daf52b832f40995af9caf168b4194817ae08880ab41dcd40f858c",
+  "usage": {
+    "input_tokens": 1576,
+    "output_tokens": 1859
+  }
+}

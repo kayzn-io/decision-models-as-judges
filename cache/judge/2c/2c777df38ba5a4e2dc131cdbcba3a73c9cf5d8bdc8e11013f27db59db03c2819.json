@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1465,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did authenticate the user before acting; however, they failed to confirm the changes with the user before processing the return requests. Additionally, the user's request to refund each order to the opposite payment method was not honored, and when the user expressed frustration, there was no hand-off to a human agent as required by policy. As a result, the conversation does not meet the necessary conditions for a pass verdict.",
+  "repeat": 2,
+  "state_hash": "a215e3574856ff595e5f53f94166539397a4874ee64d2c90a8f71d6049fdb4b9",
+  "usage": {
+    "input_tokens": 878,
+    "output_tokens": 112
+  }
+}

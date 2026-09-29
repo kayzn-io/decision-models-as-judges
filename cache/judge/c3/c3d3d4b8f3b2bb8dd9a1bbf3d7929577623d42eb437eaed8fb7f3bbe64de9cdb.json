@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.63,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.63,
+        "pass": 0.37
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12837,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "No evidence of required steps. The conversation excerpt shows only a generic closing message and no authentication, no verification of the user\u2019s order, no confirmation prior to any order-changing action, and no actual processing of a return or exchange. There are also no tool calls executed (e.g., find_user_id_by_name_zip, get_user_details, get_order_details, or exchange_delivered_order_items). Therefore, the agent did not complete the user\u2019s request in line with policy.",
+  "repeat": 4,
+  "state_hash": "2bd8d1f92b8e83e1adb82c659e21033935be527074c693e0816b6ba16c8e7290",
+  "usage": {
+    "input_tokens": 726,
+    "output_tokens": 981
+  }
+}

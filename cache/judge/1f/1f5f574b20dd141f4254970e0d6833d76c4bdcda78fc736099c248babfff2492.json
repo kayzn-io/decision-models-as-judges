@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.97,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.97,
+        "pass": 0.030000000000000027
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23191,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation shows no authentication, no tool calls to retrieve or verify the user/account/orders, no confirmation prompts, and no order or address updates performed. The agent provided only a generic closing message without acting on the user\u2019s requests to check/correct the address, review the jigsaw order\u2019s shipping status, or change the item. This fails the policy requirements and does not complete the user\u2019s request.",
+  "repeat": 0,
+  "state_hash": "d8f61f9d74e24672c952f283bdf4c82ef748febfbe526daf7ef425b815ed26d8",
+  "usage": {
+    "input_tokens": 874,
+    "output_tokens": 1355
+  }
+}

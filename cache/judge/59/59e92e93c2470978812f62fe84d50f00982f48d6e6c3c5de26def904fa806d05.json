@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25266,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name plus zip code, matched to a single user. It then retrieved the user\u2019s orders, confirmed the correct order, and checked details. Before making any change, the agent stated the exact new address (filling missing parts from the existing address) and obtained explicit confirmation from the user. The address update was performed via the appropriate tool on the authenticated user\u2019s order, and the final confirmation reflected the updated address accurately. No unsupported claims, no action on the wrong account, and no writes without confirmation.",
+  "repeat": 1,
+  "state_hash": "42a150e08c9e1c6dd778d962d2c826bea0cfc7b077b34c9654a2f485a0131298",
+  "usage": {
+    "input_tokens": 2058,
+    "output_tokens": 1651
+  }
+}

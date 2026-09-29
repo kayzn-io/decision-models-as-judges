@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.68,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.66,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.33999999999999997,
+        "pass": 0.66
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 27327,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed policy: it authenticated the user via name and ZIP lookup, retrieved the user profile, and checked multiple order IDs under the account. Finding no record of a delivered laptop and seeing an order still marked as pending, the agent avoided making unsupported changes, performed no writes without confirmation, and appropriately handed off to a human due to the data discrepancy. While the return/cancellation was not executed, escalation is the correct resolution path when the system records conflict with the customer\u2019s claim, satisfying the policy\u2019s requirement to hand off when the request cannot be handled. Therefore this interaction meets the pass bar. Confidence is moderate because the detailed tool results are not shown, but the transfer summary indicates the decision was based on tool findings.",
+  "repeat": 2,
+  "state_hash": "57bfd0b60af7bb4be4d9e8c5c1d8717ed5e6afbad0267edc5bcc68dc953ed2de",
+  "usage": {
+    "input_tokens": 773,
+    "output_tokens": 2230
+  }
+}

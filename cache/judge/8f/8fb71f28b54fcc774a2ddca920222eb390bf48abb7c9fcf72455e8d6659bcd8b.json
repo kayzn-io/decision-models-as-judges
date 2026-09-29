@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.050000000000000044,
+        "pass": 0.95
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2522,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user by the provided email. The user requested multiple actions, including returns for specific items, address changes for a pending order, and modifications to an item. The agent managed each request sequentially, confirming each change with the user before making any modifications. The final tracking number request was adequately addressed, given that cancelled orders do not have tracking numbers. All actions align with the retail support policy, leading to a high confidence in a pass verdict.",
+  "repeat": 4,
+  "state_hash": "520d0bc2c773ba96cc9e9b1dcdf210117d8482c7c16828f702a94546f7fd1329",
+  "usage": {
+    "input_tokens": 5127,
+    "output_tokens": 121
+  }
+}

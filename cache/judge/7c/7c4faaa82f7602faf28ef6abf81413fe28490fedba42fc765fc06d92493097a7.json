@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.050000000000000044,
+        "pass": 0.95
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1448,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user using the name and zip code provided. They correctly identified the relevant order, confirmed the return with the user before proceeding, and completed the request in line with policy. All statements made were consistent with the tools results, and the agent provided accurate final information to the user regarding the return process. The only minor reason not to be perfectly confident (0.95) is due to not observing the email sent confirmation from the system that may occur outside of the conversation.",
+  "repeat": 2,
+  "state_hash": "99d0a6853bf97dfd83295f4f35674b0706c057ce90136154d520de3d4b4c8bac",
+  "usage": {
+    "input_tokens": 2510,
+    "output_tokens": 126
+  }
+}

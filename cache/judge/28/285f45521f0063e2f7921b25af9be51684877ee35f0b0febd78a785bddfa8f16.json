@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20899,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked to exchange a fleece jacket for a specific variant. The agent did not authenticate the user, did not verify or access any orders, did not confirm any order-changing action, and did not process or even initiate the exchange. Instead, it provided a generic closing message implying prior help, without using tools or gathering needed details (order number, item, return eligibility). Therefore the request was not completed per policy.",
+  "repeat": 2,
+  "state_hash": "3f389396e69e824ffa47a36ee586c3d53c06a7a66772f267657567bbde59f81e",
+  "usage": {
+    "input_tokens": 776,
+    "output_tokens": 1117
+  }
+}

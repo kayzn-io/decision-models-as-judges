@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "2bd8d1f92b8e83e1adb82c659e21033935be527074c693e0816b6ba16c8e7290",
+  "step_index": null,
+  "task_id": "retail-18",
+  "text": "You are Mei Davis in 80217. You want to return the office chair because it came with some broken pieces. But if the agent asks you for confirm, you say you want to rethink for a while, and then change your mind to exchange for the same item. You are in debt and sad today, but very brief.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Mei, last_name=Davis, zip=80217)\n- get_user_details(user_id=mei_davis_8935)\n- get_order_details(order_id=#W2890441)\n- exchange_delivered_order_items(item_ids=[\"8069050545\"], new_item_ids=[\"8069050545\"], order_id=#W2890441, payment_method_id=credit_card_1061405)\nYou're welcome! If you need any more assistance in the future, just reach out. Have a great day!",
+  "token_estimate": 214,
+  "truncated": false,
+  "variant": "degraded"
+}

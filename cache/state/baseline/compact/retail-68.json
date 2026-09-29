@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "ebbe421a5770a36fe9e30eee41513ea9e5b12a53bd5d69014d93d6ad9c0b8dc3",
+  "step_index": null,
+  "task_id": "retail-68",
+  "text": "You are user noah_ito_3850 living in Seattle WA 98187. If asked for your zip code, say that it is 98178 first (common mistake), then correct yourself and say 98187 if an error is found. You want to check how much you paid for the order that you most recently placed. You are not sure how long ago the order was placed.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Noah, last_name=Ito, zip=98178)\n- find_user_id_by_name_zip(first_name=Noah, last_name=Ito, zip=98187)\n- get_user_details(user_id=noah_ito_3850)\n- get_order_details(order_id=#W6729841)\nThank you! Take care! \ud83d\ude0a",
+  "token_estimate": 184,
+  "truncated": false,
+  "variant": "baseline"
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2345,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed the policy correctly by first authenticating the user, albeit with a small error in providing the initial zip code (98178), before correcting to the actual zip code (98187). Upon finding the correct user ID, the agent checked the order details without making any changes and provided the correct information to the user. There were no refusals, unsupported statements, or unconfirmed writes. Thus, the agent's actions met the outcome quality standards.",
+  "repeat": 1,
+  "state_hash": "ebbe421a5770a36fe9e30eee41513ea9e5b12a53bd5d69014d93d6ad9c0b8dc3",
+  "usage": {
+    "input_tokens": 711,
+    "output_tokens": 121
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2433,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed to complete the user's request in line with policy. Although the user was authenticated, the agent failed to provide options below the user's budget of $200. The only keyboard mentioned was priced over $200, and the user ultimately chose not to proceed with any exchange or return based on the options provided, indicating that the agent did not fulfill the user's request as required.",
+  "repeat": 1,
+  "state_hash": "4635937b139ec328f77e995a4ddc684aa686f6fe3c5ab2c7e10f6049bf9bef2a",
+  "usage": {
+    "input_tokens": 2498,
+    "output_tokens": 105
+  }
+}

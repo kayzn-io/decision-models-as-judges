@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17208,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow multiple key policy requirements. It performed order-changing writes without first authenticating the user, did not obtain explicit confirmation before modifying any orders, and failed to update the user default address as requested. Additionally, the address used for updates is not supported by any visible tool result in the transcript. While the agent limited actions to the user's orders, the lack of authentication, missing confirmation, and incomplete fulfillment of the request mean the outcome fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "b0235e54c6e68a6f61c986f85eade6fa333855ccf524e373cbbc286a74950977",
+  "usage": {
+    "input_tokens": 882,
+    "output_tokens": 1436
+  }
+}

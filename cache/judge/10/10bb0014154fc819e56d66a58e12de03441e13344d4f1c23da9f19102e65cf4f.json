@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.92,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.92,
+        "pass": 0.07999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15049,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not look up or reference any orders, did not confirm any changes, and did not perform the requested modifications (address change, watch material/color change, purifier exchange). The final message indicates no action taken and a deferral to the user to provide details later, which fails the requirement to complete the request in line with policy.",
+  "repeat": 4,
+  "state_hash": "46f1ee62d0eec5c3354f8418b0af0935f5cb6eb94f1366732861b9b6634c4e88",
+  "usage": {
+    "input_tokens": 740,
+    "output_tokens": 1195
+  }
+}

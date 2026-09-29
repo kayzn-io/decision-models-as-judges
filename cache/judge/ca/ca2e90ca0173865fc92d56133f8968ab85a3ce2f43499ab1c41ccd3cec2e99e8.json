@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.25,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.23,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.23,
+        "pass": 0.77
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 10554,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The prompt does not include the actual conversation or the agent\u2019s tool calls/results beyond a truncated tool list, so I cannot verify whether the agent authenticated the user, confirmed changes before writes, acted on the correct order, or accurately stated refund amounts and payment method. Without evidence of these required steps, I cannot judge the interaction as meeting the pass bar. Therefore I mark it as fail with low confidence due to missing conversation details.",
+  "repeat": 4,
+  "state_hash": "33a32ff2f3ffb3726d2504808946fb5c60e8c1d718226e51571a8781f40fce5d",
+  "usage": {
+    "input_tokens": 974,
+    "output_tokens": 598
+  }
+}

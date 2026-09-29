@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.65,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.83,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.17000000000000004,
+        "pass": 0.83
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 45769,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name plus zip and matched to a single user before acting. It requested full address details, stated the exact change, obtained explicit confirmation, and successfully updated the default address via the correct tool for the authenticated user. No unsupported claims were made, and the confirmation/acknowledgment after the write was accurate. When the user asked to revert to the original Denver address but refused to provide the street address, the agent correctly declined to proceed without sufficient information and offered a handoff; upon the user\u2019s request, it transferred to a human agent. There were no unauthorized actions, no order changes made without confirmation, and no fabrication. The revert was not completed due to the user\u2019s refusal to provide necessary details, but the agent handled this per policy with an appropriate handoff.",
+  "repeat": 0,
+  "state_hash": "06740432a34e661ba42b120462946ea8baa88954dd2f1fa5df6950b6e6b08e1a",
+  "usage": {
+    "input_tokens": 1788,
+    "output_tokens": 2532
+  }
+}

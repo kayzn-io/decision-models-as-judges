@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1484,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not confirm with the user before proceeding with changes to the order as required by the policy. Although the agent authenticated and attempted to process the exchange, the lack of confirmation prior to writing changes constitutes a failure against the policy. Therefore, the outcome does not meet the required criteria for a 'pass' verdict.",
+  "repeat": 0,
+  "state_hash": "ee1fcf062690460b0b6120e1291466c17acffc4fde278663520f8cfce7cca32c",
+  "usage": {
+    "input_tokens": 898,
+    "output_tokens": 94
+  }
+}

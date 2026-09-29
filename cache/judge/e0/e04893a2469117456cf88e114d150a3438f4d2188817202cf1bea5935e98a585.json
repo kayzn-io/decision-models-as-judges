@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2999,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user and retrieved order details, which fulfilled part of the user's requests. However, the action of modifying the pending order's address could not be completed as it violated the policy that requires confirmation before such changes. The system's limitation required transferring to a human agent for assistance, indicating that the user's request was not fully completed as required. Therefore, despite having a partial completion of the tasks, the overall outcome did not meet the pass criteria based on policy adherence.",
+  "repeat": 2,
+  "state_hash": "691d3de8fab78df369c38bccdddf119b6b83d821a37d41328addbbdc5f04571a",
+  "usage": {
+    "input_tokens": 1018,
+    "output_tokens": 126
+  }
+}

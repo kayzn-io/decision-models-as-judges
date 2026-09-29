@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23284,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow key policy steps. Based on the tool calls, it: (1) did not authenticate the user beyond looking up by email; (2) executed returns (order-changing writes) without explicit prior confirmation; (3) refunded to the original payment methods rather than the opposite methods requested; and (4) only escalated to a human after acting contrary to the user\u2019s request. Even if refunding to a different method isn\u2019t possible, the agent should have explained limits and obtained consent before proceeding. Therefore, the request was not completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "0bcd3fcfc027a2c866732cb590012d7ae3a04fa8257c4dd30db649cec82e6f7f",
+  "usage": {
+    "input_tokens": 846,
+    "output_tokens": 1714
+  }
+}

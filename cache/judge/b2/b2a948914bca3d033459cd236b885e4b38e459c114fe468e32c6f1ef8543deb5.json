@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 9543,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not use the available tools to look up the user or order, and did not provide the requested arrival information. It also ignored the conditional cancellation/refund instructions and instead unilaterally stated the order would remain unchanged without investigation or confirmation. No order-changing action was proposed or confirmed, and no handoff occurred. This fails the policy and does not complete the user's request.",
+  "repeat": 4,
+  "state_hash": "c00e63c8bd081a8e61a6c88ec4f0ecb763c1c6d58ced6250eb637c776a135c48",
+  "usage": {
+    "input_tokens": 716,
+    "output_tokens": 742
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.84,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.84,
+        "pass": 0.16000000000000003
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25877,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent retrieved some order details (tool calls to get_order_details for two orders) and accessed the correct user_id, but there are critical policy violations and missing outcomes. The agent executed a write to modify the user\u2019s default address using a specific Chicago address that the user never supplied, indicating fabricated information. It also appears this write occurred without explicit user confirmation, violating the requirement to confirm every order-changing action before taking it. Additionally, the conversation transcript does not show the agent providing the requested final information (shipment address used, tracking numbers, in-transit status, and tablet storage specs). Authentication is ambiguous: while there are lookup calls (by email and by name/zip), it\u2019s unclear that a proper authentication/verification step occurred with the user. These issues collectively fail the pass bar.",
+  "repeat": 2,
+  "state_hash": "3f64823ee372209990d74c3d4a092ddea72595e5b98f1a6957574a5702a20bfa",
+  "usage": {
+    "input_tokens": 826,
+    "output_tokens": 1893
+  }
+}

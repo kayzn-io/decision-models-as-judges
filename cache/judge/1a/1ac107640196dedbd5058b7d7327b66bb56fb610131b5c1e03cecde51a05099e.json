@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14585,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow key policy requirements. Although it looked up the user, it executed a return without first confirming the order and items with the user, violating the confirm-before-write rule. It refunded to PayPal despite the user explicitly requesting an Amex refund. It also failed to provide the requested tracking number and did not clearly identify/confirm which order was sent to Texas. These errors mean the request was not completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "54c50f4e452147dd3f8f93183d4a3c450fc2922b73ffaa06ce84c5f2a8f13aaa",
+  "usage": {
+    "input_tokens": 836,
+    "output_tokens": 1427
+  }
+}

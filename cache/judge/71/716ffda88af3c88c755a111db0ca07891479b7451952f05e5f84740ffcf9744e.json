@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14636,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did some read-only lookups (email to user ID, user details, several order detail fetches) but there is no evidence of authentication beyond an email lookup, no confirmation step before making changes, and no actual exchange action performed. There is also no final confirmation or outcome provided to the user. Therefore, the request to exchange the jacket was not completed in line with policy. Confidence is high because key required steps (confirmation and write action) are missing, and the conversation ends with no completion.",
+  "repeat": 4,
+  "state_hash": "bb1d70ee2ca12e8d56b607027ca4ef032d28a41b934a7d0c47348ffa9502e6e6",
+  "usage": {
+    "input_tokens": 690,
+    "output_tokens": 922
+  }
+}

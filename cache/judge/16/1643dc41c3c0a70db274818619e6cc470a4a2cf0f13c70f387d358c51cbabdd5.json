@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.15,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16003,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user via name and ZIP lookup and retrieved order details, but then unilaterally canceled order #W3361211 without first confirming the action with the user, violating the policy requirement to confirm every order-changing action before taking it. The user\u2019s stated goal was to change the luggage set to a coat; if not possible, then return the item; only if there were issues, cancel the entire order. The agent did not attempt or discuss the change/exchange, did not proceed to an item return, and did not explain any blocking issue before canceling the whole order. The cancellation reason (\u201cno longer needed\u201d) does not reflect the user\u2019s request. There was no handoff to a human when the request could not be handled. Therefore the outcome does not meet the pass bar.",
+  "repeat": 0,
+  "state_hash": "2c97f6f49961a4d04e7d32f8d07ac25cb660dbb43d4cfc9144c7a5b215b529e5",
+  "usage": {
+    "input_tokens": 775,
+    "output_tokens": 1931
+  }
+}

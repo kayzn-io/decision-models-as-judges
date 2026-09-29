@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.79,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.79,
+        "pass": 0.20999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 13374,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent appeared to look up a user by name and ZIP and retrieved user and order details, but there is no evidence of explicit user authentication beyond name/ZIP, no confirmation from the user prior to making the order-changing write, and no verification shown that the order belongs to the authenticated user. The agent then invoked a modify_pending_order_address call including a full street address (\u201c123 Elm Street\u201d) that the user did not provide and that is not substantiated by presented tool results. There is also no clear final confirmation back to the user after the change. These issues violate the policy\u2019s requirements to authenticate before acting, confirm every order-changing action before taking it, act only on the user\u2019s own orders, and avoid unsupported or fabricated details. Therefore, the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "b766751f1f9fe194bc7c9c899ffb1fb6d8b25a1536e5090caf5b5b4a5f2ef4e0",
+  "usage": {
+    "input_tokens": 692,
+    "output_tokens": 1201
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.91,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.91,
+        "pass": 0.08999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15394,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked to exchange the bookshelf from the most recent order for a camera not exceeding the bookshelf\u2019s price. Policy requires authenticating the user, acting only on their orders, confirming any order-changing write, and handing off if unable to handle. While tools were invoked (user and order lookups), the agent did not proceed to execute or even attempt the exchange, did not present eligible camera options, did not seek confirmation for any change, and simply deferred action until delivery with a generic reminder. This fails to complete the user\u2019s request per the pass bar. No unsupported claims were made, but the core request was not fulfilled.",
+  "repeat": 4,
+  "state_hash": "73a0f0e6d667996a618ea6ba129e16b7f0ee8d227ce5480d40f5bfa51ff978c0",
+  "usage": {
+    "input_tokens": 700,
+    "output_tokens": 934
+  }
+}

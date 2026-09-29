@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "e142d54564dff9b81d50c3e61c60d2bdf92482de5025253f3a242740d8e35583",
+  "step_index": null,
+  "task_id": "retail-43",
+  "text": "You are Lucas (lucas_santos_6600), you live in Denver CO 80239, and your daughter lives in Chicago. You order some things for her but she has not received, so you want to know which address the order was sent to, the tracking number, and if the order is still in transit. You also want to check if the storage of the tablet you ordered. Lastly, you want to change your default address to your daughter's address so that you don't have to change it every time you order something for her. You are a lonely man and you want to talk to the agent for a while.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Lucas, last_name=Santos, zip=80239)\n- get_user_details(user_id=lucas_santos_6600)\n- get_order_details(order_id=#W1588712)\n- get_order_details(order_id=#W7895761)\n- modify_user_address(address1=943 Maple Drive, address2=Suite 356, city=Chicago, country=USA, state=IL, user_id=lucas_santos_6600, zip=60621)\nYou\u2019re welcome, Lucas! Talk to you later\u2014have a wonderful day!",
+  "token_estimate": 283,
+  "truncated": false,
+  "variant": "baseline"
+}

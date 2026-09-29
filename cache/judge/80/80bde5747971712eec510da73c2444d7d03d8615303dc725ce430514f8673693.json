@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22057,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user using full name and zip, adhered to policy by requiring identification of the specific order, and avoided making any changes without confirmation or sufficient details. However, the agent did not complete any of the user\u2019s requested actions (address update, watch material change, air purifier exchange) because the user declined to provide order identifiers or view recent orders. The pass bar requires that the agent complete the user\u2019s request in line with policy; since no requested action was completed, the conversation does not meet the pass criterion, even though the agent\u2019s refusals were policy-compliant.",
+  "repeat": 1,
+  "state_hash": "a56c5e225b5f261158936801398d8129369e69b6858db83024cc6bdd3f6fd28c",
+  "usage": {
+    "input_tokens": 2163,
+    "output_tokens": 1490
+  }
+}

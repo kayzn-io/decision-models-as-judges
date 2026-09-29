@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1427,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user and correctly identified the order, but the user wanted to change an item in the order, which should have been attempted according to policy. Instead, the agent opted to cancel the order without confirming that it could not be modified. This constitutes a failure to fulfill the user's request correctly as per the policy guidelines.",
+  "repeat": 4,
+  "state_hash": "9b62a330e73a10850a8d657d97185dff7079ff3ec3a204b25687e6632df3d0e1",
+  "usage": {
+    "input_tokens": 999,
+    "output_tokens": 96
+  }
+}

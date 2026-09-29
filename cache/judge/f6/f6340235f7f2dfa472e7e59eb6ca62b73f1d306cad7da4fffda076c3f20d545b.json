@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12553,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not fulfill the user's full request or follow policy: it failed to provide the gift card balance, did not state which card was used for the recent order, and did not determine or explain whether the gift card could be applied. Critically, the agent performed an order-changing write (switched the payment method to Visa) without first confirming with the user, violating the requirement to confirm every order-changing action. It also asserted a refund timeline (5\u20137 business days) without tool-backed evidence. While the agent looked up the user by email, there is no explicit confirmation step beyond that, and key requested information was not delivered. Hence, the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "fa5b8eff2fec8f1c40258d22d3204c9187c01c3c5b66d311b272593df8d34a36",
+  "usage": {
+    "input_tokens": 794,
+    "output_tokens": 1185
+  }
+}

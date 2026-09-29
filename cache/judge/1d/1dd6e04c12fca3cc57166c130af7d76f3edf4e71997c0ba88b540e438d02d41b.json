@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.98,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.98,
+        "pass": 0.020000000000000018
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16077,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent located a user ID and changed the user profile address, but did not confirm any order-address changes and did not perform the requested updates to all order addresses. After the user regretted the change, the agent failed to revert the user address to the original Denver address and instead stated it would remain at the New York address, giving incorrect final information. There is no evidence of confirmation before any order-related writes (none were done), and the core requests were not completed as specified. Therefore, the conversation does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "b1530f3f8bab0b80bd7ef2c88b14e7762459dcdabea8d0cc63443e5889c04266",
+  "usage": {
+    "input_tokens": 728,
+    "output_tokens": 1545
+  }
+}

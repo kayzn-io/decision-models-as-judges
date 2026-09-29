@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14590,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent only reported modifying the pending grill order and did not address or complete the requested exchanges for the helmet and luggage. It also performed a write (updating the grill order) without first confirming with the user, violating the confirmation requirement. There is no clear authentication step shown before acting. Given missing actions and lack of required confirmation, the conversation does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "9a5d9fea8d47889548c4aafbac530e72e54b04815842e9fd5635c682679378a6",
+  "usage": {
+    "input_tokens": 917,
+    "output_tokens": 1319
+  }
+}

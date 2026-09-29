@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.15,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 42261,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was correctly verified via name+zip. However, the agent executed a bicycle exchange without first stating the exact change and obtaining explicit confirmation, which violates policy. Moreover, the order #W3916020 appears not delivered (tool error on the jigsaw exchange: \u201cnon-delivered order cannot be exchanged\u201d), so the bicycle exchange was likely ineligible; the agent nonetheless claimed it succeeded, which is unsupported. The agent also gave an incorrect reason for not exchanging the jigsaw (\u201conly one exchange per delivered order\u201d), which is not reflected in the tool response or the provided policy. For the camera, the user did consent to proceed, but the agent did not specify the exact replacement variant before the write and used a payment method without confirming. The skateboard cancellation was left to the user as requested. Due to the unconfirmed and likely invalid bicycle exchange, fabricated policy rationale, and unsupported success claim, the conversation fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "355e64f058bced9ce0aac7b10392ea6a8139ad94e12f8908118f0fca27162b66",
+  "usage": {
+    "input_tokens": 4116,
+    "output_tokens": 3432
+  }
+}

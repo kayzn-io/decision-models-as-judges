@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21816,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow key policy requirements. It modified two pending t\u2011shirt orders and charged a card without first confirming the changes with the user, violating the requirement to confirm every order\u2011changing action before taking it. It also failed to answer the user\u2019s first request about how many t\u2011shirt options are available. Authentication appears weak (only a name/ZIP lookup shown) and there\u2019s no explicit verification step. Additionally, specific charges and card last four digits were stated without visible tool output supporting them. Therefore, the interaction does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "89c86cefc631d9183854b153295f5101128eef577a4f7d1a6be001f5d9212887",
+  "usage": {
+    "input_tokens": 945,
+    "output_tokens": 1713
+  }
+}

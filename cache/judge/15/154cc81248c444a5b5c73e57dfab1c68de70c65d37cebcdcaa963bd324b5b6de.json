@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.94,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25540,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and zip to a unique account. It checked the guessed order, correctly noted it did not contain a camera and was pending, then located the delivered order with the digital camera tied to the authenticated user. The agent clearly stated the intended action (return the digital camera from order #W4689314 with refund to the original payment method\u2014Mastercard ending 8484) and obtained explicit confirmation before performing the write. The return was executed on the correct item and the status updated to return requested. Final information about the refund to the original payment method and return instructions was consistent with the tool outcome and standard process. No actions were taken on another user\u2019s account, no writes occurred without confirmation, and no unsupported claims about order contents or status were made.",
+  "repeat": 4,
+  "state_hash": "3ff0b3da5810608539fdba3e0d748475ea754755a57c046daa609c1d84a78cd9",
+  "usage": {
+    "input_tokens": 2314,
+    "output_tokens": 1641
+  }
+}

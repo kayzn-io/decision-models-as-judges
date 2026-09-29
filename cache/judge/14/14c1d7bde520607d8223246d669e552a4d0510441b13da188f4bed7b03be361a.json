@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2635,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not confirm the cancellation of each order with the user before proceeding with the action. Although the authentication and retrieval of order details were according to policy, the failure to confirm with the user before the cancellations and the lack of total refund amount details results in the conversation not completing the user's request as required by the policy.",
+  "repeat": 4,
+  "state_hash": "39338af574da8910d78e1e4af3a1816dfe993e6720af2043d2dd119efae6af18",
+  "usage": {
+    "input_tokens": 733,
+    "output_tokens": 95
+  }
+}

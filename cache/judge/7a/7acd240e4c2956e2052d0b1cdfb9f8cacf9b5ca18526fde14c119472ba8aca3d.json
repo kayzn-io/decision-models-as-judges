@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 11547,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not confirm the order-changing action before executing it, and offered no tool evidence supporting the change. It also failed to provide the requested refund amount or show that the replacement was the cheapest available desk lamp. Stating \u201cYour order update is complete\u201d without confirmation or details conflicts with policy. Therefore, the request was not completed in line with the policy.",
+  "repeat": 1,
+  "state_hash": "741a62aae5fc345a849ba921503582260a045ef270fdd2496ded4ee8bd0e1b23",
+  "usage": {
+    "input_tokens": 759,
+    "output_tokens": 880
+  }
+}

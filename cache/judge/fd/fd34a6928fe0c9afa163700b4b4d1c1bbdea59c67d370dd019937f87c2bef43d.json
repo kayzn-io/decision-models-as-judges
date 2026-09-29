@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 34383,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user before discussing order details, violating policy. It failed to follow the user\u2019s request sequence: it did not provide the price or battery life of the purchased Bluetooth speaker, did not handle conditional cancellation of that speaker if priced over $300, did not check for sub-$100 alternatives or add the cheapest one, and did not request confirmation before any order-changing action. The only provided response was a total price for a pending order, which neither fulfills the user\u2019s intended modifications nor demonstrates proper confirmation steps. Therefore, the request was not completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "1790b710d05f4200b82d4ced061874b5ba4c5a87c5ccd68fe8bdb37e49ccec33",
+  "usage": {
+    "input_tokens": 887,
+    "output_tokens": 1294
+  }
+}

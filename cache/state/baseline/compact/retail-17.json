@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "91e647495a29713f3f4657458372bdf6143696b63cf3818595f307d203876b1c",
+  "step_index": null,
+  "task_id": "retail-17",
+  "text": "You are Fatima Johnson in 78712. You want to change #W8665881 to be delivered to Suite 641 instead. You are a private person that does not want to reveal much about yourself.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Fatima, last_name=Johnson, zip=78712)\n- get_user_details(user_id=fatima_johnson_7581)\n- get_order_details(order_id=#W8665881)\n- modify_pending_order_address(address1=123 Elm Street, address2=Suite 641, city=Austin, country=USA, order_id=#W8665881, state=TX, zip=78712)\nThe delivery address for your pending order #W8665881 has been successfully updated to:\n\n123 Elm Street  \nSuite 641  \nAustin, TX 78712  \nUSA\n\nIf you need any further assistance with this order or anything else, please let me know!",
+  "token_estimate": 221,
+  "truncated": false,
+  "variant": "baseline"
+}

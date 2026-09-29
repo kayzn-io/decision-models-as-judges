@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20472,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow key policy requirements. It performed order-changing writes without first confirming with the user. There is no evidence of authenticating the user before acting. It claimed all pending orders were updated but only issued modify calls for three orders, leaving ambiguity about the others. It also failed to update the user\u2019s default address, which was explicitly requested. Finally, it revealed the full address in the chat despite the user\u2019s stated preference not to disclose it. These issues mean the request was not completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "b0235e54c6e68a6f61c986f85eade6fa333855ccf524e373cbbc286a74950977",
+  "usage": {
+    "input_tokens": 882,
+    "output_tokens": 1573
+  }
+}

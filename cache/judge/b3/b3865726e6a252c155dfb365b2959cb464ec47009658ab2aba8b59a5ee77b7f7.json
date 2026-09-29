@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.72,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.64,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.36,
+        "pass": 0.64
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23290,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user demanded reinstatement of a cancelled order. The agent correctly declined because reinstating a cancelled order is not permitted per policy constraints, did not access or share any account data without authentication, and made no order-changing writes. The agent offered the appropriate alternative (place a new order) and, when the user insisted, transferred to a human agent upon request. There were no unsupported claims about a specific order, no acting on the wrong account, and no writes without confirmation. While the agent could have offered more proactive help (e.g., assistance placing a new order or expedited shipping) and might have verified identity if proceeding to look up details, these omissions do not violate policy given no account actions were taken. Overall, the handling aligns with the policy, so this conversation passes.",
+  "repeat": 3,
+  "state_hash": "61971854ddaa3a449467ad7c7735ec8e2faf8d170a58176cf791ddaa549480e5",
+  "usage": {
+    "input_tokens": 1405,
+    "output_tokens": 1881
+  }
+}

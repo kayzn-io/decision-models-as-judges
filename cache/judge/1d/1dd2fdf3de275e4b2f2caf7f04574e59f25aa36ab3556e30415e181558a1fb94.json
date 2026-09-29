@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19013,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent stated the order was already updated without first authenticating the user via tools, did not confirm the requested change before performing an order-altering action, and provided specific refund and payment details without visible tool-backed evidence. There is no confirmation it acted only on the user\u2019s own order, and no confirmation step occurred prior to a write, both of which violate the stated policy. Therefore it fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "88696453ec205635e27cd2f0eca1a3258baeab2aa8c1534c8b0bcaa0bc2dfd84",
+  "usage": {
+    "input_tokens": 809,
+    "output_tokens": 1547
+  }
+}

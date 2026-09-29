@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 3254,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent completed the user's request successfully according to policy. They authenticated the user by looking up details associated with the provided email, acted on the correct orders, confirmed changes prior to proceeding with the writes, and provided accurate final information regarding the updates. While the user did not reveal the full address, the agent followed policy by looking it up based on the order details, which is acceptable. The only slight uncertainty comes from not having direct confirmation from the user about the final changes made; hence the confidence is 0.9 and not 1.",
+  "repeat": 4,
+  "state_hash": "0b642ac1203399340f69f0f20370631af3b8175b44f6b163d52405e68c89305a",
+  "usage": {
+    "input_tokens": 979,
+    "output_tokens": 137
+  }
+}

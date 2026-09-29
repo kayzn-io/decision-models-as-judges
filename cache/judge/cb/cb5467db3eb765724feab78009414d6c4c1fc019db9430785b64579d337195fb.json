@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.73,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.27,
+        "pass": 0.73
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 68443,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user by matching full name and ZIP via the tool before accessing account data. They retrieved order details, identified the relevant order, and sought explicit confirmation before attempting any order modification. When the modify API indicated exchanges only (no partial removals), the agent correctly explained the limitation and offered permissible alternatives (cancel entire order or exchange variants). The user chose to keep the order and update the default address; the agent requested explicit confirmation, executed the address update via the tool, and confirmed success. No writes were done without confirmation, no actions were taken on another user, and the final outcome matched the user\u2019s conditional request. Minor uncertainties (e.g., stating other orders were cancelled and giving refund timelines) are plausibly supported by the tools/policy and did not affect the final, correct outcome.",
+  "repeat": 4,
+  "state_hash": "d845f930a4902f3fa41baf78f60d701ce49fb5d238f5c690a3695312a10a727c",
+  "usage": {
+    "input_tokens": 3487,
+    "output_tokens": 4403
+  }
+}

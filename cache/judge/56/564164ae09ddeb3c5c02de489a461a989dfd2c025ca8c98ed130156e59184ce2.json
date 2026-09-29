@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20269,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked to exchange a bookshelf from the most recent order for a camera priced closest to but not more than the bookshelf. Although tool calls are listed (finding the user ID, getting user details, and fetching order details), the agent did not proceed to handle the exchange request: it neither identified suitable camera options nor requested confirmation for any order-changing action. Instead, it deferred action until after delivery and did not offer a handoff to a human or an alternative path. Therefore, the request was not completed per policy requirements, and no final, correct outcome was provided.",
+  "repeat": 1,
+  "state_hash": "73a0f0e6d667996a618ea6ba129e16b7f0ee8d227ce5480d40f5bfa51ff978c0",
+  "usage": {
+    "input_tokens": 700,
+    "output_tokens": 1420
+  }
+}

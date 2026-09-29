@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.98,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.98,
+        "pass": 0.020000000000000018
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16036,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed multiple policy requirements: it did not authenticate the user, provided no evidence of checking the user\u2019s own order, and executed an order change without prior confirmation. It also changed the size to 9 instead of the requested 8, selected a material (leather) without explicit user confirmation, and asserted a refund to PayPal without tool-supported evidence. Therefore, the request was not completed correctly or in line with policy.",
+  "repeat": 2,
+  "state_hash": "6516917bd13309208d4815050fe31cf72e79bb1807f27c89baf0343f64a9ffcf",
+  "usage": {
+    "input_tokens": 750,
+    "output_tokens": 1154
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "2e8a44c7b44147e4f23cde94f69edaad5c3f26a1f6c6d9d3872cb47a0e63fbd9",
+  "step_index": null,
+  "task_id": "retail-70",
+  "text": "You name is Sofia Hernandez and your zip code is 98193. You are impatient, confident, direct, messy. You recently received a helmet but you are not happy with it and want to exchange. The size is too small and you want medium, plus you want high ventilation. If multiple colors are available, you prefer blue. You do not want the  You prefer original payment to pay for the price difference, and you want to know how much you need to pay today.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Sofia, last_name=Hernandez, zip=98193)\n- get_user_details(user_id=sofia_hernandez_5364)\n- get_order_details(order_id=#W3947049)\n- get_product_details(product_id=7765186836)\n- calculate(expression=219.88 - 197.33)\n- exchange_delivered_order_items(item_ids=[\"3358616356\"], new_item_ids=[\"9013366374\"], order_id=#W3947049, payment_method_id=credit_card_7901829)\nYour exchange request has been submitted. You will exchange your delivered Cycling Helmet (size S, red, low ventilation) for a Medium (M), blue, high ventilation helmet. The price difference of $22.55 will be charged to your Visa card ending in 7312.\n\nYou will receive an email with instructions on how to return your original helmet. Once the return is processed, your new helmet will be shipped to you.\n\nIf you have any further questions or need assistance, please let me know!",
+  "token_estimate": 373,
+  "truncated": false,
+  "variant": "baseline"
+}

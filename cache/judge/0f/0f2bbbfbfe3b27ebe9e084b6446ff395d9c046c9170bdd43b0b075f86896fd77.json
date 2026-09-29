@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.38,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.64,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.64,
+        "pass": 0.36
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 56959,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Positives: The agent authenticated the user by matching full name and zip, used read tools to view orders, sought explicit confirmation before attempting any order changes, and successfully updated the default profile address after confirmation. Negatives: The agent stated unsupported/fabricated information, including claiming specific order statuses (#W1845024 pending; #W7043598 and #W6111398 cancelled) that were not present in the tool outputs. It also quoted item prices and constructed item IDs not visible in the provided tool results. After a tool error, the agent concluded partial cancellations were not supported and did not attempt an appropriate alternative or escalate, potentially refusing a permitted action. These fabrications and potentially incorrect limitation claims breach the policy\u2019s requirement not to invent facts and to provide correct information. Therefore the conversation does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "d845f930a4902f3fa41baf78f60d701ce49fb5d238f5c690a3695312a10a727c",
+  "usage": {
+    "input_tokens": 3487,
+    "output_tokens": 4843
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 8511,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent neither authenticated the user nor used the available tools to look up the order or its shipping status. It did not provide the requested arrival information, did not attempt or confirm any item-level or order-level cancellation, and unilaterally stated the order would remain unchanged without user confirmation. This violates the policy to authenticate, act only after confirmation for order-changing actions, and provide correct, tool-supported information. Therefore, the request was not completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "c00e63c8bd081a8e61a6c88ec4f0ecb763c1c6d58ced6250eb637c776a135c48",
+  "usage": {
+    "input_tokens": 716,
+    "output_tokens": 797
+  }
+}

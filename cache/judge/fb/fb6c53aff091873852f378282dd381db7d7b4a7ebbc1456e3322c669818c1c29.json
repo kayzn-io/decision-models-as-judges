@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 10550,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not check or act on the user\u2019s orders, did not confirm any order-changing action, and did not perform or arrange the requested exchange. The only message was a generic closing (\u201cYou\u2019re very welcome\u2026\u201d) with no tool usage shown beyond the listed capabilities. Therefore, the request was not completed in line with policy.",
+  "repeat": 0,
+  "state_hash": "6a8fd46fa7861dcb5c383559a3ee72d530b9d5ddd3e341b6cd3a87e3f5b96b72",
+  "usage": {
+    "input_tokens": 660,
+    "output_tokens": 634
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 10254,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not perform any tool calls to locate the user or retrieve the latest order, and did not provide the amount paid. The only visible message is a generic closing (\u201cYou\u2019re welcome\u2026\u201d) with no evidence of fulfilling the request. No order-changing actions were attempted, but the core request\u2014checking how much was paid for the most recent order\u2014was not completed. Therefore, it fails the pass bar.",
+  "repeat": 0,
+  "state_hash": "d206dec3ab6357cb3df429d93cbab2b0b420d09fd1f5c74e75051d14ac4ed99f",
+  "usage": {
+    "input_tokens": 725,
+    "output_tokens": 667
+  }
+}

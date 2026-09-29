@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12747,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not attempt to locate the user account via the provided zip/name, did not request or confirm a new full address, and did not perform or even initiate any address update. It also did not provide the price of the cheapest available t-shirt or use the available product-detail tools, nor did it confirm any order-changing action or answer whether it could place the order. The reply was a friendly closing without fulfilling the user\u2019s requests or following policy steps. Therefore, it fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "6afd5e792f27f02c4c20e31f10721c2c4b2eb4fcc3c5a3e7b7ebc1c1d3bf1bd2",
+  "usage": {
+    "input_tokens": 813,
+    "output_tokens": 1230
+  }
+}

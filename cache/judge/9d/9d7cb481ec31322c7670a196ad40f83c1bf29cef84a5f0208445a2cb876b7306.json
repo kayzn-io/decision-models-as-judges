@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.3,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.3,
+        "pass": 0.7
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19893,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Based on the provided snippet, the agent did not authenticate the user, did not perform or confirm any order-changing actions, did not provide the GC balance, and did not hand off to a human despite being unable to proceed. The agent appears to have declined assistance without completing the request. Therefore, the request was not completed in line with the policy\u2019s pass criteria.",
+  "repeat": 1,
+  "state_hash": "955249b1e5135c69f2fb0750726ec4cd356e17dff25976c6575d7abea439545f",
+  "usage": {
+    "input_tokens": 727,
+    "output_tokens": 1374
+  }
+}

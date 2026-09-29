@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2165,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user and processed the return request. However, the exchange was not completed due to the order status changing after submitting the return for those specific items. The agent did not confirm with the user before proceeding with the return action after they had confirmed the exchange. This led to a failure to meet the requirements of the policy regarding order changes.",
+  "repeat": 3,
+  "state_hash": "33f441e9cde94d3c2acaf8aeb4afd3e69df8d466c4e2ba5640cb36a349de6298",
+  "usage": {
+    "input_tokens": 3786,
+    "output_tokens": 101
+  }
+}

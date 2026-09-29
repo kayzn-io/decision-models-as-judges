@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19999,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a unique user, and confirmed the order belonged to that user. It retrieved the order details, stated that an address update was eligible, requested the new address, and explicitly confirmed the full address before making any changes. The write action was only taken after explicit user confirmation, and the tool confirmed the address was updated successfully. All information provided aligns with the tools. Minor uncertainty: the order status wasn\u2019t explicitly shown in the tool output snippet, but the successful use of the modify_pending_order_address tool supports that it was pending. Overall, the interaction complies with policy and completes the user\u2019s request correctly.",
+  "repeat": 0,
+  "state_hash": "42a150e08c9e1c6dd778d962d2c826bea0cfc7b077b34c9654a2f485a0131298",
+  "usage": {
+    "input_tokens": 2058,
+    "output_tokens": 1536
+  }
+}

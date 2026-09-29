@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21113,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not perform or attempt the address update (nor request the necessary new address details or confirm any change), did not provide the price of the cheapest available t-shirt, and did not state whether it could place an order. No tool calls or supported information were shown. The final message was only a friendly sign-off, leaving the user\u2019s requests unfulfilled. Therefore, the outcome fails the policy-aligned completion bar.",
+  "repeat": 4,
+  "state_hash": "6afd5e792f27f02c4c20e31f10721c2c4b2eb4fcc3c5a3e7b7ebc1c1d3bf1bd2",
+  "usage": {
+    "input_tokens": 813,
+    "output_tokens": 1178
+  }
+}

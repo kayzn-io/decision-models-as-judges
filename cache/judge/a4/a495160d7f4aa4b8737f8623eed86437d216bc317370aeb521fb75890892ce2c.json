@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.82,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.82,
+        "pass": 0.18000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14332,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not access or verify the user\u2019s pending orders, did not request confirmation before any order-changing action, and did not provide the requested count of t-shirt options. The listed tools were not shown to produce results, and there is no evidence of correct execution or final information. The conversation ends with a generic closing, indicating the requests were not completed per policy.",
+  "repeat": 3,
+  "state_hash": "35e643c10e369329a1eeff09e53f6f26a67dd439fd0635314e2c4304ab233b45",
+  "usage": {
+    "input_tokens": 651,
+    "output_tokens": 1057
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 26395,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent appeared to locate the user by name and ZIP and fetched orders/products, but then executed a modify_pending_order_items write without any explicit user confirmation, violating the requirement to confirm every order-changing action. It also set the payment method to PayPal despite the user\u2019s stated preference to use a gift card unless impossible, with no evidence it attempted GC or that GC was unavailable. There\u2019s no confirmation that the shoe size was preserved or that items selected were indeed the most expensive variants, nor a final, accurate summary of changes and payment details. These issues fail the policy\u2019s pass bar.",
+  "repeat": 2,
+  "state_hash": "04364d2556e96387f4c5602685691090261db3cbc3ae34d6cefff9121b02f646",
+  "usage": {
+    "input_tokens": 870,
+    "output_tokens": 1743
+  }
+}

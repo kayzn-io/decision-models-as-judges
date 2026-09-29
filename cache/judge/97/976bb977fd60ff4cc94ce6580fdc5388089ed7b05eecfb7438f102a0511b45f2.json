@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.3,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.33,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.33,
+        "pass": 0.6699999999999999
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20032,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Evidence of required steps is missing. The record shows an exchange_delivered_order_items write for a single item but no clear prior user authentication, no explicit user confirmation before performing the order-changing action, and no confirmation of final details. The original request involved exchanging two items; only one appears to have been exchanged, which would only be correct if the agent had asked for confirmation and the user limited it\u2014something not evidenced here. Given these gaps, the interaction likely violated policy (missing auth/confirmation and incomplete fulfillment), so it fails. Confidence is low due to incomplete conversation details.",
+  "repeat": 4,
+  "state_hash": "687e5e7da2531be32809744a9aad220b32738f9895902ad2ae889cd9b95f1a58",
+  "usage": {
+    "input_tokens": 759,
+    "output_tokens": 1581
+  }
+}

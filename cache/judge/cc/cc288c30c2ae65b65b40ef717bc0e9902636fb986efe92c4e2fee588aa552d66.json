@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 56889,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent performed multiple writes without user confirmation, violating policy. It modified a pending order\u2019s shipping address (#W1092119), exchanged items in order #W1603792, and updated the default address without first confirming these order-changing actions. It also exchanged the tablet to a specific model and price without demonstrating it was the cheapest option; the tool usage (listing product types and checking a single product) does not support that claim. The final message presents completed changes and a price without clear, tool-supported verification and does not clearly mention both address changes before the exchange as requested. Authentication steps beyond looking up the user by email are not evident. These issues fail the pass bar requirements.",
+  "repeat": 0,
+  "state_hash": "1533f487befe7ab3270ba8637f166a785011b951b9f1fe66a44426f9086c48f4",
+  "usage": {
+    "input_tokens": 965,
+    "output_tokens": 3153
+  }
+}

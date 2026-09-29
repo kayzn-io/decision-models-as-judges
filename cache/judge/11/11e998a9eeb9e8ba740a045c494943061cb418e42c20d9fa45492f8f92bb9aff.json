@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.97,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.97,
+        "pass": 0.030000000000000027
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 9948,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not verify that the order belongs to the user, and performed an order-changing write without first confirming the change. It also stated specific address details (123 Elm Street, Austin, TX 78712, USA) that were not provided by the user nor supported by visible tool results. No tool calls are shown to substantiate the update. These violate the policy requirements, so the request was not completed in line with the policy.",
+  "repeat": 3,
+  "state_hash": "91e647495a29713f3f4657458372bdf6143696b63cf3818595f307d203876b1c",
+  "usage": {
+    "input_tokens": 737,
+    "output_tokens": 771
+  }
+}

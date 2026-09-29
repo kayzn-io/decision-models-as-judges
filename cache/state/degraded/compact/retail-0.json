@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "929a2776525a0f384715065292d3b3e459ac6c10d6aac740d35fbec5fcd141a3",
+  "step_index": null,
+  "task_id": "retail-0",
+  "text": "You are Yusuf Rossi in 19122. You received your order #W2378156 and wish to exchange the mechanical keyboard for a similar one but with clicky switches and the smart thermostat for one compatible with Google Home instead of Apple HomeKit. If there is no keyboard that is clicky, RGB backlight, full size, you'd go for no backlight. You are detail-oriented and want to make sure everything is addressed in one go.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Yusuf, last_name=Rossi, zip=19122)\n- get_order_details(order_id=#W2378156)\n- get_product_details(product_id=1656367028)\n- get_product_details(product_id=4896585277)\n- exchange_delivered_order_items(item_ids=[\"1151293680\", \"4983901480\"], new_item_ids=[\"7706410293\", \"7747408585\"], order_id=#W2378156, payment_method_id=credit_card_9513926)\nThank you! If you need anything else in the future, just let me know. Take care!",
+  "token_estimate": 260,
+  "truncated": false,
+  "variant": "degraded"
+}

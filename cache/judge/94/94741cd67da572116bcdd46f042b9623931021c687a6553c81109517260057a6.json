@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.15,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 27711,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent canceled the order without first seeking explicit user confirmation, violating the policy requirement to confirm every order-changing action before taking it. Authentication was not clearly performed beyond looking up the email the user provided in the chat, and there is no explicit verification step. It\u2019s also unclear whether the order was confirmed to belong to the user or whether partial cancellation was evaluated before opting to cancel the entire order. Finally, the agent provided refund amount and payment details without visible tool-backed evidence in the transcript. While the cancellation aligns with the user\u2019s general request, the lack of pre-write confirmation and unclear authentication cause this to fail the policy-compliant outcome bar.",
+  "repeat": 4,
+  "state_hash": "c20fa306b6063ae0d93a5f4511b7ce2c2d663a80f5071ae4ec8214ceb33bd847",
+  "usage": {
+    "input_tokens": 748,
+    "output_tokens": 1859
+  }
+}

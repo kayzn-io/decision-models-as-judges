@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.97,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.97,
+        "pass": 0.030000000000000027
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21111,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not retrieve order or product details, did not confirm the exchange actions, and did not execute any exchange tool calls. Instead, it ended with a generic closing message implying completion without evidence or action. This fails the pass bar: no authentication, no confirmation, no write actions performed, and no supported final information.",
+  "repeat": 2,
+  "state_hash": "ed3e30d3b75651c83df69112c232913444583dcc4774d59f6807c3e0d2bcffee",
+  "usage": {
+    "input_tokens": 810,
+    "output_tokens": 1032
+  }
+}

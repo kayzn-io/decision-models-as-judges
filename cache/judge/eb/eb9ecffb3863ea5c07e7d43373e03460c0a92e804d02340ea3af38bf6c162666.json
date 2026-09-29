@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.2,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.2,
+        "pass": 0.8
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21726,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The provided prompt includes the user\u2019s intent and a policy summary, but it does not include the actual conversation or the agent\u2019s tool calls/results. Without the transcript, I cannot verify that the agent authenticated the user, confirmed any order-changing action before writing, acted only on the user\u2019s orders, or correctly handled the impossibility of reinstating a cancelled order (e.g., by transferring to a human). Due to this lack of evidence, I cannot conclude the agent met the pass criteria; I assign a low probability of completion and a low-confidence fail verdict based on insufficient information.",
+  "repeat": 4,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 672,
+    "output_tokens": 1182
+  }
+}

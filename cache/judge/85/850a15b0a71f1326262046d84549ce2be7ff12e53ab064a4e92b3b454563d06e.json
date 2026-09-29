@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.14,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22723,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent submitted an exchange without first confirming the order-changing action with the user, violating the explicit policy requirement to confirm before any write. Authentication steps are not clearly evidenced beyond name/ZIP lookup, and the agent asserted refund details and outcomes without surfaced tool results. Even if the exchange may be correct, the lack of explicit confirmation before submitting the change fails the pass bar.",
+  "repeat": 4,
+  "state_hash": "c42638ff1c5d13bf6f5eb08e36378f2386d1be527eae4699c3bbb2b1aa602539",
+  "usage": {
+    "input_tokens": 836,
+    "output_tokens": 1632
+  }
+}

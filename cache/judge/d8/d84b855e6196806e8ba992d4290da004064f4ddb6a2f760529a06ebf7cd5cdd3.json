@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.68,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.63,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.37,
+        "pass": 0.63
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 11015,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user insisted on undoing a cancellation. Policy indicates this action is not possible and requires escalation if the user insists. The agent invoked transfer_to_human_agents with an appropriate summary, which aligns with policy. No order-changing actions were performed without confirmation, no unsupported claims were made, and there\u2019s no evidence of acting on the wrong user. Authentication was not critical since no changes were executed. Thus, the interaction complies with policy even though the user\u2019s desired action could not be completed.",
+  "repeat": 1,
+  "state_hash": "64b1ca20c0220182b9023a6f697a1de18983b172337262e05dd01ec5f0c2dc37",
+  "usage": {
+    "input_tokens": 684,
+    "output_tokens": 1074
+  }
+}

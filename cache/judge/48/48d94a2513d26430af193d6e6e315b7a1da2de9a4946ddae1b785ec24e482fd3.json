@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2456,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent transferred the user to a human agent because reinstating a canceled order was not possible in the system. While this action follows policy by handing off to a human for requests that cannot be handled, the completion of the user's request to undo the cancellation was ultimately not achieved. Therefore, the agent did not meet the criteria for passing, as the user's request was not fulfilled.",
+  "repeat": 2,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 677,
+    "output_tokens": 105
+  }
+}

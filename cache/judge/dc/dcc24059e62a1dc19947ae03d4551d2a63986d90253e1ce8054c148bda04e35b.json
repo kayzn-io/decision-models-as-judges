@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2713,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user, verified the order details, and attempted to fulfill the user's request to modify the order. When the modification could not be completed due to unavailability of the requested items, the agent correctly handled the situation by allowing the user to cancel the order. The agent provided accurate information, including the reason for the cancellation and the refund process. There were no policy violations or unsupported actions, leading to a strong outcome.",
+  "repeat": 4,
+  "state_hash": "5dc7d0da17ea2bc54731a2e3fbe3bec06604ab51fd5f75ae7a47f9592a99bfb2",
+  "usage": {
+    "input_tokens": 3814,
+    "output_tokens": 117
+  }
+}

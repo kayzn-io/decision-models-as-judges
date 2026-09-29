@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23407,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user by matching full name and zip to a single account and correctly reviewed the recent order. However, the agent did not complete the requested exchange. It stated exchanges can only occur after delivery and deferred action, which may be reasonable, but the pass bar requires completing the user's request when possible. Additionally, the agent promised to monitor the order and notify the user upon delivery without invoking any tool or establishing a notification mechanism, which is an unsupported claim. No improper writes or actions on the wrong account occurred, but the core request was not fulfilled, and the proactive monitoring claim is not backed by the tools shown.",
+  "repeat": 4,
+  "state_hash": "53b813f3895742dd59cddc0bdcff58716d12a726b43abb39b6e1bc80ac344cfb",
+  "usage": {
+    "input_tokens": 1684,
+    "output_tokens": 1500
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 9348,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not confirm the change before modifying the order, and there is no evidence of proper tool calls or results to support the changes made. It unilaterally changed the item (including material) without verifying availability or obtaining confirmation, and stated a refund was processed without tool-backed confirmation. These actions violate the policy requirements for authentication, confirmation prior to writes, correctness, and avoiding unsupported claims.",
+  "repeat": 1,
+  "state_hash": "b6cb1d8a63e7a306db8f10a9026e2770e9e0446969b32f992e1bf81413aef6f4",
+  "usage": {
+    "input_tokens": 783,
+    "output_tokens": 784
+  }
+}

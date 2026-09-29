@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.15000000000000002,
+        "pass": 0.85
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 3028,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user using the provided name and zip code. The agent performed the requested address change to 101 Highway, New York, NY, 10001, and confirmed this change with the user before proceeding. When the user requested to revert to the original address, the agent followed protocol by asking for the full street address, which the user refused to provide. Instead of attempting to guess or acting without this crucial information, the agent offered to transfer the user to a human agent for further assistance, which is aligned with company policy. Overall, the agent followed the internal policies and did not take unauthorized actions.",
+  "repeat": 3,
+  "state_hash": "06740432a34e661ba42b120462946ea8baa88954dd2f1fa5df6950b6e6b08e1a",
+  "usage": {
+    "input_tokens": 1793,
+    "output_tokens": 154
+  }
+}

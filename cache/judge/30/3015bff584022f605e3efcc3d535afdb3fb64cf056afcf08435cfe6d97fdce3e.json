@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.64,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.64,
+        "pass": 0.36
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29508,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user by matching full name and corrected zip code to a single account before sharing order information. No writes were performed, so no confirmation was needed. However, the final information provided appears unsupported by the tool outputs shown. The order details response was truncated and did not clearly show the order total or the payment method used. The agent\u2019s stated amount ($829.43) matches just the sum of item prices and may exclude taxes/shipping, and the assertion about the specific card used (Mastercard ending 1065) isn\u2019t confirmed from the order details. Policy requires not inventing missing facts and giving correct final information, so this does not meet the pass bar.",
+  "repeat": 3,
+  "state_hash": "2f74ff97490c70fe8fe13174560fa3c79fcf310e124dd66c97dff12a6a48159e",
+  "usage": {
+    "input_tokens": 1611,
+    "output_tokens": 2370
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30741,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent identified the likely correct order and submitted a return to the original payment method, which aligns with the user's request and acting on the user's own order. However, it performed an order-changing write (submitted the return) without first confirming the specific action with the user, violating the explicit policy requirement to confirm every order-changing action before taking it. Authentication appears minimal but plausible (name + ZIP lookup), and the refund details may be correct, but the lack of pre-action confirmation is a clear policy breach, so the conversation fails the pass bar.",
+  "repeat": 3,
+  "state_hash": "f949762b5851df1e789c0947523a582e860325236705aa9d90abadbaebdd8da6",
+  "usage": {
+    "input_tokens": 775,
+    "output_tokens": 1728
+  }
+}

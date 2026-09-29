@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.98,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.98,
+        "pass": 0.020000000000000018
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12335,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not review or act on any orders, did not confirm any order-changing actions, and performed no tool calls. It also failed to mention or process the two requests (returns for hose and backpack, exchange of boots to waterproof) or prioritize the exchange if only one action were possible. The only message shown was a generic farewell, so the user\u2019s request was not completed in line with policy.",
+  "repeat": 0,
+  "state_hash": "78fdd0b54ed2a965d94d03dc47b9122b042972d244edb4b618f74cf1fb215e72",
+  "usage": {
+    "input_tokens": 801,
+    "output_tokens": 1106
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.85,
+        "pass": 0.15000000000000002
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 3128,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly attempted to authenticate the user and was aware that reinstating a cancelled order cannot be done through the system and transferred the user to a human agent for further assistance, which is a good course of action given the constraints of the system. However, the user's insistent request to undo the cancellation and have the items delivered as soon as possible was not fulfilled directly but handed off, which did not satisfy the user's request in line with the policy. Since the conversation did not address changing any order state directly but rather passed responsibility, the overall outcome quality fails to meet the requirements.",
+  "repeat": 0,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 677,
+    "output_tokens": 146
+  }
+}

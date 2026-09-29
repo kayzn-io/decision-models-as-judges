@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.86,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.21999999999999997,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 28261,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly authenticated the user by matching full name and corrected zip code to a single account before sharing order information. It then retrieved the user\u2019s orders and pulled details for the most recent one. The reported total ($829.43) matches the sum of the listed item prices in the tool output, and no unsupported claims or policy violations occurred. No writes were performed, so no confirmation was needed. Overall, the request was completed in line with policy.",
+  "repeat": 0,
+  "state_hash": "1ddcc90bb3d07bac2700498cc48336b4ffc398651520e01361eb7791288f728b",
+  "usage": {
+    "input_tokens": 1596,
+    "output_tokens": 1617
+  }
+}

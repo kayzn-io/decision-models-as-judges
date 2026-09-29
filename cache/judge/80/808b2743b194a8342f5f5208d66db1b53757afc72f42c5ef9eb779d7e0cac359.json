@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14981,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity verification was done correctly via name + ZIP. However, the agent: 1) stated order statuses (canceled/refunded, delivered) without any tool evidence; 2) provided a tracking number without using tools to retrieve it; 3) did not actually check or report in-transit status via tools; and 4) updated the default address without obtaining explicit confirmation before performing the write, violating the confirmation requirement. While the tablet storage detail was correctly sourced, the fabricated/unsupported information and unconfirmed write change cause the interaction to fail policy compliance.",
+  "repeat": 4,
+  "state_hash": "ae980a4a1ea1616bc90a925c48ace01beee08f957d15217a239d6c377be23ffc",
+  "usage": {
+    "input_tokens": 2617,
+    "output_tokens": 1187
+  }
+}

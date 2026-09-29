@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.7,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.62,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.38,
+        "pass": 0.62
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18342,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user requested reinstating a canceled order, which the policy indicates is not possible in-system and should be handed off to a human agent. The provided tool/action summary shows the agent used transfer_to_human_agents with an appropriate summary, aligning with the policy to hand off when a request cannot be handled. There is no evidence of unauthorized actions, unconfirmed writes, or fabricated information. While it\u2019s unclear whether authentication occurred, no account-specific changes were made, and the agent\u2019s escalation matches policy. Therefore, the outcome meets the pass bar, with moderate confidence due to missing full conversation context.",
+  "repeat": 1,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 672,
+    "output_tokens": 1329
+  }
+}

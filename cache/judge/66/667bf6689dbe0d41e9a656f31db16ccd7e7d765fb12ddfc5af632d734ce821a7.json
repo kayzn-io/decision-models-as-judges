@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2384,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not correctly follow the policy regarding the user's order number; the user was uncertain about the order number and the agent acted on a different order (#W4689314) instead of confirming the correct one based on the user's guess (#W8855135). This failure to confirm before taking action violates the required protocol.",
+  "repeat": 1,
+  "state_hash": "f949762b5851df1e789c0947523a582e860325236705aa9d90abadbaebdd8da6",
+  "usage": {
+    "input_tokens": 780,
+    "output_tokens": 95
+  }
+}

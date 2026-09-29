@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15588,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation contains no evidence of authentication, tool calls, order lookup, confirmation of order-changing actions, or successful modifications to shipping address or items. The only visible agent message is a generic closing line, with no confirmation or results. Therefore, the agent did not complete the user\u2019s request per policy requirements (authenticate, confirm before writes, act on user\u2019s own orders, provide correct final info).",
+  "repeat": 1,
+  "state_hash": "8ba59e88720941b23f488e229460fe9756ac34ba8a39637107d3860cc5feaa3e",
+  "usage": {
+    "input_tokens": 873,
+    "output_tokens": 981
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 3411,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed the policy by authenticating the user and correctly identifying the user's orders. They confirmed the issue with processing the refunds, which cannot be done to a different payment method than the original one. Instead of attempting to process a refund that would violate the policy, the agent appropriately transferred the conversation to a human representative, as the user became upset and requested further assistance. All actions were consistent with handling the user's request in line with established protocols.",
+  "repeat": 4,
+  "state_hash": "2738fa4a7939fc8c0af11c8b1728dfea0db6f3fd8b6eae7727fb8bce7b8c35b4",
+  "usage": {
+    "input_tokens": 820,
+    "output_tokens": 119
+  }
+}

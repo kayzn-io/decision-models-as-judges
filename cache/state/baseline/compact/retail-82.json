@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "e8cee053c2956b85883cd50645ed7f19711962cf91aa99bc6bba66cb298b21ad",
+  "step_index": null,
+  "task_id": "retail-82",
+  "text": "You name is Chen Silva and your zip code is 46281. You are messy, flexible, outgoing. You received two tablets and you only need one. You want to return the more expensive one and refund to credit card. If refund to credit card is not possible, you become angry and return everything on that order and refund to GC.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Chen, last_name=Silva, zip=46281)\n- get_user_details(user_id=chen_silva_7485)\n- get_order_details(order_id=#W3069600)\n- get_order_details(order_id=#W2598834)\n- get_order_details(order_id=#W8171054)\n- get_order_details(order_id=#W9571698)\n- return_delivered_order_items(item_ids=[\"9973034634\", \"5952720925\", \"7381052709\", \"6065192424\"], order_id=#W9571698, payment_method_id=gift_card_7250692)\nThank you! Take care as well, and have a wonderful day! \ud83d\ude0a",
+  "token_estimate": 244,
+  "truncated": false,
+  "variant": "baseline"
+}

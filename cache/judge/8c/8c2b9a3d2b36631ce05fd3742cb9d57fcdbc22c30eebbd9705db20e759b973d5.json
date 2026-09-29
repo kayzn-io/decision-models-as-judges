@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.6,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.55,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.44999999999999996,
+        "pass": 0.55
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 36735,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user via name and ZIP, pulled the user record, and reviewed multiple orders, which aligns with acting only on the user\u2019s orders. There is no evidence of any unconfirmed write actions. Because the user insisted on refunding to an AMEX but the account only had PayPal on file, the agent escalated to a human, which matches both policy (handoff when the request cannot be handled) and the user\u2019s instruction. It is not explicitly shown whether the tracking number was provided, but the agent did fetch order details, which likely included tracking. Given this partial uncertainty, confidence is moderate, but overall behavior aligns with policy, so pass.",
+  "repeat": 4,
+  "state_hash": "52f0ea5b3de0b789de2d7b30e901deed99ba765a75d927b09ec95b0eaf69c910",
+  "usage": {
+    "input_tokens": 767,
+    "output_tokens": 2584
+  }
+}

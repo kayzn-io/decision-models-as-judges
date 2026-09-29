@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23307,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent identified the user and reviewed orders, but it did not provide the requested tracking number. More critically, it initiated a return (a write action) without first confirming with the user, violating the policy requirement to confirm every order-changing action before taking it. It also did not explicitly confirm which order was intended among multiple orders before proceeding. The statement that the pet bed will remain with the user may be inconsistent given the order is noted as delivered to Houston, TX. Therefore, the request was not completed in line with policy.",
+  "repeat": 2,
+  "state_hash": "5c31da12eb36a4836080a25b1974be7fad7928798f2643f525c12bb177f50c15",
+  "usage": {
+    "input_tokens": 815,
+    "output_tokens": 2065
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.89,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.89,
+        "pass": 0.10999999999999999
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23830,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did look up the user by name and ZIP and fetched user/order details, but it executed order-changing actions without explicit customer confirmation. It submitted return_delivered_order_items twice for the same item/order with two different payment methods, which is inconsistent and likely erroneous. It modified a pending order item without prior confirmation, violating the policy to confirm every order-changing write. The requested exchange of the luggage set to the red color was not completed (only a product details lookup is shown; no exchange/new order action). The user also asked to return hiking boots; only one item return is shown, so not all requested returns were handled. There is no clear final summary or supported information about outcomes (RMAs, refunds, timelines). These issues violate the stated pass criteria, so the conversation fails.",
+  "repeat": 2,
+  "state_hash": "b6bfabf895a5a6122659c8d239fbf6ca9f0edaced43351387de24ed86244805d",
+  "usage": {
+    "input_tokens": 855,
+    "output_tokens": 2235
+  }
+}

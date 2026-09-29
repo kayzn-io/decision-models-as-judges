@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 3417,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user's request according to the policy requirements. While the agent appropriately authenticated the user and attempted to access order details, there is no evidence that they confirmed the user's request to return items before executing that action. Additionally, the agent did not provide the tracking number as the user requested. Actions were taken without confirmation from the user and the necessary information was not conveyed clearly, leading to a likely failure in compliance with policy.",
+  "repeat": 4,
+  "state_hash": "10fa622fdb74646c8a59e4b5ca14a7b838058322dd105e6bb7868fc91b50f6b1",
+  "usage": {
+    "input_tokens": 719,
+    "output_tokens": 118
+  }
+}

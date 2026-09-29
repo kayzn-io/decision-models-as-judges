@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2407,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user's request in line with the policy because there is no indication that the agent authenticated the user prior to accessing their orders or confirmed the cancellations with the user before executing them. This leads to a failure in the process as it violates multiple outlined policy requirements.",
+  "repeat": 3,
+  "state_hash": "39338af574da8910d78e1e4af3a1816dfe993e6720af2043d2dd119efae6af18",
+  "usage": {
+    "input_tokens": 733,
+    "output_tokens": 86
+  }
+}

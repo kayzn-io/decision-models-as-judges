@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.62,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.62,
+        "pass": 0.38
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17482,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The record does not show required authentication of the user, any confirmation before performing order-changing actions, or clear evidence of acting on the correct order/items. There is no visible tool call trace confirming the exchanges, no confirmation prompt (which policy requires), and no final, specific details about what was changed. Given the lack of evidence of compliant actions and confirmations, the interaction fails the policy-aligned completion bar.",
+  "repeat": 4,
+  "state_hash": "eb8a6a0d6abaf5942ccf165a151982045b5dfd0ebafbd9470d54b6ca311297f3",
+  "usage": {
+    "input_tokens": 824,
+    "output_tokens": 1072
+  }
+}

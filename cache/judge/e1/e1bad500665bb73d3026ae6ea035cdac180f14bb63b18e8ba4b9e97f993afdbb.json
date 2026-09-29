@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16437,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent provided the correct most-recent order ID and total paid, which satisfies the content of the request. However, the policy requires authenticating the user before accessing order information. In the visible exchange there is no authentication step (e.g., verifying zip or confirming logged-in status) and no tool-call evidence shown to confirm an authenticated session, yet sensitive order and payment details were disclosed. Since authentication is mandatory even for read-only order lookups, this constitutes a process violation. No order-changing writes occurred (so no confirmation was needed), and the information given appears accurate, but the lack of authentication means the interaction fails the policy-compliance bar.",
+  "repeat": 1,
+  "state_hash": "f1beb2b463feae0f218c55bb26354594ddb5335106c673f5e63357a6451fffa8",
+  "usage": {
+    "input_tokens": 774,
+    "output_tokens": 1680
+  }
+}

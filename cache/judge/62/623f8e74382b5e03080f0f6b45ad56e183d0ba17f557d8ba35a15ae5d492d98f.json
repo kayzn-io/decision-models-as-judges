@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.88,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20044,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user by verifying name and ZIP (attempted with 98186, then correctly with 98187), retrieved the correct user and most recent order via tool calls, and provided the exact total paid and payment method from get_order_details. No order-changing actions were performed, so no confirmation was needed. The information given matches tool-derived data, with no unsupported claims or policy violations.",
+  "repeat": 4,
+  "state_hash": "f1beb2b463feae0f218c55bb26354594ddb5335106c673f5e63357a6451fffa8",
+  "usage": {
+    "input_tokens": 774,
+    "output_tokens": 1790
+  }
+}

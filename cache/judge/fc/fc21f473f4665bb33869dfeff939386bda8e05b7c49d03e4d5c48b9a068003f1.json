@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.22,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.22,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14963,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation transcript and tool actions were not provided, so I cannot confirm that the agent authenticated the user, confirmed any order-changing action, or properly handed off to a human given that reinstating a cancelled order is not possible per policy. Without evidence of correct behavior, I cannot judge the request as completed in line with policy; thus I mark it as fail with low confidence due to missing information.",
+  "repeat": 2,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 672,
+    "output_tokens": 843
+  }
+}

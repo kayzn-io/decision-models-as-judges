@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 10499,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not check order details or arrival date, made no tool calls, and did not attempt or confirm any cancellation per the user\u2019s conditional requests. It provided an unsupported statement that the order will remain unchanged without verifying shipment status or seeking confirmation. This fails the policy and does not complete the user\u2019s request.",
+  "repeat": 3,
+  "state_hash": "c00e63c8bd081a8e61a6c88ec4f0ecb763c1c6d58ced6250eb637c776a135c48",
+  "usage": {
+    "input_tokens": 716,
+    "output_tokens": 964
+  }
+}

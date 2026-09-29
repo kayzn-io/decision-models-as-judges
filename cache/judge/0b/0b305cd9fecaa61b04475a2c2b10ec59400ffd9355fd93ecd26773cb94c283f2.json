@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.85,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.19999999999999996,
+        "pass": 0.8
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1682,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user based on the provided email. It then correctly handled the request by modifying both the pending order address and the user default address after confirming the changes. Additionally, the agent processed the exchange for the tablet as requested. While the user insisted on not revealing their new address, the agent adhered to policy by looking it up and completing the actions appropriately. Given that all steps were followed, I deem the outcome to be a pass with a confidence of 0.8.",
+  "repeat": 1,
+  "state_hash": "1533f487befe7ab3270ba8637f166a785011b951b9f1fe66a44426f9086c48f4",
+  "usage": {
+    "input_tokens": 970,
+    "output_tokens": 128
+  }
+}

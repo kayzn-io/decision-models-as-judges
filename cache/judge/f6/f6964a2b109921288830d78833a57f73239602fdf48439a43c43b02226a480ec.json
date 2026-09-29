@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18143,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user and identified the relevant order to Texas, but failed to provide the requested tracking number. More critically, it initiated a return (a write action) without first confirming with the user, violating the policy requirement to confirm every order-changing action. It also included a likely inaccurate statement that the pet bed would remain with the user despite the order being delivered to Texas. Therefore, the request was not completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "5c31da12eb36a4836080a25b1974be7fad7928798f2643f525c12bb177f50c15",
+  "usage": {
+    "input_tokens": 815,
+    "output_tokens": 1658
+  }
+}

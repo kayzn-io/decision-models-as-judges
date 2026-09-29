@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 45380,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by full name and zip, matched to a single account, and operated only on that user\u2019s order. They retrieved order and product details via tools, summarized the intended changes (backpack variant and shipping address), and obtained explicit confirmation before making any write. The write modified the backpack variant correctly and used the gift card for the price difference, consistent with the tool call. The shipping address was already the default Charlotte address, so no address change was needed; the agent reflected this accurately afterward. The final information given about payment and order status was consistent with the tools. No unsupported claims, unauthorized actions, or missed required confirmations were observed.",
+  "repeat": 3,
+  "state_hash": "806c3cbf9bb97d10ed2752855ffd20d6b3bfab98a867eea471a9ecc72981d925",
+  "usage": {
+    "input_tokens": 2892,
+    "output_tokens": 2888
+  }
+}

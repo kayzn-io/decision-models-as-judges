@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1498,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed the policy by authenticating the user, checking the order details, modifying the order with the confirmed changes for size and material, and ensured it was within the user's request. The final confirmation with the user wasn't shown here, which raises a slight concern, but all actions taken align with the policy specified. Thus, I'm confident in a pass, but there is a small uncertainty due to the lack of explicit final confirmation.",
+  "repeat": 2,
+  "state_hash": "50325dc23ec835e96c36557f35deb3687586d5e7c313fba6ccd6f0c937ddfd01",
+  "usage": {
+    "input_tokens": 723,
+    "output_tokens": 114
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1763,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly authenticated the user before acting on their requests. The record shows that the agent attempted to act on the user's orders with valid order IDs that were likely retrieved through the appropriate tools. Additionally, the agent's actions included confirming changes before writing to any orders. The final information provided to the user was correct and consistent with the user's requests. However, since there is an issue with the agent handling without direct mention of confirmations after each step, I cautiously assess the probability of completion at 90%. Overall, the conversation seems to align well with the outlined policy.",
+  "repeat": 4,
+  "state_hash": "990ac182278d61ff9a5d0a7dbd1037f17beede5cfad486955b9036bdf092a158",
+  "usage": {
+    "input_tokens": 821,
+    "output_tokens": 143
+  }
+}

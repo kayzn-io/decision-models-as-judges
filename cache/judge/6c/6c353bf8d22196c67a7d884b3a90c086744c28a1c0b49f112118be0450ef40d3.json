@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2874,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow the policy by failing to authenticate the user before proceeding with any actions related to the order. Additionally, the agent only handled the user's request to return items without confirming first, thus violating the confirmation policy for order-changing actions. As a result, the conversation does not meet the criteria for a successful outcome.",
+  "repeat": 2,
+  "state_hash": "e8cee053c2956b85883cd50645ed7f19711962cf91aa99bc6bba66cb298b21ad",
+  "usage": {
+    "input_tokens": 773,
+    "output_tokens": 95
+  }
+}

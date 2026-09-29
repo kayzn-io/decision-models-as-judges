@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.28,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25012,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified identity using full name and zip, and confirmed the order belonged to the authenticated user. It also sought confirmation before any change and ultimately made no writes after the user chose not to cancel. However, it made unsupported claims: it stated the order status was \u201cpending\u201d without visible tool-backed status, asserted a blanket rule that single-item cancellation is not possible without checking tools, and claimed the original payment method was a credit card without retrieving payment details. These are fabrications/unsupported by tools and could amount to refusing an action the policy may permit. Therefore it does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "737f0af16569a3ff3026499ed5136c54f395f9bc05a4633a75eac38b19dab613",
+  "usage": {
+    "input_tokens": 1646,
+    "output_tokens": 1858
+  }
+}

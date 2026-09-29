@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1697,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not follow the policy correctly. They performed the return action without confirming with the user after the user changed their mind to return the more expensive tablet and refund to the gift card instead of the cheaper tablet. Because of the failure to confirm this change with the user, the outcome is not in line with the stated policy, leading to a high confidence in a fail verdict.",
+  "repeat": 4,
+  "state_hash": "269ef4978f353cd991feacb8531beeaa08e32df52162c19476163643e2c555c6",
+  "usage": {
+    "input_tokens": 799,
+    "output_tokens": 106
+  }
+}

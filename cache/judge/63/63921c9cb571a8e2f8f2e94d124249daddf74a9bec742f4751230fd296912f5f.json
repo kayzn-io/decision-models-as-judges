@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17795,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, proceeded to change the order without seeking explicit confirmation beforehand, and presented specific details (price, product specs, PayPal refund) without visible tool-backed verification. Policy requires authentication, confirmation before any order-changing write, and avoiding unsupported claims. While the outcome might match the user\u2019s preference, the process violated multiple policy requirements, so it fails.",
+  "repeat": 4,
+  "state_hash": "61b0c20b1c522d43d5ae94755acb97b62537ed8d937529b283d889270843c0df",
+  "usage": {
+    "input_tokens": 794,
+    "output_tokens": 1357
+  }
+}

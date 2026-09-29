@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 11175,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not check the order status or arrival date, did not confirm or perform any cancellations, and provided only a generic sign-off. No tool calls or results were shown, and none of the user\u2019s conditional requests were handled. This violates the policy requirements to authenticate, act on the user\u2019s order, confirm before writes, and provide accurate final information.",
+  "repeat": 2,
+  "state_hash": "22f55c34ed2247c37dbf49b609469ce7cd17fe82d9aef39340ca464e90d10051",
+  "usage": {
+    "input_tokens": 718,
+    "output_tokens": 1110
+  }
+}

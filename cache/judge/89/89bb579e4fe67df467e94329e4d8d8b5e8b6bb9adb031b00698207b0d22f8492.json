@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17319,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not verify the order belongs to the user, and did not request explicit confirmation before performing an order-changing write. No tool calls are shown for user lookup, order retrieval, or address confirmation, yet the agent asserted the address was updated and even specified \u201c123 Elm Street,\u201d which is unsupported by the visible tool results. The policy requires authentication, confirmation before writes, and acting only on the user\u2019s own orders; these were not demonstrated. Therefore, the interaction fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "91e647495a29713f3f4657458372bdf6143696b63cf3818595f307d203876b1c",
+  "usage": {
+    "input_tokens": 737,
+    "output_tokens": 1021
+  }
+}

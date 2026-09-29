@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.7,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2225,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user request correctly according to the policy. First, while the agent attempted to find the correct speaker and modify the pending order, the actual outcome is not presented in the provided conversation. The steps taken to authenticate and confirm the order changes had missing actions or issues that were not detailed here. Given that the complete conversation is not available, we cannot verify if the agent made confirmations before writing any changes. This leads to a high confidence that the final outcome did not comply with the policy, resulting in a failing verdict.",
+  "repeat": 4,
+  "state_hash": "b22dd29d0950ba139add550bc64f2b11473cccd4d44f98841f5f582865cb66ab",
+  "usage": {
+    "input_tokens": 854,
+    "output_tokens": 138
+  }
+}

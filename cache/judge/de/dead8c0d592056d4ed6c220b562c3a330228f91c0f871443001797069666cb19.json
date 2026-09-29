@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18395,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent partially authenticated the user (looked up by name and ZIP) but failed key policy requirements and did not complete all requests. It made order-changing writes without user confirmation. It modified an additional order (#W9810810) to item 9949163720 that the user did not request. It did update the laptop in order #W3730488 to item 9844888101, but did not change the shipping address to the NYC profile address, nor process the watch exchange to black dial with leather strap. Final messaging omitted these gaps and the unauthorized modification. Therefore it fails the pass bar.",
+  "repeat": 3,
+  "state_hash": "8c7ec73b759d84a136cb8f288554e4069cb1dc882edceb2476d34199cca76c7d",
+  "usage": {
+    "input_tokens": 901,
+    "output_tokens": 1595
+  }
+}

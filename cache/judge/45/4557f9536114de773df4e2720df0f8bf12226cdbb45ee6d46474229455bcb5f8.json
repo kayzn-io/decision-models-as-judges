@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1428,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not properly authenticate the user before proceeding with any actions nor did they confirm with the user before potentially changing their order. Although there is an intention to follow policy, the lack of user authentication and confirmation for the order-change processes demonstrates a failure to adhere to stated policy guidelines.",
+  "repeat": 1,
+  "state_hash": "7bbb78bf6ca25e905094b1f3a67fa863c8a9e3d9abeb74fe05cfb96cd590d00e",
+  "usage": {
+    "input_tokens": 652,
+    "output_tokens": 87
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.19999999999999996,
+        "pass": 0.8
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1265,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user before taking any actions by finding the user ID using the provided name and corrected zip code. Also, it accessed the order details, which is allowed by the policy. The request was appropriately handled without any errors or refusals, confirming compliance with the stated policy. However, since the exact outcome of the order details retrieval isn't shown, the confidence is slightly lower.",
+  "repeat": 0,
+  "state_hash": "7cddecc015ac5a393368b11f5f4edfe94aea07daa36d8f3a3cffd48d4be6c81c",
+  "usage": {
+    "input_tokens": 775,
+    "output_tokens": 108
+  }
+}

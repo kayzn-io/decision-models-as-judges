@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12208,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not check or reference any orders or product details, did not confirm any order-changing action, and did not perform the requested change or cancellation. The final message is a generic closing without addressing the request. This fails the policy requirements and does not complete the user's request.",
+  "repeat": 4,
+  "state_hash": "31ebc370101658081d2f1b6261f9074fb6c7e93f3b41a40307bd1b00098c5e47",
+  "usage": {
+    "input_tokens": 743,
+    "output_tokens": 982
+  }
+}

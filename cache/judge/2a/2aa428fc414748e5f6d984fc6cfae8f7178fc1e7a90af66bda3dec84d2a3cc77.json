@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32980,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent performed order-changing writes (returns and a cancellation) without first obtaining explicit user confirmation, violating policy. It also canceled the entire pending order #W2575533 instead of attempting to cancel only the hose item as requested; the user explicitly did not want other items canceled and said to forgo cancellation if item-level cancellation wasn\u2019t possible. Additionally, the agent presented specific refund amounts and a total without visible supporting tool outputs in the conversation, making the figures unsupported. While the agent appeared to authenticate by name and ZIP and acted on plausible orders, the lack of confirmation and the incorrect scope of cancellation mean the request was not completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "60d22bed07cee9d71ae294a30d6b585f2ce52651f5044a512e6559467b0c9946",
+  "usage": {
+    "input_tokens": 1028,
+    "output_tokens": 1468
+  }
+}

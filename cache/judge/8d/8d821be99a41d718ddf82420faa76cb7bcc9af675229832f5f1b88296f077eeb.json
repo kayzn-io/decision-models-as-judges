@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12379,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not look up any orders, did not process a return or attempt a cancellation, and did not confirm any order-changing action. There are no tool calls or results shown. The only message is a generic closing, providing no action or information. Therefore, the user\u2019s request was not completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "c59131ef9cad981f43679692258c095c2238f5a6de8da8e4f37277fdf9cd3d4d",
+  "usage": {
+    "input_tokens": 762,
+    "output_tokens": 1057
+  }
+}

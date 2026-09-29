@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16283,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent performed an order-changing write without explicit customer confirmation and appears to have modified the shipping address on the wrong order (#W8268610) when the user requested changing the address for #W2702727. There is no clear authentication step shown. The agent also did not address the request to compare statuses, provide a guarantee about processing within 5 days, proceed to cancel the older order if not guaranteed, or confirm the total refund amount. It also failed to confirm the total price of the remaining order after the address change. These violate the stated policy (authenticate, confirm before writes, act only on correct order, provide correct final info), so the interaction fails the pass bar.",
+  "repeat": 0,
+  "state_hash": "3105716b41e3a6178bca3f56d399b930a87d707cab69bc608a20ef90821e6b96",
+  "usage": {
+    "input_tokens": 932,
+    "output_tokens": 1252
+  }
+}

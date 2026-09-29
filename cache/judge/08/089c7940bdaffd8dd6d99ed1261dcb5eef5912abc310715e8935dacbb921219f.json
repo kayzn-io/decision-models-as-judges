@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.050000000000000044,
+        "pass": 0.95
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1463,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user by using the provided email, then accessed and confirmed the details of the user's orders. The agent performed the requested address changes for both pending orders and successfully updated the user's default address. Additionally, the agent confirmed these changes with the user before executing them, ensuring compliance with the policy. Finally, the agent also handled the product exchange request correctly. The only minor uncertainty comes from the fact the user did not provide their new address directly, but the agent was still able to process the request by looking up the user's orders.",
+  "repeat": 1,
+  "state_hash": "0b642ac1203399340f69f0f20370631af3b8175b44f6b163d52405e68c89305a",
+  "usage": {
+    "input_tokens": 979,
+    "output_tokens": 137
+  }
+}

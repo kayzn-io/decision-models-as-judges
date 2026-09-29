@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.22,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30747,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user correctly using full name and zip, identified the correct order with the tablet, correctly reported the tablet\u2019s storage from tool data, and obtained explicit confirmation before updating the default shipping address, then performed the update successfully. However, the agent provided a tracking number and stated the order was delivered without any supporting tool call or visible data showing tracking details or shipment status. This constitutes fabricating unsupported information, which violates policy. Therefore, despite several correct steps, the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "d50a59bfaf83246ae4af7092d9d51b01dae0413c78314abc244c8b7160c56d39",
+  "usage": {
+    "input_tokens": 2880,
+    "output_tokens": 1635
+  }
+}

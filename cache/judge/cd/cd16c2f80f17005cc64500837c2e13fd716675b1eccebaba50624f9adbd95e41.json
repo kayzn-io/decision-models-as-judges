@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.83,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.83,
+        "pass": 0.17000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 26681,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user wanted to know how much they paid for their most recent order. The policy requires authenticating the user and acting only on their orders. In the provided conversation, there is no evidence of authentication, no tool calls to find the user or retrieve order details, and no amount was provided. The only visible agent message is a generic closing (\u201cYou\u2019re welcome, Noah!\u201d), which does not satisfy the request. Therefore the agent did not complete the request in line with policy.",
+  "repeat": 2,
+  "state_hash": "7cddecc015ac5a393368b11f5f4edfe94aea07daa36d8f3a3cffd48d4be6c81c",
+  "usage": {
+    "input_tokens": 770,
+    "output_tokens": 1201
+  }
+}

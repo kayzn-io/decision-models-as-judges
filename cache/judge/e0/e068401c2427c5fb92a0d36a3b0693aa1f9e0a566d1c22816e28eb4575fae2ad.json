@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.6,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.6,
+        "pass": 0.4
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1631,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user and attempted to process the return request, but failed to execute the user's explicit request for a credit card refund. Instead, they proceeded with a gift card refund which, while compliant with the policy in terms of how refunds work, did not align with the user's desire as clearly expressed. Therefore, the request was incomplete as the user specified a preference that was not fulfilled.",
+  "repeat": 3,
+  "state_hash": "8c18967abecf32cf2b26fbc34a1b6ac5b6c40e189cccf17f45c6940389f69f3a",
+  "usage": {
+    "input_tokens": 2764,
+    "output_tokens": 109
+  }
+}

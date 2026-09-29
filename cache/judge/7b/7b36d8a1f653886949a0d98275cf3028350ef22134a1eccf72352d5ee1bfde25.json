@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25644,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not retrieve any orders or items, did not confirm any changes, did not calculate or state the refund amount, and did not perform an address change. There are no tool calls shown (e.g., no find_user, get_order_details, or modify actions), and the conversation appears to end with a generic farewell. This fails the policy requirements to authenticate, act only on the user\u2019s orders, confirm before any write, and provide correct final information.",
+  "repeat": 4,
+  "state_hash": "47911c30044478d8723713ad22315fa3e1504c2d535dbfcd5f28fdccc4d29009",
+  "usage": {
+    "input_tokens": 862,
+    "output_tokens": 1103
+  }
+}

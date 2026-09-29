@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.28,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.68,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.68,
+        "pass": 0.31999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23243,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "From the tool sequence: the agent identified the user via name+ZIP, retrieved user and order details, and fetched product details. It then executed a write action (modify_pending_order_items on order #W5199551). There is no evidence of explicit user confirmation prior to the order-changing write, which the policy requires. We also cannot confirm that final information was provided (e.g., the boot material) despite a product details lookup. Given the lack of demonstrable confirmation before modifying the order and incomplete visibility on final communication, the interaction does not meet the pass bar.",
+  "repeat": 0,
+  "state_hash": "50325dc23ec835e96c36557f35deb3687586d5e7c313fba6ccd6f0c937ddfd01",
+  "usage": {
+    "input_tokens": 718,
+    "output_tokens": 1787
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.45,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.73,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.73,
+        "pass": 0.27
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30570,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified the user by matching full name and zip code to a single account, reviewed the user\u2019s orders, identified the correct items, and gathered the user\u2019s preferences. It sought explicit confirmation before making a change and, following the user\u2019s narrowed instruction, proceeded only with the desk lamp exchange. The actual exchange tool call targeted the correct item and used the user\u2019s payment method, satisfying authentication and confirmation requirements. However, the agent stated a specific price difference ($12.07) after the exchange without any tool output supporting that amount. No tool response provided pricing for the new variant or a computed difference, so this constitutes an unsupported/fabricated detail. Because correct final information is required and fabrication violates policy, the interaction does not meet the pass bar.",
+  "repeat": 4,
+  "state_hash": "620053d928af894ed1f114152d28af79d3b8afca85f28b11b52a4e68780e1eaf",
+  "usage": {
+    "input_tokens": 2996,
+    "output_tokens": 2300
+  }
+}

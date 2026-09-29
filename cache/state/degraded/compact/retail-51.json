@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "7d03a4aada00fb3941a19607e9fb601a033c6d4abfe37ccb391223e3e2eccb25",
+  "step_index": null,
+  "task_id": "retail-51",
+  "text": "You are Sofia Li, residing in San Antonio, 78260. You want to return the digital camera that you received. You guess that the order number is #W8855135, but you're not 100% sure. Insist that you want to return the camera and get a refund to the original payment method.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Sofia, last_name=Li, zip=78260)\n- get_order_details(order_id=#W8855135)\n- get_user_details(user_id=sofia_li_9219)\n- get_order_details(order_id=#W4689314)\n- return_delivered_order_items(item_ids=[\"5996159312\"], order_id=#W4689314, payment_method_id=credit_card_8105988)\nYour return request for the digital camera from order #W4689314 has been submitted. The refund will be processed to your original Mastercard ending in 8484. You will receive an email with instructions on how and where to return the item.\n\nIf you need further assistance, please let me know!",
+  "token_estimate": 259,
+  "truncated": false,
+  "variant": "degraded"
+}

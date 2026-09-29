@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22122,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user using full name and ZIP and retrieved the correct gift card balance from tools. However, it provided unsupported and likely incorrect information about order statuses (\"Processed\" and \"Pending\") not shown in the tool outputs, and asserted that the provided IDs did not match items when one of them (product_id 1656367028) appears in order #W9911714. It also claimed exchanges require a delivered status, which is not evidenced by the tools or the provided policy summary. The agent therefore refused an action based on fabricated/unsupported facts. No unauthorized writes were performed and GC balance reporting was correct, but the primary exchange request was mishandled, so the conversation does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "3ab384f198d1c29cab75837ac85a13204033eef8906192fafc8d25ac77db1a8c",
+  "usage": {
+    "input_tokens": 2294,
+    "output_tokens": 1875
+  }
+}

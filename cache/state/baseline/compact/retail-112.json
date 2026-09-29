@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "0395bf6c477f57a7d58f1c41bdad379efeef6b692a21b130ab5eb293bf09ca52",
+  "step_index": null,
+  "task_id": "retail-112",
+  "text": "You name is Yara Silva and your zip code is 77159. You are sad and cautious. You want to modify the laptop order to your NYC address (you don't want to reveal it but should be in your orders profile). You also like to modify the laptop to be {'processor': 'i5', 'storage': '256GB SSD', 'color': 'space grey'};  You also want to exchange your watch to be black dial color but keep the leather strap. You like to say things together.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Yara, last_name=Silva, zip=77159)\n- get_user_details(user_id=yara_silva_7567)\n- get_order_details(order_id=#W9810810)\n- get_product_details(product_id=6066914160)\n- modify_pending_order_items(item_ids=[\"1355937109\"], new_item_ids=[\"9949163720\"], order_id=#W9810810, payment_method_id=gift_card_7252880)\nGoodbye, Yara! It was my pleasure to assist you. Thank you for your kind words. If you ever need help again, I\u2019ll be here. Take care!",
+  "token_estimate": 269,
+  "truncated": false,
+  "variant": "baseline"
+}

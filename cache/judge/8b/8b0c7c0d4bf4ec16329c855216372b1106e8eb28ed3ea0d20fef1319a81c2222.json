@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 1.0,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1363,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed the policy correctly: they authenticated the user, acted on the correct order, modified the order after confirming the change, and provided accurate final information about the order change and refund. However, there is a slight uncertainty (0.9 confidence) in the completeness based on not seeing direct confirmation prompts in the conversation.",
+  "repeat": 2,
+  "state_hash": "07aaf70cd7f290055877ce03500576c39baef204e5318b8ef7845b2ce7f39980",
+  "usage": {
+    "input_tokens": 785,
+    "output_tokens": 93
+  }
+}

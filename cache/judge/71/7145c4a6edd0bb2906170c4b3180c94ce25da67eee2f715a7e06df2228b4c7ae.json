@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 13792,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not look up the user or recent order, and did not attempt the requested exchange or present suitable camera options. It neither confirmed any order-changing action nor handed off to a human if unable to proceed. Instead, it deferred action until delivery without verifying order status. This fails the pass bar of completing the user\u2019s request in line with policy.",
+  "repeat": 0,
+  "state_hash": "73a0f0e6d667996a618ea6ba129e16b7f0ee8d227ce5480d40f5bfa51ff978c0",
+  "usage": {
+    "input_tokens": 700,
+    "output_tokens": 1099
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24196,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not fully satisfy the user\u2019s requests or adhere to policy. While it looked up the user and order and changed the payment method, it failed to: (1) provide the gift card balance; (2) determine or explain whether the gift card balance could be applied to the order; and (3) obtain explicit user confirmation before performing an order-changing write (it executed modify_pending_order_payment without confirming). Although it implied the prior card was Mastercard by mentioning a refund, it did not first confirm the action as required, and did not address all requested information. Therefore, it does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "78bc1b1b87020905ecd3bee1194d55970665a53bcd9d69123965caf2665001de",
+  "usage": {
+    "input_tokens": 784,
+    "output_tokens": 1435
+  }
+}

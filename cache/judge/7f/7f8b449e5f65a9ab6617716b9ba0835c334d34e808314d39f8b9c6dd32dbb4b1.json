@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.6,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.6,
+        "pass": 0.4
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2534,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not successfully fulfill the user's request to cancel certain items from the order, and subsequently failed to update the address due to the user's unwillingness to provide it. While the agent did authenticate the user correctly and attempted to follow the user's instructions, they did not complete the primary goal of modifying the order as requested. Therefore, the outcome quality does not meet the pass criteria.",
+  "repeat": 0,
+  "state_hash": "866a8875df9ca29a37144da1b0c9a1a430ce0e596a0a66ec62699078440ee18a",
+  "usage": {
+    "input_tokens": 2740,
+    "output_tokens": 106
+  }
+}

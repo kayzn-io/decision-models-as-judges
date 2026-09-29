@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1426,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user before acting on their order request. There is no evidence in the conversation that the agent confirmed the user's identity or the order-changing actions with the user. Even though the tool calls seem aligned with the user's requests, the lack of authentication and confirmation means it did not comply with policy. Therefore, the outcome quality fails.",
+  "repeat": 0,
+  "state_hash": "0395bf6c477f57a7d58f1c41bdad379efeef6b692a21b130ab5eb293bf09ca52",
+  "usage": {
+    "input_tokens": 796,
+    "output_tokens": 100
+  }
+}

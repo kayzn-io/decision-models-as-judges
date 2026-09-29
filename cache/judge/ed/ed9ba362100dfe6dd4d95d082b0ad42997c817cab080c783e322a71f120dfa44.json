@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1516,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user, confirmed the user's request to update the address, performed the address change correctly, and provided the confirmation. However, the agent could not proceed to revert the address without the needed street information but opted to transfer the user to a human agent for further assistance, adhering to policy. Thus, the conversation meets the pass criteria.",
+  "repeat": 1,
+  "state_hash": "06740432a34e661ba42b120462946ea8baa88954dd2f1fa5df6950b6e6b08e1a",
+  "usage": {
+    "input_tokens": 1793,
+    "output_tokens": 100
+  }
+}

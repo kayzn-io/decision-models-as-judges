@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "bea822aefc0c3767fad6f42bd9f7e0b2f08c21484d534fa6d89a7dee0de7ca79",
+  "step_index": null,
+  "task_id": "retail-61",
+  "text": "You are Chen Johnson from Houston TX, 77004. You want to change your wireless earbuds in order W5061109 to a blue colored one. Provide all details upfront and ask the agent to resolve as soon as possible. You want the price to be the same or lower.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Chen, last_name=Johnson, zip=77004)\n- get_user_details(user_id=chen_johnson_4204)\n- get_order_details(order_id=#W5797164)\n- get_order_details(order_id=#W5061109)\n- get_order_details(order_id=#W3973757)\n- get_product_details(product_id=9924732112)\n- modify_pending_order_items(item_ids=[\"3694871183\"], new_item_ids=[\"8555936349\"], order_id=#W5061109, payment_method_id=paypal_3742148)\nYour wireless earbuds in order #W5061109 have been changed to the blue option with 8 hours battery and IPX4 water resistance ($226.49). You will receive a refund of $30.18 to your PayPal account.\n\nNo further modifications or cancellations can be made to this order. If you need help with anything else, please let me know!",
+  "token_estimate": 291,
+  "truncated": false,
+  "variant": "baseline"
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 9169,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not retrieve order details or provide an arrival estimate, and did not perform or even seek confirmation for any order-changing action. No tool calls are shown, and the conversation ends with a generic farewell. This fails the policy requirements to authenticate, act only on the user\u2019s orders, confirm before any write, and provide correct final information.",
+  "repeat": 4,
+  "state_hash": "22f55c34ed2247c37dbf49b609469ce7cd17fe82d9aef39340ca464e90d10051",
+  "usage": {
+    "input_tokens": 718,
+    "output_tokens": 917
+  }
+}

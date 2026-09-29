@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2744,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user's request because they failed to revert the address back to the original one as requested due to insufficient information. Although the user initially completed a change of address request correctly, the agent's inability to finalize the reversion due to a requirement for the complete street address signals a policy failure. The agent should have either asked the user for sufficient details or guided them on how to retrieve that information instead of refusing to change the address altogether.",
+  "repeat": 4,
+  "state_hash": "a2b1f5d3960daf52b832f40995af9caf168b4194817ae08880ab41dcd40f858c",
+  "usage": {
+    "input_tokens": 1581,
+    "output_tokens": 121
+  }
+}

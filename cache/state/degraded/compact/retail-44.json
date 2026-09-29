@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "fdff3f0cd4653fe15784c8f296c27b619f7517c71b6c3a5b76f761a12943588f",
+  "step_index": null,
+  "task_id": "retail-44",
+  "text": "You are Aarav Anderson, residing in Philadelphia 19031. You're a private person and are reluctant to share information unless it's absolutely necessary. You want to change the Desk Lamp in order #W9300146 that you've placed for the cheapest Desk Lamp that's available. Any price difference should go to a gift card. You also want to know how much you get back in total.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Aarav, last_name=Anderson, zip=19031)\n- get_user_details(user_id=aarav_anderson_8794)\n- get_order_details(order_id=#W4316152)\n- get_order_details(order_id=#W9311069)\n- get_order_details(order_id=#W9300146)\n- get_product_details(product_id=6817146515)\n- modify_pending_order_items(item_ids=[\"9190635437\"], new_item_ids=[\"5320792178\"], order_id=#W9300146, payment_method_id=gift_card_7245904)\nThe total refund amount to your gift card is $17.99. If you have any more questions or need further assistance, feel free to ask!",
+  "token_estimate": 275,
+  "truncated": false,
+  "variant": "degraded"
+}

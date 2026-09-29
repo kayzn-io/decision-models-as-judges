@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21203,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user (no find_user_id_by_name_zip or get_user_details calls), did not retrieve order/product details, and did not request confirmation before any order-changing actions. It also did not actually perform the return or exchange. The only actions shown were a think and calculate step producing a combined savings figure, which relied on item prices not sourced from tools, violating the requirement against unsupported/fabricated information. Additionally, the user asked to know savings in both ways (return vs exchange) and the agent only gave a combined total. Therefore, the request was not completed in line with policy.",
+  "repeat": 1,
+  "state_hash": "f54ac26cd79e4e3701bc001153918ff27d4e23d020f932a7fe7ec983a24ce4df",
+  "usage": {
+    "input_tokens": 967,
+    "output_tokens": 1586
+  }
+}

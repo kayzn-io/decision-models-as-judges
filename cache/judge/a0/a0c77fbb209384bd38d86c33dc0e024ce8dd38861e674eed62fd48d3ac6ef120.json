@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20297,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent message indicates it unilaterally changed the jigsaw in order #W4082615 and issued a PayPal refund, but there is no evidence of required steps: no user authentication, no retrieval/verification of the address, no correction of user or order addresses, no confirmation from the user before performing an order-changing write, and no shown check that the item was unshipped/pending. Additionally, the refund and change outcome are asserted without visible tool results to support them. Therefore the request was not completed in line with policy.",
+  "repeat": 2,
+  "state_hash": "7b9140e2ede1e0215c0a0f8c0e591d4f3a0feb71c20c5cfd009b17d2c25f0930",
+  "usage": {
+    "input_tokens": 955,
+    "output_tokens": 1658
+  }
+}

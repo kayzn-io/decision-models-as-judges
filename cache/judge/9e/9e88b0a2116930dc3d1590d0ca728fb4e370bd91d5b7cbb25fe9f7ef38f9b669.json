@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.76,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.76,
+        "pass": 0.24
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21381,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using name and zip and retrieved the correct order. However, it did not complete the user\u2019s request to exchange the bookshelf for a camera. It asserted that exchanges can only occur after delivery without showing tool-backed eligibility details, and it did not offer permitted alternatives for a processed order (e.g., cancel/modify or plan next steps beyond waiting). It also overpromised to monitor and notify upon delivery without any tool support for notifications. No writes were performed without confirmation, but the core request remained unfulfilled, so the conversation does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "53b813f3895742dd59cddc0bdcff58716d12a726b43abb39b6e1bc80ac344cfb",
+  "usage": {
+    "input_tokens": 1684,
+    "output_tokens": 1391
+  }
+}

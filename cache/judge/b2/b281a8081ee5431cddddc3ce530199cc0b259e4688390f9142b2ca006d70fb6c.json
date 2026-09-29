@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23538,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "No evidence the agent authenticated the user, accessed only the user\u2019s own orders, confirmed changes before writing, or even attempted the requested modifications. The conversation shows only tool names listed and a sign-off, with no tool calls/results, no product count provided, and no handoff to a human for the order-change request (which cannot be completed with the provided tools). Therefore, the request was not completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "f77246da2d05785936de5763757d33b9b5f50a1ca8743ae592fc789e817a62db",
+  "usage": {
+    "input_tokens": 650,
+    "output_tokens": 1319
+  }
+}

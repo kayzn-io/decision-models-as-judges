@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.2,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.2,
+        "pass": 0.8
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18247,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The full conversation, tool calls, and outcomes are not provided here, so I cannot verify that the agent authenticated the user, confirmed any order-changing actions before executing them, performed the correct partial cancellation, computed the refund accurately to the original payment method, or updated the default address only if partial cancellation was not possible. Due to the absence of verifiable evidence meeting the pass bar, I cannot mark this as a pass. Marking fail with low confidence given the missing transcript details.",
+  "repeat": 0,
+  "state_hash": "33a32ff2f3ffb3726d2504808946fb5c60e8c1d718226e51571a8781f40fce5d",
+  "usage": {
+    "input_tokens": 974,
+    "output_tokens": 1302
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.85,
+        "pass": 0.15000000000000002
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1329,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent incorrectly acted on behalf of a different order (#W4689314) instead of confirming the correct order from the user's guess (#W8855135). Additionally, the agent did not authenticate the user before processing the request. As a result, it failed to adhere to the defined policy, leading to the conclusion of a failing outcome.",
+  "repeat": 0,
+  "state_hash": "f949762b5851df1e789c0947523a582e860325236705aa9d90abadbaebdd8da6",
+  "usage": {
+    "input_tokens": 780,
+    "output_tokens": 98
+  }
+}

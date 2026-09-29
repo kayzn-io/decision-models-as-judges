@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14610,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not collect or verify the order ID, and made no tool calls to fetch order or user details. It did not confirm or process any returns, performed no order-changing action (nor sought confirmation before doing so), and failed to provide the requested total refund amount or the total paid for remaining items. The response was a generic refund timeline and did not complete the user\u2019s request per policy. Therefore, it fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "69c12cd950934f63614978907ab270f0bd4530dfb9fc9ec879de9a7a10921713",
+  "usage": {
+    "input_tokens": 909,
+    "output_tokens": 1260
+  }
+}

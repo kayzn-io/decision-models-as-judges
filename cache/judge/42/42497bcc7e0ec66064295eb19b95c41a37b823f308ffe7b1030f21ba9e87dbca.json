@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 34562,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user via name and ZIP, identified the correct order and item, obtained explicit confirmation before initiating the return, and processed the refund to the original payment method. However, the agent later stated there were two vacuum cleaners in order #W9502127, which is unsupported by the tool data (only one vacuum cleaner is shown). This constitutes fabricated information, violating policy. Therefore, despite correctly handling the initial return, the conversation fails due to incorrect, unsupported final information.",
+  "repeat": 1,
+  "state_hash": "3c1e1580cc92e96db8c4f4e3469e62e57f53d69dec101639dc065d11eb191e2e",
+  "usage": {
+    "input_tokens": 2474,
+    "output_tokens": 2562
+  }
+}

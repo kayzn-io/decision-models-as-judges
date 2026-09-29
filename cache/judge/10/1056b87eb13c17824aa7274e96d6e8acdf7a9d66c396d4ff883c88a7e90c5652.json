@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12396,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The provided record shows no authentication, no verification of the user\u2019s order, no tool usage, no confirmation prior to any changes, and no concrete response to the user\u2019s requests (split payment, remove most expensive item, switch to cheaper options, or cancel). The only visible agent output is a generic closing, offering no evidence that the request was fulfilled or handled according to policy. Therefore, the outcome fails the stated pass criteria.",
+  "repeat": 4,
+  "state_hash": "bd38a445d3d20fdf142b4d5450b32b2b23409173f9a756b6bd544cd64ca4cf7d",
+  "usage": {
+    "input_tokens": 872,
+    "output_tokens": 873
+  }
+}

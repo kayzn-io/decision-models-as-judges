@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 7502,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation shows no authentication, no retrieval of the user or order, no confirmation steps, and no attempt to split payment or apply the requested alternatives (identify most expensive item, switch to cheaper options, or cancel). There are no tool calls or results; instead, the agent only provides a generic closing message. This fails the policy requirements to authenticate, act only on the user\u2019s orders, confirm before writes, and handle the request or escalate. Therefore, the request was not completed.",
+  "repeat": 2,
+  "state_hash": "bd38a445d3d20fdf142b4d5450b32b2b23409173f9a756b6bd544cd64ca4cf7d",
+  "usage": {
+    "input_tokens": 872,
+    "output_tokens": 698
+  }
+}

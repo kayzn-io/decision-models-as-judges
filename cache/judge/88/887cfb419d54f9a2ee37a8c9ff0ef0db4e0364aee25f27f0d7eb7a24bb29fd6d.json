@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.92,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.92,
+        "pass": 0.07999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 28558,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent canceled the entire order and stated a refund would be issued without first confirming any order-changing action with the user, violating the policy requirement to confirm before writes. The user initially asked about splitting payment and alternative cost-reduction steps; the agent neither attempted nor clarified those options nor handed off if unsupported. Authentication is not clearly established beyond using user-provided details, and the agent performed modification/cancellation actions without explicit confirmation. Therefore, the outcome does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "d3be76da97c36cc8a0a7bbd7fd3d7e949bfb150c5ef162ac797f580c97784d96",
+  "usage": {
+    "input_tokens": 901,
+    "output_tokens": 2093
+  }
+}

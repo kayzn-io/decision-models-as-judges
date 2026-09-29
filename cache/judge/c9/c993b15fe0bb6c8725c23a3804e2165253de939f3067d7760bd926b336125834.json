@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.64,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.64,
+        "pass": 0.36
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 26081,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation provides no evidence that the agent authenticated the user, retrieved the most recent order, or stated how much was paid. Only a closing courtesy line is shown, and no tool call results or final information about the payment amount are present. Therefore, the agent did not complete the user\u2019s request in line with policy (no verification, no correct final info).",
+  "repeat": 4,
+  "state_hash": "7cddecc015ac5a393368b11f5f4edfe94aea07daa36d8f3a3cffd48d4be6c81c",
+  "usage": {
+    "input_tokens": 770,
+    "output_tokens": 1332
+  }
+}

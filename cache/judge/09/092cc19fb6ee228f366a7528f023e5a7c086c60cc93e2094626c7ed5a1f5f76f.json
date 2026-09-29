@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.3,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1361,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed to authenticate the user according to policy before making changes to the order, and there is no evidence of the agent confirming the requested modifications. The conversation lacks clarity on whether the user was actually authenticated, thus failing to meet the requirements. Additionally, the modifications requested by the user were not confirmed before execution, constituting a policy violation.",
+  "repeat": 1,
+  "state_hash": "0395bf6c477f57a7d58f1c41bdad379efeef6b692a21b130ab5eb293bf09ca52",
+  "usage": {
+    "input_tokens": 796,
+    "output_tokens": 99
+  }
+}

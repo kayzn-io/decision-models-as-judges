@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19373,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user or retrieve/order details before proceeding. It provided a single total savings figure without tool-backed evidence for prices and did not compute or present savings for each option separately (return-only vs. exchanges-only) as requested. It also did not request confirmation before any order-changing actions, nor did it perform the requested return/exchanges in a policy-compliant manner. Therefore it failed to complete the request per policy.",
+  "repeat": 2,
+  "state_hash": "f54ac26cd79e4e3701bc001153918ff27d4e23d020f932a7fe7ec983a24ce4df",
+  "usage": {
+    "input_tokens": 967,
+    "output_tokens": 1344
+  }
+}

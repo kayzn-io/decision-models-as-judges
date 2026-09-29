@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "63063a9c7a6dbc111aacf39e9233fe6c506fc0de245c5bce6fbfd9286d14926e",
+  "step_index": null,
+  "task_id": "retail-7",
+  "text": "You are mei_kovacs_8020 (zip code 28236) and you want to exchange the water bottle and the desk lamp. You want to exchange the water bottle to a bigger one, and the desk lamp to a less bright one (prefer AC adapter > battery > USB). If the agent asks for confirmation, only exchange the desk lamp.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Mei, last_name=Kovacs, zip=28236)\n- get_user_details(user_id=mei_kovacs_8020)\n- get_order_details(order_id=#W6390527)\n- get_product_details(product_id=8310926033)\n- get_product_details(product_id=6817146515)\n- exchange_delivered_order_items(item_ids=[\"8384507844\"], new_item_ids=[\"1569765161\"], order_id=#W6390527, payment_method_id=paypal_7644869)\nThank you, Mei! Take care and enjoy your new desk lamp! If you need anything else, I\u2019m here to help.",
+  "token_estimate": 239,
+  "truncated": false,
+  "variant": "baseline"
+}

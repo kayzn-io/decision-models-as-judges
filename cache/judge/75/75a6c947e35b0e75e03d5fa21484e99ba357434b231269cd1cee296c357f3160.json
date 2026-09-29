@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30400,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user's identity using full name and zip code, matching to a single account. It checked the initially provided order ID and correctly noted it did not contain a camera, then looked up delivered orders and identified the correct order with a digital camera. The agent confirmed the exact action (returning the camera from order #W4689314 with refund to the original payment method, Mastercard ending 8484) and obtained explicit user confirmation before performing the return. The tool call to process the return used the correct item_id, order_id, and payment_method_id, and the resulting status reflected a return request. Final communication was accurate and did not invent unsupported details. Therefore, the interaction meets policy and completes the user's request.",
+  "repeat": 1,
+  "state_hash": "3ff0b3da5810608539fdba3e0d748475ea754755a57c046daa609c1d84a78cd9",
+  "usage": {
+    "input_tokens": 2314,
+    "output_tokens": 1140
+  }
+}

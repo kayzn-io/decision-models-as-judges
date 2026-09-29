@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.86,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.21999999999999997,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 43416,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name and zip, matched to a single user, and only acted on that user\u2019s account. It retrieved order details with read-only tools, confirmed the order was pending and eligible for changes, gathered the exact item and address updates, summarized them, and obtained explicit confirmation before making any modifications. The item was updated via the modify tool to the requested variant (grey, medium, polyester), with the tool response reflecting the correct change. The shipping address was already the default Charlotte address, and the agent ultimately stated it remained the default, which is accurate and avoids unnecessary writes. Payment remained on gift card; the agent did not change payment without consent and accurately confirmed usage of the gift card afterward. No unsupported statements were made, and no writes occurred without prior confirmation. Minor nit: the agent initially stated it would change the address even though it was already set, but it resolved accurately in the final confirmation. Overall, the request was completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "806c3cbf9bb97d10ed2752855ffd20d6b3bfab98a867eea471a9ecc72981d925",
+  "usage": {
+    "input_tokens": 2892,
+    "output_tokens": 3617
+  }
+}

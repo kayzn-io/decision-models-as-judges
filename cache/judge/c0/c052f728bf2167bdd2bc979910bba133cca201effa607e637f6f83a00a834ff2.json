@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.69,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.68,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.31999999999999995,
+        "pass": 0.68
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20362,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly used tools to answer the non-account question about t-shirt options and reported a count consistent with a tool lookup. When the user requested order modifications, the agent followed policy by requesting identity verification (email or full name + zip) before making any changes. After the user declined to share verification details, the agent appropriately refused to proceed and suggested secure alternative channels. No unverified or unsupported account actions were performed, and no misinformation or fabricated details were given. While the modification request was not completed due to lack of verification, this is aligned with policy, so the interaction meets the pass criteria.",
+  "repeat": 4,
+  "state_hash": "0c6a5bf4e10d3248d1090bb8dd5669a7eed1546a8dde317785754949ef75e87f",
+  "usage": {
+    "input_tokens": 2344,
+    "output_tokens": 1687
+  }
+}

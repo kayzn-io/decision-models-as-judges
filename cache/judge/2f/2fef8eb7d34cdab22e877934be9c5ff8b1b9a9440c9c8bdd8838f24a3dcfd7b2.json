@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.34,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.77,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.77,
+        "pass": 0.22999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 34917,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user via full name and zip code and updated the default address as requested, later declining to revert without full original details (which is reasonable). However, before performing the profile address update (a stored-record change), the agent did not explicitly state the exact change and obtain the user's confirmation to proceed. This violates the policy requiring explicit confirmation before any write. The final information provided was correct, and no unauthorized data was shared, but the missing pre-write confirmation constitutes a fail under the stated criteria.",
+  "repeat": 2,
+  "state_hash": "a2b1f5d3960daf52b832f40995af9caf168b4194817ae08880ab41dcd40f858c",
+  "usage": {
+    "input_tokens": 1576,
+    "output_tokens": 2457
+  }
+}

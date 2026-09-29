@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.21999999999999997,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 33394,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent strictly followed policy by requiring identity verification (email or full name + zip) before accessing account data or making order changes. The user repeatedly refused to verify, so the agent correctly declined to proceed with exchanges or to disclose gift card balance. No unauthorized actions were taken, no information was fabricated, and the agent offered a handoff to a human as an alternative. While the user\u2019s request was not completed due to lack of verification, the agent\u2019s handling was compliant with policy, so the conversation passes. The low completion probability reflects that the requested actions were not actually performed.",
+  "repeat": 1,
+  "state_hash": "6b009b04c86c198a827446384270e45fca9bf8279ad3dd402226d1929b456b2c",
+  "usage": {
+    "input_tokens": 1812,
+    "output_tokens": 1708
+  }
+}

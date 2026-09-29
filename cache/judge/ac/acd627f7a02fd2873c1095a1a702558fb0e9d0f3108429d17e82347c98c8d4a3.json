@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2377,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly, identified the return and exchange requests, and asked for confirmation before taking action. However, the exchange could not be processed due to an error in the order status after initiating the return, which was not handled appropriately in accordance with policy. The agent should have clarified the situation better to the user and provided further assistance with ordering the new item. Therefore, the outcome does not meet the quality standards required for a pass.",
+  "repeat": 1,
+  "state_hash": "33f441e9cde94d3c2acaf8aeb4afd3e69df8d466c4e2ba5640cb36a349de6298",
+  "usage": {
+    "input_tokens": 3786,
+    "output_tokens": 119
+  }
+}

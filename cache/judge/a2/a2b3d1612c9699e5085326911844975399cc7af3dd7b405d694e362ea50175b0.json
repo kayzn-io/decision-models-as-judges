@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.92,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.92,
+        "pass": 0.07999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22756,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user\u2019s request in line with policy. It failed to provide the gift card balance or determine whether the gift card could be applied to the order. It also did not explicitly confirm with the user before performing an order-changing write, yet it executed modify_pending_order_payment and announced the change to Visa and a refund to Mastercard. Policy requires confirmation before any order-changing action. Additionally, there\u2019s no explicit authentication step beyond looking up by email. Therefore, the interaction violates the confirmation requirement and leaves key user questions unanswered.",
+  "repeat": 2,
+  "state_hash": "78bc1b1b87020905ecd3bee1194d55970665a53bcd9d69123965caf2665001de",
+  "usage": {
+    "input_tokens": 784,
+    "output_tokens": 1731
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20311,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent initiated a return via a write action (return_delivered_order_items) without any visible confirmation from the user, violating the policy requirement to confirm before order-changing writes. Authentication is not evidenced beyond a lookup by email, and there\u2019s no explicit linkage proving the order belonged to the authenticated user. The final message is a generic sign-off and does not provide outcome details (which items were returned vs. kept, refund method/timeline, or next steps). Therefore, the request was not completed in line with policy.",
+  "repeat": 2,
+  "state_hash": "9424f7c62ac7a43b8dc23197793b46415373996497e0db5f6aa3224c5603ca39",
+  "usage": {
+    "input_tokens": 714,
+    "output_tokens": 1795
+  }
+}

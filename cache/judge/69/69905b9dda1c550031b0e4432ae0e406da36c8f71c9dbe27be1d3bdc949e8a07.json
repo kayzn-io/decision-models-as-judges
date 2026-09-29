@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.72,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.84,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.16000000000000003,
+        "pass": 0.84
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 33500,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and zip to a single profile before making changes. It clearly stated the exact address change and obtained explicit confirmation (\u201cyes\u201d) prior to updating the default address, then confirmed success. The agent did not fabricate information and did not disclose sensitive details. When the user requested to revert the address but refused to provide the necessary street details, the agent appropriately declined to proceed without sufficient information and offered a handoff, then transferred to a human agent upon request. No unauthorized actions were taken, no writes were performed without confirmation, and all steps aligned with policy. While the revert request was not completed due to the user's refusal to share required details, the handling and escalation were correct under policy, supporting a pass verdict.",
+  "repeat": 1,
+  "state_hash": "06740432a34e661ba42b120462946ea8baa88954dd2f1fa5df6950b6e6b08e1a",
+  "usage": {
+    "input_tokens": 1788,
+    "output_tokens": 2475
+  }
+}

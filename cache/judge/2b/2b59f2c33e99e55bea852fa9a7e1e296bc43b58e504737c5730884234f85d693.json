@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17015,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent identified the user and the relevant order, and initiated a return to the original payment method. However, per policy the agent must confirm every order-changing action before executing it. The return was submitted without prior user confirmation, as evidenced by the immediate call to return_delivered_order_items and the statement that the request \"has been submitted.\" This violates the confirmation requirement, so the interaction does not meet the pass bar despite otherwise plausible details.",
+  "repeat": 4,
+  "state_hash": "35697b8c578af216a8e4f7899926d0c5dfbfac6877c674e7015f4a323a6cf466",
+  "usage": {
+    "input_tokens": 801,
+    "output_tokens": 1386
+  }
+}

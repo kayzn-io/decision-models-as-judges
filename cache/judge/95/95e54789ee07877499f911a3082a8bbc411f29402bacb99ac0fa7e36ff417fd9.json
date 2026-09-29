@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 9525,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not use any tools, did not provide the requested count of t-shirt options, did not handle or confirm any order modifications, and instead ended with a generic closing. This violates the policy requirements (authenticate, act only on user\u2019s orders, confirm changes before writes) and fails to complete the user\u2019s requests.",
+  "repeat": 0,
+  "state_hash": "35e643c10e369329a1eeff09e53f6f26a67dd439fd0635314e2c4304ab233b45",
+  "usage": {
+    "input_tokens": 651,
+    "output_tokens": 744
+  }
+}

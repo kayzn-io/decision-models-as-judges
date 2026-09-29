@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14577,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent neither authenticated the user nor retrieved the user/order details. It did not seek confirmation or execute any order-changing actions (no return or exchange tool calls). It provided a savings total using internal calculations without sourcing prices via the provided tools, making the figures unsupported. It also failed to present savings for each alternative path (\u201conly one of the two\u201d) as requested. Therefore, the request was not completed in line with policy and includes unsupported information.",
+  "repeat": 0,
+  "state_hash": "f54ac26cd79e4e3701bc001153918ff27d4e23d020f932a7fe7ec983a24ce4df",
+  "usage": {
+    "input_tokens": 967,
+    "output_tokens": 1284
+  }
+}

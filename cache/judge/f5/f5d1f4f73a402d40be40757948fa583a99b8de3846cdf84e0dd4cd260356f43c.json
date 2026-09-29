@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23183,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Positives: The agent verified identity properly using full name + old ZIP, accessed the correct account, did not disclose private data, did not perform any writes without confirmation, and correctly explained they cannot place a new order through the agent. They also appropriately declined to update the address without receiving the new address details. \n\nIssues: The agent provided t\u2011shirt details that are not supported by the tool output. The tool showed, for example, a red XXL crew neck at $46.85, while the agent stated a red size L v\u2011neck at $46.66\u2014price and style/size do not match the fetched data. This constitutes giving unsupported/fabricated information. Additionally, the agent suggested they could proceed with only city, state, and ZIP for an address update, which is misleading since a specific street address is required. \n\nBecause the agent gave incorrect product information (and misleading guidance on the address update), the conversation fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "92ac90b26ee9d317e00459773acc5114e923bbd54b7e2f176addb0884d07a793",
+  "usage": {
+    "input_tokens": 2553,
+    "output_tokens": 1566
+  }
+}

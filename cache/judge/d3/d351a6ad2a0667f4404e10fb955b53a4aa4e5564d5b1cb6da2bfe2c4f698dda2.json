@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14688,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not meet multiple key policy requirements. It executed a write (modify_pending_order_items on order #W9911714) without first confirming the changes with the user. It chose PayPal as the payment method without attempting to use the gift card as requested or establishing that GC use was impossible. The user asked to upgrade all items to the most expensive options; the agent only modified one order and did not address items in the other orders it viewed. Authentication was minimal (name+ZIP lookup) with no explicit verification step shown, and the final response did not summarize what was changed or confirm totals. These issues collectively violate the pass criteria.",
+  "repeat": 4,
+  "state_hash": "04364d2556e96387f4c5602685691090261db3cbc3ae34d6cefff9121b02f646",
+  "usage": {
+    "input_tokens": 870,
+    "output_tokens": 1561
+  }
+}

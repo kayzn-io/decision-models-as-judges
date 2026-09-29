@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23506,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent identified the user by name and ZIP and pulled multiple order details, which may satisfy minimal authentication. However, it executed an exchange (exchange_delivered_order_items) without first confirming the exact change with the user, violating the explicit requirement to confirm every order-changing write. The agent also selected a specific new item and a payment method (gift card) without documented user confirmation, and provided no final, specific information about the exchange outcome (item details, costs/refunds, shipping/return steps). These issues breach the policy\u2019s confirmation and final-information requirements. Therefore, the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "9e468f85be25d996b3b1626574568d06c960c1e52c930dd98f35b9ccab952659",
+  "usage": {
+    "input_tokens": 816,
+    "output_tokens": 1503
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 27835,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly verified the user (name + ZIP matched a single account), asked for confirmation before making order-changing writes, and obtained explicit approval to cancel the pending order. However, it stated specific order statuses and item lists that were not clearly supported by the tool outputs (status not shown; items truncated). Most critically, it provided a precise refund amount ($1,527.24) without any tool-based calculation or total shown, which violates the policy against fabricating or unsupported information. This unsupported refund total fails the pass bar, despite otherwise correct authentication and confirmation steps.",
+  "repeat": 1,
+  "state_hash": "5f95153e4c71d0b66a20a5a97ac277830355cca2817a14b24f4d08b526eae35e",
+  "usage": {
+    "input_tokens": 3152,
+    "output_tokens": 2037
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15619,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not complete the user's request. Although it attempted some lookups (finding the user by name/zip and pulling several order details), it did not authenticate the user beyond that, did not present any tool results, did not ask for or receive confirmation, did not perform the requested exchange or product change, did not apply gift card funds, and did not provide the gift card balance. It ended with a generic sign-off without acting or clarifying. This falls short of the policy requirements to confirm before order-changing actions, act on the user\u2019s orders, and provide correct final information.",
+  "repeat": 1,
+  "state_hash": "3135c18e39a8f0e7115a0dfd93061808547be2f0389dc018884ef243a03d0f9b",
+  "usage": {
+    "input_tokens": 774,
+    "output_tokens": 1499
+  }
+}

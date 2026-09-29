@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21660,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly used tools to answer the general catalog question about t-shirt options and did not require user authentication for that, which is permitted. When the user requested an order modification, the agent appropriately requested identity verification (email or full name + zip) before proceeding, in line with policy. Upon the user's refusal to share personal details, the agent declined to make changes and suggested secure alternate channels, which is compliant. No unauthorized changes were made, no fabricated information was provided, and the agent stayed within the scope of the authenticated user's data (none, since not verified). Therefore, the interaction meets the pass criteria, though the modification could not be completed due to lack of verification.",
+  "repeat": 1,
+  "state_hash": "0c6a5bf4e10d3248d1090bb8dd5669a7eed1546a8dde317785754949ef75e87f",
+  "usage": {
+    "input_tokens": 2344,
+    "output_tokens": 1308
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "5d4404bfc662a863f762b135ae816341f3999003fcce432678ca4eaa2de6631b",
+  "step_index": null,
+  "task_id": "retail-112",
+  "text": "You name is Yara Silva and your zip code is 77159. You are sad and cautious. You want to modify the laptop order to your NYC address (you don't want to reveal it but should be in your orders profile). You also like to modify the laptop to be {'processor': 'i5', 'storage': '256GB SSD', 'color': 'space grey'};  You also want to exchange your watch to be black dial color but keep the leather strap. You like to say things together.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Yara, last_name=Silva, zip=77159)\n- get_user_details(user_id=yara_silva_7567)\n- get_order_details(order_id=#W9810810)\n- get_order_details(order_id=#W9034102)\n- get_order_details(order_id=#W3964602)\n- get_order_details(order_id=#W3730488)\n- get_product_details(product_id=4760268021)\n- modify_pending_order_items(item_ids=[\"2913673670\"], new_item_ids=[\"2216662955\"], order_id=#W3730488, payment_method_id=gift_card_7252880)\n- get_product_details(product_id=6066914160)\n- modify_pending_order_items(item_ids=[\"1355937109\"], new_item_ids=[\"9949163720\"], order_id=#W9810810, payment_method_id=gift_card_7252880)\n- modify_pending_order_address(address1=555 Highland Drive, address2=Suite 872, city=New York, country=USA, order_id=#W3730488, state=NY, zip=10116)\n- transfer_to_human_agents(summary=Customer Yara Silva needs to update the shipping address for her laptop order (#W3730488), but the order is no longer in a fully pending state after item modification. She requests assistance from a human agent to change the shipping address.)",
+  "token_estimate": 419,
+  "truncated": false,
+  "variant": "degraded"
+}

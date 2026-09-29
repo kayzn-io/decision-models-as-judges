@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.05,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29026,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via full name + ZIP. However, the agent performed order-changing actions (multiple returns and a cancellation) without first stating the exact changes and obtaining explicit user confirmation, violating policy. Critically, the agent canceled the entire pending order #W2575533 even though the user asked to cancel only the hose item if possible (and otherwise not cancel anything else). The canceled order did not show a garden hose among its items, yet the agent claimed it did. The agent also provided a refund breakdown and total that included an unsupported amount for the canceled order, indicating fabrication. These issues constitute acting without confirmation, executing the wrong action, and providing unsupported information, so the conversation fails the pass bar.",
+  "repeat": 0,
+  "state_hash": "a8eae4ae2157adddf33e1bc2a027de2164d929a714264708238ace473e5255f0",
+  "usage": {
+    "input_tokens": 3384,
+    "output_tokens": 2029
+  }
+}

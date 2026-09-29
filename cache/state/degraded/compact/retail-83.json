@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "b9648978676728c59be78177f71eb5e208f0d4229a113dd95c9f46946cfe3f17",
+  "step_index": null,
+  "task_id": "retail-83",
+  "text": "You name is Chen Silva and your zip code is 46281. You are messy, flexible, outgoing. You received two tablets and you only need one. You want to return the more expensive one and refund to credit card. If refund to credit card is not possible, you become angry and refund to GC.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Chen, last_name=Silva, zip=46281)\n- get_user_details(user_id=chen_silva_7485)\n- get_order_details(order_id=#W3069600)\n- get_order_details(order_id=#W2598834)\n- get_order_details(order_id=#W8171054)\n- get_order_details(order_id=#W9571698)\n- return_delivered_order_items(item_ids=[\"6065192424\"], order_id=#W9571698, payment_method_id=gift_card_7250692)\nYour return request for the gold 128GB tablet from order #W9571698 has been submitted. The refund will be processed to your gift card balance. You will receive an email with instructions on how to return the tablet.\n\nIf you need further assistance, feel free to ask!",
+  "token_estimate": 276,
+  "truncated": false,
+  "variant": "degraded"
+}

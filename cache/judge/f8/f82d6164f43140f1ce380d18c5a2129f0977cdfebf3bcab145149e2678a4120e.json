@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.5,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.2,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.2,
+        "pass": 0.8
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 34033,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "I was not shown the full conversation, tool calls, or outcomes. Without evidence that the agent authenticated the user, confirmed before any order-changing actions, performed correct changes, or appropriately handed off to a human, I cannot verify completion against policy. Given the lack of observable actions, I cannot justify a pass and therefore mark it as fail with low confidence due to missing context.",
+  "repeat": 1,
+  "state_hash": "03b1f5274d333ca32283a7d451af74a2871354b2848c44102fc8b38f5afb7b5c",
+  "usage": {
+    "input_tokens": 708,
+    "output_tokens": 1141
+  }
+}

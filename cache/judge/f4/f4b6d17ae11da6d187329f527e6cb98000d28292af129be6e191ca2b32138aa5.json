@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18715,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name and zip, matched to a single user, and only acted on that user\u2019s orders. It inspected orders via read-only tools, identified the two pending orders, requested explicit confirmation and a reason, then executed cancellations only after confirmation. Tool outputs confirm both orders were cancelled and refunds initiated. The final message accurately reflected the cancellations and refunds. A minor note: the stated refund timeline (5\u20137 business days) wasn\u2019t sourced from tools, but it\u2019s a standard estimate and does not materially conflict with the tool results showing refunds issued. Overall, the interaction met policy requirements.",
+  "repeat": 2,
+  "state_hash": "1f791422e00f9d0bffec6ea13a2b6eb189de9e7277d94812a37b4947551b074e",
+  "usage": {
+    "input_tokens": 2650,
+    "output_tokens": 1730
+  }
+}

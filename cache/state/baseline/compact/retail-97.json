@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "327f6c751ab2cc6f912c3bf7a249e9d34205114ad318f093d5c9f341d6eb3be9",
+  "step_index": null,
+  "task_id": "retail-97",
+  "text": "You name is Yusuf Li and your zip code is 91148. You are cautious, insecure, organized. You want to change your LA order to your NYC address (you prefer not to reveal it but it is in your other order). You also want to exchange Bluetooth Speaker to be the cheapest green type.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Yusuf, last_name=Li, zip=91148)\n- get_user_details(user_id=yusuf_li_7255)\n- get_order_details(order_id=#W6750959)\n- get_order_details(order_id=#W3407479)\n- get_product_details(product_id=4768869376)\n- modify_pending_order_address(address1=476 Maple Drive, address2=Suite 432, city=New York, country=USA, order_id=#W6750959, state=NY, zip=10093)\n- modify_pending_order_items(item_ids=[\"3254583681\"], new_item_ids=[\"9440686670\"], order_id=#W6750959, payment_method_id=paypal_8080730)\nThank you, Yusuf! Take care and enjoy your day! \ud83d\ude0a",
+  "token_estimate": 254,
+  "truncated": false,
+  "variant": "baseline"
+}

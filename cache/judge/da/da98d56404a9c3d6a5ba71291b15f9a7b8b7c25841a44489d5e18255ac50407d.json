@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.22,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.22,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15955,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The evaluation lacks the actual conversation and tool-call transcripts needed to verify authentication, catalog lookup, confirmation before order changes, and correct execution. Without evidence that the agent authenticated the user, provided the number of t\u2011shirt options, confirmed modifications, and either executed or correctly handed off the order updates, we cannot conclude the request was completed per policy. Given the absence of verifiable actions, the safest judgment is fail, with low confidence due to missing context.",
+  "repeat": 0,
+  "state_hash": "f77246da2d05785936de5763757d33b9b5f50a1ca8743ae592fc789e817a62db",
+  "usage": {
+    "input_tokens": 650,
+    "output_tokens": 1159
+  }
+}

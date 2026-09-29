@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22832,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated via name and ZIP, which is acceptable, but then submitted returns (including the e-reader and multiple items from another order) without explicit user confirmation, violating the policy requirement to confirm any order-changing write. The final message only mentions the e-reader return, failing to clearly address the two skateboards the customer initially asked to return, and potentially performing additional returns (e.g., smartwatch) without confirming. This constitutes wrong/missing actions and unconfirmed writes, so the interaction fails the pass bar.",
+  "repeat": 3,
+  "state_hash": "d8ed252cbb0fbe807fda4a276936231969cc4f2a2941a2b141c406d52b3f37f1",
+  "usage": {
+    "input_tokens": 832,
+    "output_tokens": 1838
+  }
+}

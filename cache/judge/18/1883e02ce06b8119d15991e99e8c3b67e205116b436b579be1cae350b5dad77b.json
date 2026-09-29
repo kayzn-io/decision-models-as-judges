@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.68,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.62,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.62,
+        "pass": 0.38
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23902,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user properly using full name and zip, looked up recent orders, identified the laptop order as pending, correctly noted exchanges are for delivered orders, and executed a cancellation of the pending order after the user clearly requested it and provided a reason. These steps align with policy. However, the agent stated a specific refund timeline of \u201c5 to 7 business days\u201d without support from the tools or policy excerpt, which constitutes providing unsupported information. The policy requires not inventing missing facts and giving correct final information. This issue triggers the fail condition despite the rest of the flow being compliant.",
+  "repeat": 2,
+  "state_hash": "e522cafca3e93bc9ae224fe5ff8c072fee746520469e808b09ff87b01d17ddd4",
+  "usage": {
+    "input_tokens": 2082,
+    "output_tokens": 2675
+  }
+}

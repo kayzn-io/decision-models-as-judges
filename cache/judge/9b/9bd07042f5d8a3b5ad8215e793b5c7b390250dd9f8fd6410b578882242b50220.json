@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.02,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.95,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.95,
+        "pass": 0.050000000000000044
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 7525,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not look up the order or provide an arrival estimate, did not seek confirmation for any order-changing action, and did not perform any cancellations or refunds. No tool calls/results are shown; instead, the agent only provided a generic farewell. This fails multiple policy requirements and does not complete the user\u2019s request.",
+  "repeat": 0,
+  "state_hash": "22f55c34ed2247c37dbf49b609469ce7cd17fe82d9aef39340ca464e90d10051",
+  "usage": {
+    "input_tokens": 718,
+    "output_tokens": 769
+  }
+}

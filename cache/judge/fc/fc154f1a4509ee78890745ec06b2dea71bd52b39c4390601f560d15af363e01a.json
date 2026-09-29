@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2476,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user before acting, and there are no records of the agent confirming any of the order-changing actions with the user. Without these confirmations, it is impossible to conclude that the requests were handled in line with the policy. Thus, the outcome quality of the conversation is a fail.",
+  "repeat": 2,
+  "state_hash": "0395bf6c477f57a7d58f1c41bdad379efeef6b692a21b130ab5eb293bf09ca52",
+  "usage": {
+    "input_tokens": 796,
+    "output_tokens": 91
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.8,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.85,
+        "pass": 0.15000000000000002
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2835,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed to authenticate the user effectively or confirm actions before they were taken. The user made several requests related to adjusting their order, including splitting payment, canceling items, or overall cancelling the order, but the conversation does not reflect that confirmation was obtained from the user for any action taken, and any subsequent action taken could be considered unsupported by tools, leading to a failure in upholding the conversation's policy guidelines.",
+  "repeat": 2,
+  "state_hash": "bd38a445d3d20fdf142b4d5450b32b2b23409173f9a756b6bd544cd64ca4cf7d",
+  "usage": {
+    "input_tokens": 877,
+    "output_tokens": 114
+  }
+}

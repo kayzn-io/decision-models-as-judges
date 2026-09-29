@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.3,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2103,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not successfully complete the request in line with policy. Key issues include that the final conversation does not indicate that the agent authenticated the user. Additionally, there is no evidence of confirmation from the user for the exchange or any order-changing operations that should have taken place based on the request. This lack of authentication and confirmation indicates a failure to align with the stated policy.",
+  "repeat": 2,
+  "state_hash": "3135c18e39a8f0e7115a0dfd93061808547be2f0389dc018884ef243a03d0f9b",
+  "usage": {
+    "input_tokens": 779,
+    "output_tokens": 105
+  }
+}

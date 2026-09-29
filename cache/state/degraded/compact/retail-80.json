@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "1ab540c81aef7c48a027d285452933a6ea555d8d26d99abd96b43a59a7205de5",
+  "step_index": null,
+  "task_id": "retail-80",
+  "text": "You name is Amelia Gonzalez and your email is amelia.gonzalez4271@example.com. You are curious, patient, outgoing. For #W7209932, exchange T-Shirt {'color': 'blue', 'size': 'S', 'material': 'polyester', 'style': 'v-neck'} to {'color': 'red', 'size': 'XXL', 'material': 'cotton', 'style': 'crew neck'}; Use the gift card. Try to make the conversation as confusing for the agent as possible.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_email(email=amelia.gonzalez4271@example.com)\n- get_user_details(user_id=amelia_gonzalez_4098)\n- get_order_details(order_id=#W7209932)\n- get_order_details(order_id=#W1762492)\n- get_product_details(product_id=9523456873)\n- exchange_delivered_order_items(item_ids=[\"5047954489\"], new_item_ids=[\"9354168549\"], order_id=#W7209932, payment_method_id=gift_card_2611937)\nThank you, Amelia! It\u2019s been a pleasure being your trusty sidekick on this quest. I\u2019m sure your email will find its way safely through the enchanted forest of your inbox, but if you ever need help again\u2014whether it\u2019s for another exchange, a return, or just a bit of adventure\u2014just call on me!\n\nWishing you luck on your secret mission to the post office and many more epic shopping adventures ahead!",
+  "token_estimate": 335,
+  "truncated": false,
+  "variant": "degraded"
+}

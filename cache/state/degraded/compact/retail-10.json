@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "0bcd3fcfc027a2c866732cb590012d7ae3a04fa8257c4dd30db649cec82e6f7f",
+  "step_index": null,
+  "task_id": "retail-10",
+  "text": "You are mia_garcia_4516 (mia.garcia2723@example.com). For some reason, you want to return all things ordered. You have two payment methods and two orders, and you want to refund each order to the opposite order's payment method. If not possible, you are angry and swear for a few times, then asks for human representative. You are a mysterious person and do not want to reveal much about yourself or speak too many words at the same time.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_email(email=mia.garcia2723@example.com)\n- get_user_details(user_id=mia_garcia_4516)\n- get_order_details(order_id=#W5490111)\n- get_order_details(order_id=#W7387996)\n- return_delivered_order_items(item_ids=[\"4579334072\", \"1421289881\", \"6117189161\", \"4947717507\"], order_id=#W5490111, payment_method_id=credit_card_3124723)\n- return_delivered_order_items(item_ids=[\"5796612084\"], order_id=#W7387996, payment_method_id=paypal_9497703)\n- transfer_to_human_agents(summary=The user requested returns for two delivered orders and specified refund methods for each. The agent processed the returns, but the user wanted the refunds to go to the opposite payment methods. The user is upset and requests to speak with a human representative to resolve the refund method issue.)",
+  "token_estimate": 348,
+  "truncated": false,
+  "variant": "degraded"
+}

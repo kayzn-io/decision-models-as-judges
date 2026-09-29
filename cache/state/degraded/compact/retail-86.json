@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "370e281e7e11bc443d800339f7008bf0c907d5aba53a111592fbf97dcf9e7b66",
+  "step_index": null,
+  "task_id": "retail-86",
+  "text": "You name is Yusuf Hernandez and your email is yusuf.hernandez8836@example.com. You are shy, rigid. You want to exchange your Fleece Jacket to red color and half zipper. You also want to want to change your default address to your Washington DC address (which you do not want to reveal but is in one of the orders).\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_email(email=yusuf.hernandez8836@example.com)\n- get_user_details(user_id=yusuf_hernandez_6785)\n- get_order_details(order_id=#W2166301)\n- get_order_details(order_id=#W2466703)\n- get_product_details(product_id=8560156827)\n- modify_pending_order_items(item_ids=[\"9385662952\"], new_item_ids=[\"8733974883\"], order_id=#W2466703, payment_method_id=paypal_7529813)\n- get_order_details(order_id=#W6832752)\n- get_order_details(order_id=#W7739115)\n- get_order_details(order_id=#W1994898)\n- modify_user_address(address1=565 Maple Drive, address2=Suite 501, city=Washington, country=USA, state=DC, user_id=yusuf_hernandez_6785, zip=20307)\nYour default shipping address has been updated to:\n\n565 Maple Drive, Suite 501, Washington, DC 20307, USA.\n\nIf you need any further assistance or updates, just let me know!",
+  "token_estimate": 325,
+  "truncated": false,
+  "variant": "degraded"
+}

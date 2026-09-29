@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.04,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25205,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "No evidence the agent authenticated the user, reviewed the user\u2019s orders, or performed any returns or modifications. There are no tool calls shown, no confirmations before order-changing actions, and no final, supported details about what was changed or returned. The closing message claims assistance but is unsupported by tool results, violating the policy requirements for authentication, confirmation, and verifiable action. Therefore, the request was not completed per policy.",
+  "repeat": 4,
+  "state_hash": "45c64c04a2598674b13c6292e7e975e9fcb274a6071811dc5cba611b0040edf4",
+  "usage": {
+    "input_tokens": 829,
+    "output_tokens": 1589
+  }
+}

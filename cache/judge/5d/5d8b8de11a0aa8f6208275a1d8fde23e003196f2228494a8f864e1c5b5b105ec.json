@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.27,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25291,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user via email and inspected all five orders. It correctly limited changes to the three pending orders and updated each to the Washington, DC address on file using the appropriate tool. Final information given was consistent with the tool results. However, the policy requires the agent to state the exact change and obtain explicit confirmation before performing any order-changing write. The agent proceeded to modify all three orders immediately after the user\u2019s preference without restating the exact changes and asking for confirmation. This violates the confirmation requirement, so despite otherwise correct actions, the conversation does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "f1df23659a342983cea028f49805885ee481af9541f3c8142eec737a4886503d",
+  "usage": {
+    "input_tokens": 3433,
+    "output_tokens": 2291
+  }
+}

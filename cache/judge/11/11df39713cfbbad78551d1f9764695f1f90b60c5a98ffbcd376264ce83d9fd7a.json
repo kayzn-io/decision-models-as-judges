@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.74,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.74,
+        "pass": 0.26
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21642,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent executed an exchange write (exchange_delivered_order_items) but there is no evidence it confirmed the action with the user beforehand, as required by policy. Authentication steps are unclear beyond an email-based lookup, and there is no explicit confirmation of payment method selection or order-changing consent. The final message provides no concrete post-exchange details (e.g., exchange confirmation, return instructions, costs/refunds, timeline). These gaps violate the policy\u2019s requirements to authenticate, confirm before any order change, and provide correct final information.",
+  "repeat": 1,
+  "state_hash": "e74cb420eb6263f11a9695cb52c03c7e12dcaf41f17381875e594af6998c0198",
+  "usage": {
+    "input_tokens": 788,
+    "output_tokens": 1821
+  }
+}

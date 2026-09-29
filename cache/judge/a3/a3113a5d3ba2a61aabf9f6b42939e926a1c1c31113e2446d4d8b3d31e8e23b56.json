@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2105,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user before taking action. The conversation does not show any authentication step, which is a key requirement of the policy. Additionally, it is unclear if the order was checked for tracking information or its transit status, and it is not mentioned that the agent confirmed with the user before changing the default address. Therefore, the outcome did not fully comply with the policies, leading to a fail judgment.",
+  "repeat": 1,
+  "state_hash": "3f64823ee372209990d74c3d4a092ddea72595e5b98f1a6957574a5702a20bfa",
+  "usage": {
+    "input_tokens": 831,
+    "output_tokens": 113
+  }
+}

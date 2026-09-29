@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.37,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.37,
+        "pass": 0.63
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16729,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The record shows no authentication via the provided tool, no retrieval of order details or ETA, and no evidence of confirming or executing any order-changing action. There are no tool calls at all (no find_user_id_by_name_zip, no get_order_details, no cancel action), no handling of the conditional logic (partial item cancellation vs. whole order, refund to gift card requirement), and no handoff to a human despite limitations. The conversation appears to end with a generic farewell, indicating the request wasn\u2019t completed per policy. Given the lack of concrete evidence of correct actions, it fails the pass bar; confidence is moderate-low due to sparse conversation details.",
+  "repeat": 1,
+  "state_hash": "22f55c34ed2247c37dbf49b609469ce7cd17fe82d9aef39340ca464e90d10051",
+  "usage": {
+    "input_tokens": 718,
+    "output_tokens": 1305
+  }
+}

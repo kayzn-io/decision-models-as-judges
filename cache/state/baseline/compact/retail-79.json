@@ -1,0 +1,11 @@
+{
+  "injection": "none",
+  "profile": "compact",
+  "state_hash": "88696453ec205635e27cd2f0eca1a3258baeab2aa8c1534c8b0bcaa0bc2dfd84",
+  "step_index": null,
+  "task_id": "retail-79",
+  "text": "You name is Emma Kovacs and your zip code is 32190. You are insecure, rigid, sad, logical. You just bought a water bottle with 500ml but you regret it, and you want to change it to the other bottle you just placed with 1000ml capacity. If the exact item is not available any more, you can allow the material to be different.\nPolicy: authenticate the user, act only on their own orders, confirm every order-changing action before taking it, and hand off to a human when a request cannot be handled\n- find_user_id_by_name_zip(first_name=Emma, last_name=Kovacs, zip=32190)\n- get_user_details(user_id=emma_kovacs_9839)\n- get_order_details(order_id=#W8661412)\n- get_product_details(product_id=8310926033)\n- modify_pending_order_items(item_ids=[\"3453331371\"], new_item_ids=[\"7661609223\"], order_id=#W8661412, payment_method_id=credit_card_7239357)\nYour order has been updated! The 500ml stainless steel black water bottle has been changed to the 1000ml stainless steel black version in order #W8661412. You will receive a $6.28 refund to your Visa card ending in 8676 within 5\u20137 business days.\n\nIf you need any more help with this order or anything else, just let me know!",
+  "token_estimate": 291,
+  "truncated": false,
+  "variant": "baseline"
+}

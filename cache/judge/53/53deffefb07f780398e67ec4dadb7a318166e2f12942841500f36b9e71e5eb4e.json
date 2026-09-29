@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14415,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "There is no evidence the agent authenticated the user, retrieved the order, confirmed changes, or executed any tool calls to modify the address or items. The only visible agent content is a generic farewell, with no confirmation of order-changing actions or final details. Per policy, the agent must authenticate, act only on the user\u2019s order, confirm before writes, and provide correct final info. None of this is demonstrated, so the request does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "214dcb3a49013e6c1b8717c79ae449b1eb7b0ea64842b5b1db594644c5aa77bc",
+  "usage": {
+    "input_tokens": 910,
+    "output_tokens": 1092
+  }
+}

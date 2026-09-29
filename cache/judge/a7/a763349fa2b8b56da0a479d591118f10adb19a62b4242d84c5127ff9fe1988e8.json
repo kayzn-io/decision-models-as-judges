@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.94,
+        "pass": 0.06000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 13025,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The conversation shows no authentication, no tool calls to verify the product, no confirmation requests, and no order modifications or cancellations performed. The agent did not provide whether the camera has 10x zoom, did not attempt to modify the order, and did not cancel the order under the specified conditions. There is only a generic closing message. This fails the policy requirements to authenticate, act on the user\u2019s order, confirm before any order-changing write, and hand off when unable to fulfill the request.",
+  "repeat": 4,
+  "state_hash": "bd6b1da81d3a9741293ba2b9957e52ed05dedcd3d90caf62d6da317671c06515",
+  "usage": {
+    "input_tokens": 755,
+    "output_tokens": 1123
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 18642,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked to check how much they paid for their most recent order. The visible conversation only shows a closing message (\u201cYou\u2019re welcome, Noah! \u2026\u201d) and no evidence of authentication, tool usage, or the requested information being provided. There is no confirmation of user identity, no retrieval of the most recent order, and no amount reported. With no demonstrated policy adherence or completion of the request, this fails the pass bar.",
+  "repeat": 0,
+  "state_hash": "7cddecc015ac5a393368b11f5f4edfe94aea07daa36d8f3a3cffd48d4be6c81c",
+  "usage": {
+    "input_tokens": 770,
+    "output_tokens": 1181
+  }
+}

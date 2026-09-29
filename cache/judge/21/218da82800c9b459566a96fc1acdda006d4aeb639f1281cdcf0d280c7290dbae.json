@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.04,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.96,
+        "pass": 0.040000000000000036
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15074,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent did not authenticate the user, did not verify or modify any orders or addresses, did not request confirmation before any changes, and made no tool calls. It also failed to address the two stated problems in the required order. The final message claims assistance without evidence of completed actions or correct information. Therefore, the request was not completed per policy.",
+  "repeat": 4,
+  "state_hash": "33f8d6c8894b055979c41efff7709bcf729bc196e432fc51347a2057f67edb9d",
+  "usage": {
+    "input_tokens": 888,
+    "output_tokens": 872
+  }
+}

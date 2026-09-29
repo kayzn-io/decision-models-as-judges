@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.8,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.8,
+        "pass": 0.19999999999999996
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 2489,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent didn't confirm the order-changing action with the user before making the change to the Desk Lamp in order #W9300146. This is a critical fail condition according to the policy. Although the agent performed the authentication and attempted to complete the request, the lack of confirmation invalidates the transaction. Therefore, the conversation fails the outcome quality assessment.",
+  "repeat": 0,
+  "state_hash": "741a62aae5fc345a849ba921503582260a045ef270fdd2496ded4ee8bd0e1b23",
+  "usage": {
+    "input_tokens": 764,
+    "output_tokens": 100
+  }
+}

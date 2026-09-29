@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.06,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20697,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The user asked to remove a fleece jacket from a pending order (or cancel the order if not possible), modify a skateboard\u2019s specs (or cancel if not available), and report totals paid for grills. The agent only provided the grill totals and did not authenticate the user, did not confirm any order-changing action, and did not perform or even propose the required modifications/cancellations. There\u2019s no evidence of the necessary writes or confirmations, so the core requests were not completed per policy. The grill total appears correctly calculated, but the overall outcome fails due to missing required actions and policy steps.",
+  "repeat": 2,
+  "state_hash": "5d487c01179c8e126770143dbe9d19b9822ec94bd1bdc9a7e0788e2f8b6a180f",
+  "usage": {
+    "input_tokens": 943,
+    "output_tokens": 1713
+  }
+}

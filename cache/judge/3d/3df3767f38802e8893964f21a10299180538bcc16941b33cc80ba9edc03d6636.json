@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 13230,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching the provided email to a single account, then used read-only tools to confirm details without disclosing private info back to the user. The user explicitly requested a human agent, and the agent complied by transferring them, providing a concise summary. No order-changing actions were performed without confirmation, and no unsupported or fabricated information was given. This aligns with the policy and fulfills the user\u2019s request to speak to a human agent.",
+  "repeat": 1,
+  "state_hash": "0b974e928d3b3cd1955e32c32f5e698639f4659d9b6c63017db06589b7e6767d",
+  "usage": {
+    "input_tokens": 1211,
+    "output_tokens": 980
+  }
+}

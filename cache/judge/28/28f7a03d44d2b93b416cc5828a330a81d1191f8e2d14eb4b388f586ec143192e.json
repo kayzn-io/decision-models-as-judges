@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.74,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.67,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.32999999999999996,
+        "pass": 0.67
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17113,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Reinstating a canceled order is not supported in the system per policy, so the correct action is to hand off to a human. The agent invoked transfer_to_human_agents with an appropriate summary, made no unauthorized changes, and did not fabricate outcomes. While authentication and confirmation were not performed, no order-changing action occurred, and escalation was the correct policy-aligned response. Therefore this meets the policy-aligned handling, though it does not complete the user\u2019s desired reinstatement directly.",
+  "repeat": 0,
+  "state_hash": "77cfab806ea639260be10a0f7c872ff6ac6ae99839bd750b35c5097f251d04d9",
+  "usage": {
+    "input_tokens": 672,
+    "output_tokens": 1276
+  }
+}

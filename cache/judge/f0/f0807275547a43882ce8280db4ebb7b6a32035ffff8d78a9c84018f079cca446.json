@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24153,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and zip code to a single account before proceeding. They inspected the user\u2019s orders via tools, correctly identified the bicycle in order #W3916020, and confirmed the exact action (refund for the bicycle) and the refund destination (Mastercard ending 8484) before performing any write. The tool action used the correct item_id and payment_method_id corresponding to the original card. Final information given to the user was consistent with tool data, and no unsupported or fabricated claims were made. The process followed policy requirements throughout.",
+  "repeat": 2,
+  "state_hash": "18af0fb254346becdaa543e044c3565978fc1be1a624d64187953b1c1eb48635",
+  "usage": {
+    "input_tokens": 2992,
+    "output_tokens": 1993
+  }
+}

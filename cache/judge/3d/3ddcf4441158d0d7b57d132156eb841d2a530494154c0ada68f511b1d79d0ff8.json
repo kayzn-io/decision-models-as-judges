@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32455,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent executed order-changing writes (item exchange and address change) without any visible user confirmation, violating the policy requirement to confirm before making changes. There is no explicit authentication beyond a name/zip lookup, no verification that the orders belong to the authenticated user, and no confirmation of charges or payment method use for the exchange. The agent did not demonstrate that the replacement item is the cheapest green variant, and provided no final summary of changes\u2014only a generic goodbye. These issues fail the pass bar, which requires proper authentication, confirmation before writes, correct execution, and accurate final information.",
+  "repeat": 1,
+  "state_hash": "8b50ed95665dbd20ad57aae7e230020daff998f60597e0497505f54e4a2741ce",
+  "usage": {
+    "input_tokens": 818,
+    "output_tokens": 2133
+  }
+}

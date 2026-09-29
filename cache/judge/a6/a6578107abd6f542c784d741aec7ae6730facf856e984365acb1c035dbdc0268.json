@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.1,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29705,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name + old zip and avoided exposing the user\u2019s current address. It did not perform any write without confirmation and correctly stated it could not update the address without the new details. It also properly declined to place a new order since no tool supports that. However, it provided unsupported/incorrect product information: it stated the cheapest t\u2011shirt was a red, size L, v\u2011neck for $46.66, which does not match the tool data (the visible cheapest variant was at least $46.85 and style/size differed). This constitutes fabricated/unsupported information, violating policy and failing the pass bar.",
+  "repeat": 0,
+  "state_hash": "92ac90b26ee9d317e00459773acc5114e923bbd54b7e2f176addb0884d07a793",
+  "usage": {
+    "input_tokens": 2553,
+    "output_tokens": 2161
+  }
+}

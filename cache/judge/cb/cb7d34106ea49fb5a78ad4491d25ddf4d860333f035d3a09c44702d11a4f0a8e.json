@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.6,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.85,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.85,
+        "pass": 0.15000000000000002
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_cheap",
+  "latency_ms": 1605,
+  "model_id": "openai/gpt-4o-mini",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent failed to revert the user's address because they did not have the complete street address for the original location in Denver. They required this information to comply with policy for address changes. Therefore, while the agent did make an update to the address and functioned correctly for that part, they did not complete the user's entire request of reverting back to the original address, resulting in an overall failure.",
+  "repeat": 0,
+  "state_hash": "a2b1f5d3960daf52b832f40995af9caf168b4194817ae08880ab41dcd40f858c",
+  "usage": {
+    "input_tokens": 1581,
+    "output_tokens": 108
+  }
+}
