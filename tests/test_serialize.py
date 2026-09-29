@@ -111,12 +111,11 @@ def test_full_renders_tool_call_with_sorted_args() -> None:
     assert 'call: get_order_details({"order_id": "#W1", "zzz": 5})' in state.text
 
 
-def test_full_truncates_tool_result_at_600() -> None:
+def test_full_keeps_long_tool_results_whole_under_budget() -> None:
     state = serialize(_small_record(tool_content="y" * 750), _task(), StateProfile.full)
-    assert "[truncated 150 chars]" in state.text
-    # The kept prefix is exactly 600 chars of the tool content.
-    assert "y" * 600 in state.text
-    assert "y" * 601 not in state.text
+    assert "y" * 750 in state.text
+    assert "[truncated" not in state.text
+    assert not state.truncated
 
 
 def test_full_hash_matches_text() -> None:
@@ -133,8 +132,18 @@ def test_budget_truncation_oldest_tool_results_first() -> None:
     task = _task()
     full = serialize(record, task, StateProfile.full, budget_tokens=10_000_000)
     assert not full.truncated
+    assert "[truncated" not in full.text
 
-    budget = full.token_estimate - 200
+    # A budget just under the whole text shrinks only the oldest result, to 600.
+    budget = full.token_estimate - 20
+    light = serialize(record, task, StateProfile.full, budget_tokens=budget)
+    assert light.truncated
+    assert light.token_estimate <= budget
+    assert "[truncated 200 chars]" in light.text
+    assert light.text.count("[truncated") == 1
+
+    # A tighter budget shrinks every result to 600, then the oldest to 100.
+    budget = full.token_estimate - 600
     trimmed = serialize(record, task, StateProfile.full, budget_tokens=budget)
     assert trimmed.truncated
     assert trimmed.token_estimate <= budget

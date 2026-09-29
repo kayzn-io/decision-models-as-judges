@@ -9,6 +9,7 @@ whether the normalized call appears in the task's expected actions.
 
 import hashlib
 import json
+import sys
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
@@ -51,7 +52,7 @@ _ARGS_TEXT = (
     "agent retrieved earlier in the conversation."
 )
 
-_FULL_RESULT_CAP = 600
+_FULL_RESULT_CAP = sys.maxsize  # tool results stay whole unless the budget is exceeded
 _SHRUNK_RESULT_CAP = 100
 _COMPACT_TOKEN_CAP = 450
 _NAN = float("nan")

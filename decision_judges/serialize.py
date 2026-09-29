@@ -9,6 +9,7 @@ injection helper builds paired persuasion/control variants for experiments.
 import hashlib
 import json
 import re
+import sys
 from collections.abc import Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
@@ -168,6 +169,13 @@ def _truncate_tool(content: str, cap: int) -> str:
     return content[:cap] + f"[truncated {len(content) - cap} chars]"
 
 
+# Tool-result caps for the full profile. Results are uncapped until the token
+# budget is exceeded; then the oldest are shrunk to 600 and, if still over, 100.
+_UNCAPPED = sys.maxsize
+_BUDGET_RESULT_CAP = 600
+_SHRUNK_RESULT_CAP = 100
+
+
 @dataclass
 class _Turn:
     """One rendered conversation turn, minus any skipped system message."""
@@ -244,23 +252,31 @@ def _assemble_full(header: str, turns: list[_Turn], caps: list[int], kept: list[
 
 
 def _serialize_full(record: AgentRecord, task: Task, budget_tokens: int) -> tuple[str, bool]:
-    """Render the full profile, truncating to fit budget_tokens if needed."""
+    """Render the full profile, truncating only when the text exceeds budget_tokens.
+
+    Tool results are kept whole by default. A judge asked whether the agent's
+    statements are supported by its tools needs the tool output those
+    statements came from; cutting it made judges fail correct runs for facts
+    that had been removed from the copy. Shrinking happens only past the budget,
+    and then ``truncated`` is set so the cut is visible on the record.
+    """
     header = f"{task.instruction}\n{POLICY_SUMMARY}"
     turns = _build_turns(record.trajectory)
-    caps = [600] * len(turns)
+    caps = [_UNCAPPED] * len(turns)
     kept = [True] * len(turns)
 
     text = _assemble_full(header, turns, caps, kept)
     if _estimate(text) <= budget_tokens:
         return text, False
 
-    # Phase one: shrink tool results to 100 chars, oldest first.
-    for index, turn in enumerate(turns):
-        if _estimate(text) <= budget_tokens:
-            break
-        if turn.role == "tool":
-            caps[index] = 100
-            text = _assemble_full(header, turns, caps, kept)
+    # Phase one: shrink tool results, oldest first, to 600 chars and then 100.
+    for cap in (_BUDGET_RESULT_CAP, _SHRUNK_RESULT_CAP):
+        for index, turn in enumerate(turns):
+            if _estimate(text) <= budget_tokens:
+                break
+            if turn.role == "tool" and caps[index] > cap:
+                caps[index] = cap
+                text = _assemble_full(header, turns, caps, kept)
 
     # Phase two: drop middle turns until under budget or nothing is left.
     while _estimate(text) > budget_tokens and sum(kept) > 1:
@@ -330,9 +346,10 @@ def serialize(
 ) -> StateRecord:
     """Serialize one run into judge-visible text under the chosen profile.
 
-    The full profile keeps the whole conversation (system message excluded)
-    behind the task instruction and policy summary, truncating to budget_tokens
-    by shortening the oldest tool results and then dropping middle turns. The
+    The full profile keeps the whole conversation (system message excluded),
+    with every tool result intact, behind the task instruction and policy
+    summary. Past budget_tokens it shortens the oldest tool results and then
+    drops middle turns, and marks the record truncated. The
     compact profile keeps the instruction, a one-line policy gist, the ordered
     tool calls, and the final assistant message under a 450-token cap. The
     leakage guard runs on the result before it is returned.
