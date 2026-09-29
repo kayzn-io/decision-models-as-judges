@@ -1,0 +1,5 @@
+The rushed agent skips confirming with customers; this experiment asks whether each judge notices that it does worse.
+
+In the ground truth the rushed agent passed 4 points less often than the careful agent, a gap small enough to be hard to detect. The rule-based check saw a drop of 2 points, somewhere between 14 points worse and 10 points better. Jev saw a drop of 34 points, somewhere between 46 points worse and 22 points worse. The fast text model saw a drop of 10 points, somewhere between 18 points worse and 1 point worse. The strong text model saw a drop of 20 points, somewhere between 33 points worse and 7 points worse. The fast text model got the size about right; Jev and the strong text model exaggerated the drop; the rule-based check missed it.
+
+None of the judges reported a drop when shown two halves of the careful agent's own conversations. Jev and the strong text model treated the rushed agent's behaviour as failure rather than judging its results, so the drop they report is larger than the real regression; the fast text model is the estimate you could trust here.
