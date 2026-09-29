@@ -199,6 +199,25 @@ def test_running_analyze_writes_g6_summary(monkeypatch: pytest.MonkeyPatch, tmp_
     assert (root / "results" / "g6_summary.md").is_file()
 
 
+def test_running_analyze_rebuilds_g3_summary_from_the_cache(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """The g3 table is rewritten from every cached verdict, not left as the last batch wrote it."""
+    root, at = _local_app(monkeypatch, tmp_path)
+    stale = root / "results" / "g3_summary.md"
+    stale.write_text("| judge_id |\n|---|\n| laya_base |\n", encoding="utf-8")
+    at.run()
+
+    at.button(key="run_analyze").click().run()
+    status = _await_finished(root, "analyze")
+
+    assert status.error is None
+    rebuilt = stale.read_text(encoding="utf-8")
+    assert "laya_base" not in rebuilt
+    assert "code" in rebuilt and "fake" in rebuilt
+    assert (root / "results" / "g3_findings.md").is_file()
+
+
 def test_slow_step_shows_stop_and_cancels(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     def slow_fake(paths: object, ctx: object) -> None:
         started = utc_now_iso()

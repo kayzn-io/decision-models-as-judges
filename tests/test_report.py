@@ -216,6 +216,7 @@ def test_render_results_empty_dir_has_ten_not_run(tmp_path: Path) -> None:
 def test_render_results_uses_analyze_hint_for_analysis_gates(tmp_path: Path) -> None:
     body = render_results(tmp_path / "results", tmp_path / "cache")
 
+    assert "judges analyze --gate g3 --profile full --profile compact" in body
     assert "judges analyze --gate g5" in body
     assert "judges analyze --gate g6" in body
     assert "judges analyze --gate g8" in body

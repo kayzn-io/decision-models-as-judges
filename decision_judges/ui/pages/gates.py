@@ -54,6 +54,7 @@ _HOW_TO_READ: dict[str, list[tuple[str, str]]] = {
         ("Error rate", "share of verdicts that failed to parse"),
     ],
     "g3": [
+        ("Profile", "which reading copy the judge saw: the full text or the short one"),
         ("Accuracy", "share matching ground truth"),
         ("Kappa", "agreement beyond chance, 0 is guessing"),
         ("F1 fail", "how well failures specifically are caught"),
@@ -226,7 +227,13 @@ def _g3_tab(paths: data.Paths) -> None:
         )
         return
     _show_table(frame)
-    if {"judge_id", "accuracy"} <= set(frame.columns):
+    if {"judge_id", "accuracy", "profile"} <= set(frame.columns):
+        _show_chart(
+            charts.grouped_bar(
+                frame, x="judge_id", y="accuracy", group="profile", title="Outcome accuracy"
+            )
+        )
+    elif {"judge_id", "accuracy"} <= set(frame.columns):
         _show_chart(
             charts.bar(
                 frame, x="judge_id", y="accuracy", color="judge_id", title="Outcome accuracy"

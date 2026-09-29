@@ -64,14 +64,20 @@ tables and charts under `results/` and the gate's prose to
 14. `judges judge --gate g10` — stage `g10`, cap $5.00. Writes
     `results/g10_summary.md`, `results/g10_folds.md`, and
     `results/g10_zero_shot_vs_finetuned.png`.
-15. `judges analyze --gate g5` — stage `g5`, cap $0.00; reuses the cached g3
+15. `judges analyze --gate g3 --profile full --profile compact` — stage `g3`,
+    no spend. Rebuilds `results/g3_summary.{md,csv}`,
+    `results/g3_accuracy.{png,svg}`, and `results/g3_findings.md` from every
+    cached g3 verdict, covering all judges and both profiles. Each `judge`
+    command above writes those files from only the batch it just ran, so run
+    this once after the last g3 judge to get the complete table.
+16. `judges analyze --gate g5` — stage `g5`, cap $0.00; reuses the cached g3
     verdicts. Writes `results/g5_frontier.md`, `results/g5_reference.md`, and
     `results/g5_frontier.png`.
-16. `judges analyze --gate g6` — stage `g6`, cap $0.00. Writes
+17. `judges analyze --gate g6` — stage `g6`, cap $0.00. Writes
     `results/g6_summary.md` and `results/g6_reliability.png`.
-17. `judges analyze --gate g8` — stage `g8`, cap $0.00. Writes
+18. `judges analyze --gate g8` — stage `g8`, cap $0.00. Writes
     `results/g8_summary.md` and `results/g8_intervals.png`.
-18. `make results` — no spend. Writes `results/summary.md` and refreshes the
+19. `make results` — no spend. Writes `results/summary.md` and refreshes the
     results block in `README.md`.
 
 Each `judge` command runs the judge set named by `--judges` (default `code`).

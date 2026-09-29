@@ -1,9 +1,11 @@
 """The G3 outcome gate: did the agent complete the request in line with policy?"""
 
+import math
 from collections import Counter, defaultdict
 from collections.abc import Mapping, Sequence
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from matplotlib.figure import Figure
 
@@ -168,15 +170,38 @@ class G3Outcome(Gate):
         }
 
     def _accuracy_chart(self, frame: pd.DataFrame) -> Figure:
-        """Return a bar figure of accuracy per judge, built without pyplot."""
+        """Return accuracy bars per judge, one bar per profile, built without pyplot.
+
+        A single profile draws one bar per judge. Two profiles draw them side
+        by side with a legend, so the full and compact readings can be compared
+        judge by judge.
+        """
         figure = Figure()
         axes = figure.subplots()
         if not frame.empty:
-            axes.bar(frame["judge_id"].tolist(), frame["accuracy"].tolist())
+            judges = sorted(frame["judge_id"].unique().tolist())
+            profiles = sorted(frame["profile"].unique().tolist())
+            positions = np.arange(len(judges))
+            width = 0.8 / len(profiles)
+            for offset, profile in enumerate(profiles):
+                values = [self._accuracy_for(frame, judge, profile) for judge in judges]
+                axes.bar(positions + offset * width, values, width, label=profile)
+            axes.set_xticks(positions + width * (len(profiles) - 1) / 2)
+            axes.set_xticklabels(judges)
+            if len(profiles) > 1:
+                axes.legend(title="profile")
         axes.set_ylabel("accuracy")
         axes.set_ylim(0.0, 1.0)
         axes.set_title("G3 outcome accuracy by judge")
         return figure
+
+    def _accuracy_for(self, frame: pd.DataFrame, judge_id: str, profile: str) -> float:
+        """Return one judge's accuracy on one profile, or 0.0 when that row is absent."""
+        subset = frame[(frame["judge_id"] == judge_id) & (frame["profile"] == profile)]
+        if subset.empty:
+            return 0.0
+        value = float(subset["accuracy"].iloc[0])
+        return 0.0 if math.isnan(value) else value
 
     def _findings(self, frame: pd.DataFrame) -> str:
         """Return two to three factual sentences on the best judge and repeatability."""
@@ -185,8 +210,8 @@ class G3Outcome(Gate):
         best = frame.sort_values("accuracy", ascending=False).iloc[0]
         return (
             f"Judge {str(best['judge_id'])!r} had the highest outcome accuracy at "
-            f"{float(best['accuracy']):.2f}. Modal agreement across repeats ranged from "
-            f"{float(frame['modal_agreement'].min()):.2f} to "
+            f"{float(best['accuracy']):.2f} on the {best['profile']} text. Modal agreement "
+            f"across repeats ranged from {float(frame['modal_agreement'].min()):.2f} to "
             f"{float(frame['modal_agreement'].max()):.2f}. USD cost per verdict is recorded "
             f"in the spend ledger, not in this table."
         )

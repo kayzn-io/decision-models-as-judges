@@ -467,3 +467,35 @@ def test_analyze_computes_metrics_and_builds_outputs() -> None:
 
     assert "perfect" in result.findings
     assert isinstance(result.charts["g3_accuracy"], Figure)
+
+
+def test_analyze_keeps_one_row_per_judge_and_profile_and_names_the_best_profile() -> None:
+    """Pooled full and compact verdicts yield separate rows and a chart with one bar per profile."""
+    full_items = [_item("f0", "pass"), _item("f1", "fail")]
+    compact_items = [
+        _item("c0", "pass", profile=StateProfile.compact),
+        _item("c1", "fail", profile=StateProfile.compact),
+    ]
+    sharp = FakeJudge("sharp", "none", "pv", lambda h, r: ("", None))
+    local = FakeJudge("local", "none", "pv", lambda h, r: ("", None))
+
+    verdicts: list[Verdict] = []
+    for item in full_items:
+        verdicts.append(_make_verdict(sharp, item.state, 0, item.truth_label))
+    for item in compact_items:
+        verdicts.append(_make_verdict(sharp, item.state, 0, "fail"))
+        verdicts.append(_make_verdict(local, item.state, 0, item.truth_label))
+
+    result = G3Outcome().analyze(verdicts, [*full_items, *compact_items])
+
+    df = result.tables["g3_summary"]
+    rows = {(row.judge_id, row.profile) for row in df.itertuples()}
+    assert rows == {("sharp", "full"), ("sharp", "compact"), ("local", "compact")}
+    assert df.set_index(["judge_id", "profile"]).loc[("sharp", "full"), "accuracy"] == 1.0
+    assert df.set_index(["judge_id", "profile"]).loc[("sharp", "compact"), "accuracy"] == 0.5
+    assert "on the full text" in result.findings or "on the compact text" in result.findings
+
+    axes = result.charts["g3_accuracy"].axes[0]
+    assert [label.get_text() for label in axes.get_xticklabels()] == ["local", "sharp"]
+    assert axes.get_legend() is not None
+    assert [text.get_text() for text in axes.get_legend().get_texts()] == ["compact", "full"]

@@ -79,6 +79,7 @@ judges judge --gate g7
 judges judge --gate g1
 judges judge --gate g9
 judges judge --gate g10
+judges analyze --gate g3 --profile full --profile compact
 judges analyze --gate g5
 judges analyze --gate g6
 judges analyze --gate g8

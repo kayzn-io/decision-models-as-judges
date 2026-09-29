@@ -404,8 +404,8 @@ def _verdict_counts(paths: Paths) -> StepStatus:
 
 
 def _analyze_counts(paths: Paths) -> StepStatus:
-    done = _results_present(paths, ("g5_frontier", "g6_summary", "g8_summary"))
-    return _state_for(done, 3, f"{done} of 3 analyses written")
+    done = _results_present(paths, ("g3_summary", "g5_frontier", "g6_summary", "g8_summary"))
+    return _state_for(done, 4, f"{done} of 4 analyses written")
 
 
 def _laya_counts(paths: Paths) -> StepStatus:
@@ -799,34 +799,51 @@ def _run_judge_outcome(paths: Paths, ctx: RunContext) -> str | None:
 
 
 _ANALYZE_LABELS = {
+    "g3": "How accurate each judge is",
     "g5": "When to trust the cheap judge",
     "g6": "Whether confidence means what it says",
     "g8": "Whether the judges notice a drop in quality",
 }
 
+# Which reading copies each analysis reduces. The accuracy table covers both
+# copies, because the judging step ran both and Laya reads only the short one.
+# The cascade, calibration, and regression analyses compare judges on the full
+# text alone, so a judge that read only the short copy does not distort them.
+_ANALYZE_PROFILES: dict[str, tuple[StateProfile, ...]] = {
+    "g3": (StateProfile.full, StateProfile.compact),
+    "g5": (StateProfile.full,),
+    "g6": (StateProfile.full,),
+    "g8": (StateProfile.full,),
+}
+
 
 def _run_analyze(paths: Paths, ctx: RunContext) -> str | None:
-    """Reduce cached verdicts into the cascade, calibration, and regression findings.
+    """Reduce every cached verdict into the accuracy, cascade, calibration, and regression findings.
 
-    Each experiment is one named batch. A read-and-write reduction with no
-    early-stop reason; returns None.
+    Each analysis is one named batch. The accuracy table is rebuilt here from
+    the whole cache, because a judging run writes it from only the batch it
+    just judged. A read-and-write reduction with no early-stop reason; returns
+    None.
     """
     from decision_judges.report import write_findings
 
     registry = pipeline.analysis_registry(ctx.study, ctx.pricing)
     variants = _variants_present(paths)
-    profile = StateProfile.full
     started = utc_now_iso()
-    gate_ids = ("g5", "g6", "g8")
+    gate_ids = ("g3", "g5", "g6", "g8")
     labels = [_ANALYZE_LABELS[gate_id] for gate_id in gate_ids]
-    reporter = PhaseReporter(ctx.on_progress, labels, [1, 1, 1])
+    reporter = PhaseReporter(ctx.on_progress, labels, [1] * len(gate_ids))
+    all_verdicts, _ = pipeline.load_verdicts(paths.cache_dir / "judge")
     for index, gate_id in enumerate(gate_ids):
         if ctx.cancel is not None and ctx.cancel.is_cancelled:
             return None
-        items = pipeline.items_for_variants(
-            paths.cache_dir / "state", paths.cache_dir / "agent", profile, variants
-        )
-        all_verdicts, _ = pipeline.load_verdicts(paths.cache_dir / "judge")
+        items = [
+            item
+            for profile in _ANALYZE_PROFILES[gate_id]
+            for item in pipeline.items_for_variants(
+                paths.cache_dir / "state", paths.cache_dir / "agent", profile, variants
+            )
+        ]
         verdicts = pipeline.filter_verdicts_to_items(all_verdicts, items)
         if verdicts:
             findings = pipeline.analyze_gate(registry[gate_id], verdicts, items, paths.results_dir)
@@ -1077,16 +1094,17 @@ def _plan_judge_outcome(paths: Paths, study: StudyConfig) -> RunPlan:
 
 
 def _plan_analyze(paths: Paths, study: StudyConfig) -> RunPlan:
-    """Plan for Draw conclusions: reuses the verdicts, three experiments, no calls."""
+    """Plan for Draw conclusions: reuses the verdicts, four analyses, no calls."""
     return RunPlan.build(
         judges=[],
         conversations=_conversation_total(paths),
         questions=0,
         text_versions=[],
         free_note=(
-            "No new judge calls; this step reuses the verdicts from step 2. It draws three "
-            "experiments: when to trust the cheap judge, whether confidence means what it "
-            "says, and whether the judges notice a real drop in quality."
+            "No new judge calls; this step reuses the verdicts from step 2. It draws four "
+            "analyses: how accurate each judge is, when to trust the cheap judge, whether "
+            "confidence means what it says, and whether the judges notice a real drop in "
+            "quality."
         ),
     )
 
@@ -1235,8 +1253,9 @@ STEPS: tuple[RunStep, ...] = (
         id="analyze",
         title="Draw conclusions",
         purpose=(
-            "From those answers: when to trust the cheap judge, whether confidence means what "
-            "it says, and whether judges notice a real drop in quality."
+            "From those answers: how accurate each judge is, when to trust the cheap judge, "
+            "whether confidence means what it says, and whether judges notice a real drop "
+            "in quality."
         ),
         pipe="analyze",
         input_station="verdicts",
@@ -1245,12 +1264,14 @@ STEPS: tuple[RunStep, ...] = (
         paid=False,
         learn=(
             "This step turns the answers into written results, with no new judging. The first "
-            "result asks how much accuracy you keep if a cheap judge answers when it is sure "
-            "and an expensive judge answers only when the cheap one is unsure, trading cost for "
-            "accuracy. The second checks whether a judge's confidence means what it says: a "
-            "judge that says it is ninety percent sure should be right about nine times in ten. "
-            "The third asks whether the judges notice the drop in quality between the careful "
-            "agent and the rushed one."
+            "result is the accuracy table: every judge on both versions of the text, rebuilt "
+            "from every answer on disk, so it stays complete no matter which judge ran last. "
+            "The second asks how much accuracy you keep if a cheap judge answers when it is "
+            "sure and an expensive judge answers only when the cheap one is unsure, trading "
+            "cost for accuracy. The third checks whether a judge's confidence means what it "
+            "says: a judge that says it is ninety percent sure should be right about nine "
+            "times in ten. The fourth asks whether the judges notice the drop in quality "
+            "between the careful agent and the rushed one."
         ),
         unlock=_needs_verdicts,
         status=_status_from(_needs_verdicts, _analyze_counts),

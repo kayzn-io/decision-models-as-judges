@@ -470,12 +470,15 @@ def default_repeats(
 
 
 def analysis_registry(study: StudyConfig, pricing: PricingTable) -> dict[str, Gate]:
-    """Return analysis-only gates, constructed from the study and pricing.
+    """Return the gates that can be analyzed from cached G3 verdicts alone.
 
-    These gates reuse cached G3 verdicts rather than judging, so they are built
-    as ready instances configured from the study seed and thresholds.
+    G5, G6, and G8 never judge; they only reduce the G3 cache. G3 itself is
+    included so its summary can be rebuilt over every judge and profile at
+    once: a ``judge`` run analyzes only the batch it just produced and
+    overwrites the G3 files with that batch alone.
     """
     return {
+        "g3": G3Outcome(),
         "g5": G5Cascade(pricing, study.thresholds.cascade),
         "g6": G6Calibration(seed=study.seed),
         "g8": G8Regression(seed=study.seed),

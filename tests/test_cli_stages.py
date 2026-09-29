@@ -3,6 +3,7 @@
 import json
 from pathlib import Path
 
+import pandas as pd
 from typer.testing import CliRunner
 
 from decision_judges import pipeline
@@ -438,13 +439,53 @@ def test_cli_analyze_rejects_non_analysis_gate(tmp_path: Path) -> None:
     runner = CliRunner()
     result = runner.invoke(
         app,
-        ["analyze", "--gate", "g3", "--study", str(STUDY_FILE), "--pricing", str(PRICING_FILE)],
+        ["analyze", "--gate", "g2", "--study", str(STUDY_FILE), "--pricing", str(PRICING_FILE)],
     )
 
     assert result.exit_code != 0
+    assert "g3" in result.output
     assert "g5" in result.output
     assert "g6" in result.output
     assert "g8" in result.output
+
+
+def test_cli_analyze_g3_rebuilds_summary_across_profiles(tmp_path: Path) -> None:
+    """Judging the compact copy alone overwrites the g3 table; analyze restores both."""
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    pipeline.serialize_all(
+        _write_agent_records(agent_dir), _tasks(), state_dir, [StateProfile.compact]
+    )
+    runner = CliRunner()
+    full = runner.invoke(app, _judge_args(tmp_path, agent_dir, state_dir))
+    assert full.exit_code == 0, full.output
+    compact_args = _judge_args(tmp_path, agent_dir, state_dir)
+    compact_args[compact_args.index("--profile") + 1] = "compact"
+    compact = runner.invoke(app, compact_args)
+    assert compact.exit_code == 0, compact.output
+    overwritten = pd.read_csv(tmp_path / "results" / "g3_summary.csv")
+    assert set(overwritten["profile"]) == {"compact"}
+
+    args = _analyze_args(tmp_path, agent_dir, state_dir, "g3") + ["--profile", "compact"]
+    result = runner.invoke(app, args)
+
+    assert result.exit_code == 0, result.output
+    rebuilt = pd.read_csv(tmp_path / "results" / "g3_summary.csv")
+    assert set(rebuilt["profile"]) == {"full", "compact"}
+    assert set(rebuilt["judge_id"]) == {"code", "fake"}
+    assert len(rebuilt) == 4
+    assert "on the full text" in result.output or "on the compact text" in result.output
+
+
+def test_cli_analyze_rejects_unknown_profile(tmp_path: Path) -> None:
+    agent_dir, state_dir = _serialize_states(tmp_path)
+    runner = CliRunner()
+    args = _analyze_args(tmp_path, agent_dir, state_dir, "g3")
+    args[args.index("--profile") + 1] = "tiny"
+
+    result = runner.invoke(app, args)
+
+    assert result.exit_code != 0
+    assert "tiny" in result.output
 
 
 def test_cli_analyze_no_verdicts_message(tmp_path: Path) -> None:

@@ -10,6 +10,7 @@ from decision_judges import pipeline
 from decision_judges.bench.load import Task, load_tasks
 from decision_judges.bench.run_agent import AgentRecord
 from decision_judges.config import StudyConfig, load_pricing, load_study
+from decision_judges.gates.g3_outcome import G3Outcome
 from decision_judges.gates.g5_cascade import G5Cascade
 from decision_judges.gates.g6_calibration import G6Calibration
 from decision_judges.gates.g8_regression import G8Regression
@@ -492,10 +493,12 @@ def test_analysis_registry_keys_and_types() -> None:
 
     registry = pipeline.analysis_registry(study, pricing)
 
-    assert set(registry) == {"g5", "g6", "g8"}
+    assert set(registry) == {"g3", "g5", "g6", "g8"}
+    assert isinstance(registry["g3"], G3Outcome)
     assert isinstance(registry["g5"], G5Cascade)
     assert isinstance(registry["g6"], G6Calibration)
     assert isinstance(registry["g8"], G8Regression)
+    assert registry["g3"].gate_id == "g3"
     assert registry["g5"].gate_id == "g5"
     assert registry["g6"].gate_id == "g6"
     assert registry["g8"].gate_id == "g8"

@@ -195,7 +195,7 @@ def judge(
 @app.command()
 def analyze(
     gate: Annotated[str, typer.Option("--gate")],
-    profile: Annotated[str, typer.Option("--profile")] = "full",
+    profile: Annotated[list[str] | None, typer.Option("--profile")] = None,
     variant: Annotated[list[str] | None, typer.Option("--variant")] = None,
     agent_dir: Annotated[Path, typer.Option("--agent-dir")] = Path("cache/agent"),
     state_dir: Annotated[Path, typer.Option("--state-dir")] = Path("cache/state"),
@@ -204,7 +204,12 @@ def analyze(
     study: Annotated[Path, typer.Option("--study")] = Path("config/study.toml"),
     pricing: Annotated[Path, typer.Option("--pricing")] = Path("config/pricing.toml"),
 ) -> None:
-    """Analyze cached verdicts through a gate that reuses them, writing results."""
+    """Analyze cached verdicts through a gate, writing results without judging.
+
+    ``--profile`` may be repeated to pool verdicts across reading copies;
+    ``--gate g3 --profile full --profile compact`` rebuilds the outcome table
+    over every judge and both copies. It defaults to the full copy.
+    """
     study_config = load_study(study)
     pricing_table = load_pricing(pricing)
     registry = pipeline.analysis_registry(study_config, pricing_table)
@@ -213,7 +218,7 @@ def analyze(
             f"unknown analysis gate {gate!r}; known: {', '.join(sorted(registry))}"
         )
     try:
-        state_profile = StateProfile(profile)
+        state_profiles = [StateProfile(name) for name in (profile or ["full"])]
     except ValueError as exc:
         raise typer.BadParameter(str(exc)) from exc
 
@@ -225,7 +230,11 @@ def analyze(
             typer.echo(f"skipping {name}: no agent records under {agent_dir / name}")
 
     gate_impl = registry[gate]
-    items = pipeline.items_for_variants(state_dir, agent_dir, state_profile, present)
+    items = [
+        item
+        for state_profile in state_profiles
+        for item in pipeline.items_for_variants(state_dir, agent_dir, state_profile, present)
+    ]
     all_verdicts, warnings = pipeline.load_verdicts(cache_dir)
     for warning in warnings:
         typer.echo(f"skipped verdict {warning}")

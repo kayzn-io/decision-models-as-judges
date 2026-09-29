@@ -404,6 +404,53 @@ def test_run_gate_builds_judges_with_the_session_key_installed(
     assert seen["key_at_build"] == "sk-or-session-key"
 
 
+def test_run_analyze_reads_both_copies_for_g3_and_the_full_copy_for_the_rest(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Laya judged only the short copy, so the accuracy table must pool both copies."""
+    from decision_judges.config import load_pricing
+    from decision_judges.gates.base import Gate
+    from decision_judges.serialize import StateProfile
+
+    requested: list[StateProfile] = []
+    analyzed: list[str] = []
+
+    def fake_items_for_variants(
+        state_dir: object, agent_dir: object, profile: StateProfile, variants: object
+    ) -> list[object]:
+        requested.append(profile)
+        return [object()]
+
+    def fake_analyze_gate(gate: Gate, verdicts: object, items: object, results_dir: object) -> str:
+        analyzed.append(gate.gate_id)
+        return "findings"
+
+    monkeypatch.setattr(steps.pipeline, "items_for_variants", fake_items_for_variants)
+    monkeypatch.setattr(steps.pipeline, "load_verdicts", lambda *a, **k: ([object()], []))
+    monkeypatch.setattr(steps.pipeline, "filter_verdicts_to_items", lambda v, i: [object()])
+    monkeypatch.setattr(steps.pipeline, "analyze_gate", fake_analyze_gate)
+    monkeypatch.setattr(steps, "_variants_present", lambda paths: ["baseline"])
+    monkeypatch.setattr("decision_judges.report.write_findings", lambda *a, **k: None)
+    study = load_study(_FIXTURE / "config" / "study.toml")
+    pricing = load_pricing(_FIXTURE / "config" / "pricing.toml")
+    monkeypatch.setenv("JUDGES_ROOT", str(tmp_path))
+    paths = Paths.from_env()
+    ctx = steps.RunContext(study=study, pricing=pricing, key=None)
+
+    assert steps._run_analyze(paths, ctx) is None
+
+    assert analyzed == ["g3", "g5", "g6", "g8"]
+    # g3 pools full and compact; g5, g6, and g8 each read the full copy alone.
+    assert requested == [
+        StateProfile.full,
+        StateProfile.compact,
+        StateProfile.full,
+        StateProfile.full,
+        StateProfile.full,
+    ]
+    assert steps._ANALYZE_PROFILES["g3"] == (StateProfile.full, StateProfile.compact)
+
+
 # --- PhaseReporter and phase-aware progress --------------------------------
 
 
