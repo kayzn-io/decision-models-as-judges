@@ -63,7 +63,7 @@ after. Everything else here is on the uncut copies.
 
 7. Jev and gpt-5 tie on quality at a 150× price difference. Per thousand
    verdicts on the uncut copies: Jev $0.19 at 0.17 s median, gpt-4o-mini
-   $0.65 at 2.1 s, gpt-5 $28.01 at 28 s. gpt-5 spent 95% of the study's
+   $0.65 at 2.1 s, gpt-5 $28.01 at 28 s. gpt-5 spent 97% of the full-copy
    judging budget.
 
 8. For someone choosing: if you can write down the expected end state, check
@@ -382,7 +382,7 @@ The cascade experiment (gate 5) follows. Asking gpt-4o-mini first and
 escalating to gpt-5 when its confidence is below 0.5 sends 26% of
 conversations on, reaches 62% accuracy at $0.008 per conversation, and is the
 best point on the cost curve: 71% cheaper than gpt-5 alone for one point more.
-But it is also only five points over gpt-4o-mini alone at 16× the price, and
+But it is also only five points over gpt-4o-mini alone at 12× the price, and
 one point over Jev alone at 40× the price.
 
 ## Finding 7: cost and latency
