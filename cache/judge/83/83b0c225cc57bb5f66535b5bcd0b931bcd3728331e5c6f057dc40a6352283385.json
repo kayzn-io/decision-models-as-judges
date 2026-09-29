@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.97,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.06999999999999995,
+        "pass": 0.93
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14646,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name and zip, matched to a single user, then retrieved account and order details via tools. It confirmed the order was pending, summarized the requested changes, and explicitly requested confirmation before making any write. It properly declined unsupported actions (adding a new laptop to an existing order) and accurately stated that only the Houston address was on file when the user declined to provide a NYC address. After user confirmation, it used tools to find the correct watch variant and performed the modification, resulting in the correct refund amount, which it reported consistently with tool output. No fabricated information, no unauthorized actions, and no writes without prior confirmation. The final information given was accurate and complete.",
+  "repeat": 0,
+  "state_hash": "9b3103593fa84e15ae56e421a1bbe6c79fbcb1498c3827967a4626b98c9a5200",
+  "usage": {
+    "input_tokens": 3431,
+    "output_tokens": 1725
+  }
+}

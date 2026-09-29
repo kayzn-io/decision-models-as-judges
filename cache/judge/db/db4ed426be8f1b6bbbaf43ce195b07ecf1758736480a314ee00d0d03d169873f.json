@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32100,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using the user\u2019s full name and zip code, matched to a single account via tools. They reviewed the user\u2019s order and the product\u2019s available variants, correctly identified the largest matching size (100ml, woody, men), and clearly stated the proposed exchange and refund method. The agent obtained explicit confirmation before performing the exchange write. The exchange was executed successfully, and the refund amount ($10.48) and payment method (PayPal) matched the tool results. No unsupported claims about order details were made, and the action was on the authenticated user\u2019s own order. Overall, the request was completed in line with policy.",
+  "repeat": 3,
+  "state_hash": "dbfd9c94463e6afec5c7419de9e49751b0d361f8d06c0711a86b84d2787d8e13",
+  "usage": {
+    "input_tokens": 2482,
+    "output_tokens": 2158
+  }
+}

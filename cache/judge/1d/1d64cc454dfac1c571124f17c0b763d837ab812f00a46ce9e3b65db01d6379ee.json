@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.94,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16822,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user, and inspected the user\u2019s recent orders with tablets. It correctly identified the more expensive gold 128GB tablet was paid by gift card and explained refund constraints. It requested explicit confirmation to proceed with refund to the gift card and then submitted the return for the correct item. The tool response confirmed the return request and refund method. Final messaging was accurate and did not fabricate unsupported details. All actions were on the authenticated user\u2019s orders, with confirmation before the write. Overall, the request was completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "c5ea97f76f6828419dcf9baa23b73de6fe89d1f50c71659610d2f096855c5289",
+  "usage": {
+    "input_tokens": 3391,
+    "output_tokens": 1206
+  }
+}

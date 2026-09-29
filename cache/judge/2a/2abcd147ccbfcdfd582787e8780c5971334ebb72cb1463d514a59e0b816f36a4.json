@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.71,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.29000000000000004,
+        "pass": 0.71
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 33357,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly (email failed, then matched full name + zip to a single user). It reviewed the grill order details before taking action and did not perform any write without confirmation; instead it asked for a reason and, when the user chose to keep the order, confirmed no cancellation occurred. For the t-shirt inquiry, the agent checked a delivered order, accurately reported there was only one t-shirt (red, L, v\u2011neck, cotton) and correctly stated that there weren\u2019t two t\u2011shirts in that order, asking the user to specify another order to investigate further. All shared information is supported by tool results, and there were no unconfirmed changes or policy violations. While the agent could have proactively checked other orders for additional t-shirts, it handled the request within policy and provided correct information, with appropriate clarification requests.",
+  "repeat": 0,
+  "state_hash": "c5b62caf438b8d6cb665fb54f4488246d6580c96c663f7bd7a1c750bd36d83bb",
+  "usage": {
+    "input_tokens": 3060,
+    "output_tokens": 2427
+  }
+}

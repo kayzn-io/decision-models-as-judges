@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.74,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.26,
+        "pass": 0.74
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 42776,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and ZIP to a single account before proceeding. They pulled order details read-only, identified the relevant pending order, and sought explicit confirmation before attempting any order change. Tool attempts to partially modify the order failed due to system constraints; the agent accurately communicated the limitation and offered appropriate alternatives (cancel entire order or exchange variants). The user chose to keep the order and update the default address. The agent confirmed the exact address change and obtained consent before executing it, then successfully updated the profile via the tool and confirmed the result. No unauthorized account access occurred and no writes were performed without prior confirmation. Minor nits: the agent initially stated an expected PayPal refund window without tool support and echoed the Seattle address in chat despite the user's preference not to reveal it; however, these do not violate the stated policy and the final requested action was completed correctly.",
+  "repeat": 1,
+  "state_hash": "d0bd66b0088ece96772ef9937c6937f00951108d131b547a970a16ff69730b23",
+  "usage": {
+    "input_tokens": 4114,
+    "output_tokens": 3432
+  }
+}

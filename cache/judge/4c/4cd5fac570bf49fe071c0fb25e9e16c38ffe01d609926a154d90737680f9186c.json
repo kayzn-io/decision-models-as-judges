@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.56,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.7,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.7,
+        "pass": 0.30000000000000004
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24563,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name and ZIP, accessed the correct account, reviewed the pending order, correctly proposed a modification (since exchanges apply post-delivery), presented accurate available product options, obtained explicit confirmation before making a write, and successfully modified the order with the correct item and refund amount. However, the agent twice introduced unsupported business rules: stating that no further changes or cancellations could be made after modification and giving a 5\u20137 business day refund timeline. These details are not supported by the tools or policy and constitute invented information, violating the requirement to avoid fabricating facts and to provide correct final information. Therefore, despite otherwise correct handling, the interaction does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "946dfb22c6a2651037b6e1760089077a55a613ec871bb666367f810c6ec3ed3d",
+  "usage": {
+    "input_tokens": 3387,
+    "output_tokens": 2596
+  }
+}

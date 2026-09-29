@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.15,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14765,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent used tools to retrieve T\u2011Shirt variants but gave an incorrect count. The tool data shows 12 variants total, with 10 marked available (two are unavailable), yet the agent stated 11 available options. This is a factual error unsupported by the tools. For the order-change request, the agent correctly enforced identity verification and declined to proceed without it, which aligns with policy. However, the incorrect product availability information means the agent did not fully complete the user\u2019s request in line with policy, so the conversation fails the pass bar.",
+  "repeat": 2,
+  "state_hash": "1d4bffd329d9710eca94a5b7f56f258e01f1819a0149e2e308f48ca8784f2e5d",
+  "usage": {
+    "input_tokens": 2599,
+    "output_tokens": 1038
+  }
+}

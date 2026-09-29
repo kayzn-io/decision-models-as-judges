@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12598,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly verified identity using full name plus corrected zip code, successfully matching to a single user. It then used read-only tools to retrieve the user\u2019s latest order details and reported the paid amount ($829.43) exactly as shown in the payment history, along with the items. No account or order changes were attempted, so no confirmation was needed. All information provided was supported by tool outputs, and there was no fabrication or policy violation.",
+  "repeat": 0,
+  "state_hash": "3a7363bab3082d5734a688fe81692433955dc4d83802f6e3ee7c19aa906bff00",
+  "usage": {
+    "input_tokens": 1626,
+    "output_tokens": 1081
+  }
+}

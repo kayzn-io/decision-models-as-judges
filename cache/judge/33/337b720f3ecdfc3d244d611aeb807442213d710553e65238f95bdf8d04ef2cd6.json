@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.86,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.72,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.28,
+        "pass": 0.72
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 43772,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using full name and ZIP, matched to a single account, and only acted on that account. They reviewed orders via read-only tools, identified the relevant pending order, and requested explicit confirmation before attempting any order changes. When the modification tool did not allow partial cancellations (error requiring one-to-one exchanges), the agent correctly informed the user of the limitation and provided compliant alternatives. The user chose to keep the order and update the default address; the agent again obtained explicit confirmation and successfully performed the profile address update, then provided accurate final confirmation. No unsupported claims were presented as final facts (the refund timing note was hypothetical and no refund was processed). Overall, the flow adhered to policy: verification before sharing/changes, confirmation before writes, correct use of tools, and accurate final outcome.",
+  "repeat": 2,
+  "state_hash": "d0bd66b0088ece96772ef9937c6937f00951108d131b547a970a16ff69730b23",
+  "usage": {
+    "input_tokens": 4114,
+    "output_tokens": 3467
+  }
+}

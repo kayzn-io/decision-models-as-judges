@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.45,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.68,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.68,
+        "pass": 0.31999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 70751,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using full name and zip, identified the correct orders, sought explicit confirmation before initiating returns, and the final status information given was accurate. However, after the system error showed the silver tablet\u2019s refund could not be redirected to a gift card once the return was requested, the agent told the user they could process both tablets for a gift card refund\u2014an assertion unsupported by the tools and later contradicted. This constitutes providing unsupported information, which is a listed fail condition, even though the agent ultimately clarified the limitation and offered a handoff.",
+  "repeat": 1,
+  "state_hash": "9332bb4b3c5a75d0c991ce804ab8cde75ea464caa92f3eba012d309367ae8e3f",
+  "usage": {
+    "input_tokens": 4370,
+    "output_tokens": 3302
+  }
+}

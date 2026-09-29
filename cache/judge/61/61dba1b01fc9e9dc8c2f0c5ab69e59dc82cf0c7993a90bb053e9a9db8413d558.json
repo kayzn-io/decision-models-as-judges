@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.2,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 63007,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly (name + zip matched a single user), limited upgrades to the pending order, stated proposed changes and sought explicit confirmation, and charged the price difference to the gift card as requested. However, it failed two key requirements of the user\u2019s request: (1) it changed the running shoes from size 9 to size 8, violating the explicit constraint to keep the shoe size the same; and (2) for the makeup kit it did not select the most expensive available variant (an available $261.11 option existed, but the agent chose a $258.71 option). Because the requested changes were not performed correctly, the outcome does not meet the pass bar.",
+  "repeat": 1,
+  "state_hash": "be2a5e8f119574dc74ec4bbbe3d5f4cc3ef281016751439ae5c122afcf45b9a8",
+  "usage": {
+    "input_tokens": 6531,
+    "output_tokens": 3467
+  }
+}

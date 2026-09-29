@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.75,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.25,
+        "pass": 0.75
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 58064,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and ZIP, matched to a single user, and worked only on that user\u2019s order. It reviewed the delivered camera order, listed only in-stock higher-zoom variants from the product tool, and the user explicitly chose the 30MP/10x SD variant. The agent calculated the correct price difference, asked for and received a payment method (PayPal), then executed the exchange via the appropriate tool for a delivered order. Final information about return instructions and the PayPal charge was consistent with the tool result. A minor shortcoming is that the user initially requested keeping all other specs the same; the chosen replacement changed resolution (24MP to 30MP). However, the user explicitly selected that model and confirmed payment, which serves as confirmation to proceed. No unsupported claims or policy violations (e.g., unauthorized actions or missing confirmation) are evident.",
+  "repeat": 2,
+  "state_hash": "a2138ef36ee3ae2e8e0f0d8992e2cfb831fa32a8ebf0c37f2c11c62ba83054c6",
+  "usage": {
+    "input_tokens": 3219,
+    "output_tokens": 3720
+  }
+}

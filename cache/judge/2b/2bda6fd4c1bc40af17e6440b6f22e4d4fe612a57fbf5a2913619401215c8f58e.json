@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.74,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.74,
+        "pass": 0.26
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17633,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using full name and zip code, and retrieved the correct order. However, it did not complete the user\u2019s request to exchange the bookshelf for a camera. Instead, it deferred action until delivery and did not present eligible camera options within the specified price constraint or seek confirmation for any change. Additionally, the agent promised to monitor the order and notify upon delivery, which is an unsupported capability given the available tools and thus an unreliable commitment. While no unauthorized writes were performed, the core request was not fulfilled, so it does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "f76d17965309990b301b9732442d147a032ee3cef897c505d593de3254e9dd42",
+  "usage": {
+    "input_tokens": 1727,
+    "output_tokens": 1371
+  }
+}

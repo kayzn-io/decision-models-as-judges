@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29953,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly authenticated the user via name and zip and reviewed the recent order. However, it did not complete the user\u2019s request to exchange the bookshelf for a suitable camera. Instead, it deferred action until delivery without exploring eligible actions (e.g., cancel/modify if possible) and did not perform any exchange steps or obtain confirmation. More importantly, the agent promised to \u201cmonitor\u201d the order and \u201cnotify\u201d the user upon delivery without using any tool or supported mechanism\u2014this is an unsupported, fabricated capability per policy. Since the request was not completed and the agent made an unsupported commitment, the conversation fails the pass criteria.",
+  "repeat": 4,
+  "state_hash": "f76d17965309990b301b9732442d147a032ee3cef897c505d593de3254e9dd42",
+  "usage": {
+    "input_tokens": 1727,
+    "output_tokens": 1215
+  }
+}

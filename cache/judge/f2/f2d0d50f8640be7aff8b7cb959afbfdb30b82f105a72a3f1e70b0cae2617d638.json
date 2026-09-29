@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.77,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.77,
+        "pass": 0.22999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16235,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified identity using full name and zip code, found the correct order, checked product availability, stated the exact change, obtained explicit confirmation, and executed the modification with the correct item IDs and payment adjustment. However, after completing the change, the agent stated that no further modifications or cancellations can be made to the order. This restriction is not supported by the provided tools or policy and appears fabricated. The policy requires not inventing missing facts and providing correct final information. Due to this unsupported claim, the conversation does not meet the pass bar despite otherwise correct handling.",
+  "repeat": 2,
+  "state_hash": "82fe8eddac91237a5abdf4977b87043e8ab29fa3f5423c6fbef7c75d44dfd7ee",
+  "usage": {
+    "input_tokens": 4680,
+    "output_tokens": 1769
+  }
+}

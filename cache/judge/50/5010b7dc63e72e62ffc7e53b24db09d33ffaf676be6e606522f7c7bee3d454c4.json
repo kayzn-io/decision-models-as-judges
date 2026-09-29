@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.27,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22546,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via matching email and user details. The agent inspected the orders, correctly identified which were pending, and updated the three pending orders to the Washington, DC address that appeared on a prior order. It did not attempt changes on delivered or processed orders. However, the agent performed order-address modifications without first stating the exact changes and obtaining explicit user confirmation, which is required by policy before any write action. Final information given about the updates was accurate, and the privacy preference was honored after the user requested it. The lack of pre-change confirmation causes the conversation to fail the pass bar.",
+  "repeat": 1,
+  "state_hash": "edfec5e02e50de95999d15e90a9f0718ea0b27dd852431fed8601522e6fd8fa5",
+  "usage": {
+    "input_tokens": 3813,
+    "output_tokens": 1797
+  }
+}

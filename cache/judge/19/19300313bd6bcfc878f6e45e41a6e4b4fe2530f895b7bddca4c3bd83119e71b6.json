@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.28,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 50284,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified the user via name and zip, identified the right delivered order, presented valid exchange options, and obtained explicit confirmation of the specific replacement variants before submitting the initial exchange\u2014good policy adherence there. However, when the user changed their mind and asked to cancel the water bottle exchange (and later to return it instead), the agent stated unsupported constraints (e.g., that the exchange \u201ccannot be changed or cancelled\u201d and that the \u201csystem only allows one exchange or return per delivered order item\u201d), which are not evidenced by tools or policy. The agent also failed to offer a handoff to a human when the requested follow-up action fell outside available tooling, as required by policy. These fabricated restrictions and lack of escalation constitute policy violations, so the conversation does not meet the pass bar.",
+  "repeat": 3,
+  "state_hash": "48c14ab8a5c34970cfb9b7a080441e9a4b1c922f576a22e4e6a4cb37b98a8458",
+  "usage": {
+    "input_tokens": 4201,
+    "output_tokens": 3121
+  }
+}

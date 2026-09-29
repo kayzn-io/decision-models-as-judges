@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 22564,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user via tools, and only acted on that user\u2019s orders. They retrieved the correct order, clarified which vacuum to return, summarized the exact changes, and obtained explicit user confirmation before submitting the return. The return request was executed on the correct items and payment method, with the order status updating to \u201creturn requested.\u201d The refund total ($1,095.55) matches the item prices, and the remaining items total ($1,528.14) is correctly calculated from the order details. The agent did not guarantee the 3\u2011day refund but provided a standard timeline, which is reasonable and not contradictory to tool data. No unauthorized actions, fabrications, or policy violations are evident.",
+  "repeat": 4,
+  "state_hash": "6d921b463c776ee132c6dc2b3b9d91d0a8807e0f03f5cc1b27c5929e6da3d2ba",
+  "usage": {
+    "input_tokens": 3204,
+    "output_tokens": 1811
+  }
+}

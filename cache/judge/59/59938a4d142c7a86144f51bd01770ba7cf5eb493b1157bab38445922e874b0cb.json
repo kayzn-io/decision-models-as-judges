@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32009,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user, then reviewed all orders via read-only tools. It correctly identified two pending orders and one delivered order and clarified that the delivered order did not contain a wristwatch. The agent requested explicit confirmation before performing cancellations, specifying exactly which orders and the reason. After the user confirmed, it cancelled both pending orders using the appropriate tool calls and did not process a return, as none was applicable. It then provided accurate refund amounts and a correct total based on tool data, and stated refunds would go to the original payment method. No unsupported claims, incorrect actions, or policy violations are evident.",
+  "repeat": 4,
+  "state_hash": "23031ee7204626af4cfa104649e018d3e52b5e673043c4e7ccdae93242d2f2ad",
+  "usage": {
+    "input_tokens": 4109,
+    "output_tokens": 2134
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.25,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.82,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.82,
+        "pass": 0.18000000000000005
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 52519,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user correctly (name + zip matched a single account), reviewed orders, correctly determined only the pending order could be modified, and obtained explicit confirmation of the proposed changes and payment method before making the write. The payment difference was correctly charged to the gift card. However, two substantive issues prevent a pass: (1) The user\u2019s stated preference to keep the shoe size the same was not honored\u2014the running shoes were changed from size 9 to size 8. (2) The agent claimed to upgrade to the most expensive available options but did not select the highest-priced available variant for the Makeup Kit; a more expensive available option ($261.11, item 2882812427) existed than the one chosen ($258.71). These errors mean the request was not completed as asked, despite otherwise correct process adherence.",
+  "repeat": 2,
+  "state_hash": "be2a5e8f119574dc74ec4bbbe3d5f4cc3ef281016751439ae5c122afcf45b9a8",
+  "usage": {
+    "input_tokens": 6531,
+    "output_tokens": 3134
+  }
+}

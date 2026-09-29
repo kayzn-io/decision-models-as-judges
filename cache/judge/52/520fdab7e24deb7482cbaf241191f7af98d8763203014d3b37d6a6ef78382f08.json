@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24199,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and zip to a single account, then read the user\u2019s recent orders to identify the two tablets. The agent asked the user to choose which tablet to return and sought explicit confirmation on the refund destination before making any changes. It correctly informed the user that the selected tablet\u2019s order was paid by gift card and that refunds must go back to the original payment method or gift card. After the user confirmed proceeding with a gift card refund, the agent submitted the return for the correct item and reflected the updated order state. No unsupported claims or cross-account actions occurred, and the final information about the return and refund destination was accurate. Minor assumptions (email notification) are standard and do not contradict tool outputs. Overall, the request was completed in line with policy.",
+  "repeat": 2,
+  "state_hash": "c5ea97f76f6828419dcf9baa23b73de6fe89d1f50c71659610d2f096855c5289",
+  "usage": {
+    "input_tokens": 3391,
+    "output_tokens": 1641
+  }
+}

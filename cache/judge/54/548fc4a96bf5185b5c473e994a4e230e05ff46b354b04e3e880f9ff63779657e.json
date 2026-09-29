@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.72,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.64,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.36,
+        "pass": 0.64
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29121,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user properly using full name and zip, matched to a single account, and only accessed that account. It attempted to locate the specified order, then reviewed all the user's orders via tools before taking any action. It did not perform any writes or changes without confirmation, and ultimately provided the correct gift card balance from the tool data. While there was a minor interpretation issue (treating the provided product IDs as item IDs and asserting they didn't match any items) and a possibly overstrict statement about exchange eligibility requiring \u201cdelivered\u201d status, no unsupported claims led to actions, and the final requested information (GC balance) was accurate and policy-compliant.",
+  "repeat": 4,
+  "state_hash": "ef81c2e8e78ee422ba76c49631bc859736ce3e907ce6cdb288957a856124ddc8",
+  "usage": {
+    "input_tokens": 2767,
+    "output_tokens": 2585
+  }
+}

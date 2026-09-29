@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.13,
+        "pass": 0.87
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 14903,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly by matching the user\u2019s full name and corrected zip code to a single account before sharing order details. It then retrieved the latest order from the user\u2019s account via tools and reported the exact payment amount and masked payment method consistent with the tool data. No writes or changes were made, so no confirmation was needed. The information given matches the tool outputs and adheres to policy.",
+  "repeat": 2,
+  "state_hash": "3978c6a4a3a35f37b474fbf73a0ccda200c24fb165f0d39324fa1515db00eef4",
+  "usage": {
+    "input_tokens": 1641,
+    "output_tokens": 1155
+  }
+}

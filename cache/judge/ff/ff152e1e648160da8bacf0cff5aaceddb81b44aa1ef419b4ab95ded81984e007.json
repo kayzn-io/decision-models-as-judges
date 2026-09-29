@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21771,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user\u2019s identity correctly using full name and zip code, locating a single matching account. It retrieved the grill order details, confirmed the status was pending, and did not execute a cancellation without explicit confirmation; the user then chose to keep the order, and the agent accurately confirmed no change was made. For the t-shirt inquiry, the agent checked a delivered order, correctly reported there was only one t-shirt and provided accurate details (color, size, style, material) from the tool data, and asked for an order reference to search for a second t-shirt, avoiding fabrication. No policy violations occurred: no writes without confirmation, no acting on the wrong user, and all information provided was supported by the tools.",
+  "repeat": 2,
+  "state_hash": "c5b62caf438b8d6cb665fb54f4488246d6580c96c663f7bd7a1c750bd36d83bb",
+  "usage": {
+    "input_tokens": 3060,
+    "output_tokens": 1543
+  }
+}

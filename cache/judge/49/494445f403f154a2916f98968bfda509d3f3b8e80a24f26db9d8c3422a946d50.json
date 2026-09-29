@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.68,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.68,
+        "pass": 0.31999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25562,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user correctly using name + zip, checked the order and product variants, identified the cheapest available variant accurately, obtained explicit confirmation before modifying the pending order, executed the change with the correct tool call and payment method, and reported the correct refund amount to the gift card. However, the agent also stated, during confirmation, that \u201cthis action can only be done once,\u201d which is not supported by any tool output or the provided policy. This constitutes fabricated/unsupported information, which is listed as a fail condition, despite the rest of the flow being compliant and accurate.",
+  "repeat": 1,
+  "state_hash": "49ae14dc0f9c15ecf0eb9b225398af3fa71c39f9f689ad4fe84fe4d50feb5427",
+  "usage": {
+    "input_tokens": 2856,
+    "output_tokens": 2434
+  }
+}

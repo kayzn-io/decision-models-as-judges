@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.97,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.94,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.06000000000000005,
+        "pass": 0.94
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20917,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user via full name + zip and matched to a single account. It looked up recent orders, identified the correct pending order containing the earbuds, and checked product variants and availability. Before making changes, it listed exact blue options with prices and asked the user to confirm the desired option and that only this change should be made. Upon explicit confirmation, it modified the pending order item to the specified blue variant, correctly processed the price difference as a refund to the original PayPal method, and reported accurate final details. No fabricated information or policy violations observed.",
+  "repeat": 1,
+  "state_hash": "45abf1e4a5e6d205bc15cf3bd813060345b441abdca112310d1e940465abf7de",
+  "usage": {
+    "input_tokens": 3294,
+    "output_tokens": 1874
+  }
+}

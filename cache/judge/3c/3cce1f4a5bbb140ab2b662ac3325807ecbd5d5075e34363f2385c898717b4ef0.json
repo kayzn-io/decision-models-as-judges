@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12544,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user via matching email, retrieved the correct gift card balance, and correctly identified the payment method used for the recent order based on tool data. When asked about applying the gift card, the agent reasonably stated that split tender isn\u2019t allowed and offered to change the payment method to Visa, explicitly asking for confirmation before making any order-changing write. Upon confirmation, the agent used the appropriate tool to update the payment method to the Visa card and accurately reported the resulting payment/refund status as shown by the tool output. All actions were within policy, tied to the authenticated user\u2019s account, and the final information matches the tools.",
+  "repeat": 1,
+  "state_hash": "60405de596cb557b5b78f3ee3caa61559a49566648aeb50b5ab24a683491710e",
+  "usage": {
+    "input_tokens": 1992,
+    "output_tokens": 1766
+  }
+}

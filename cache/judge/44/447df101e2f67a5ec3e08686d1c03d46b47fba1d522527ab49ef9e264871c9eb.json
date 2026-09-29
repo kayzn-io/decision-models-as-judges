@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.07,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19201,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via name+ZIP match, and the agent retrieved the correct order. However, the user clearly specified conditional logic: cancel only if refund can go to gift card; otherwise, no cancellation. The agent proceeded to cancel the entire order despite the refund being issued to the original credit card, violating the user's condition. The agent also failed to reconfirm once it became clear the refund could not go to a gift card. Critically, after performing the cancellation (tool shows status cancelled and refund to credit card), the agent incorrectly claimed the order remains active, which contradicts the tool output. These constitute performing a write that did not match the user's confirmed constraints and providing incorrect final information, so the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "b1948acfea4a244cde2ba7141f88fc5307262fbfc699e510da7547f71bcfbf5a",
+  "usage": {
+    "input_tokens": 2460,
+    "output_tokens": 1757
+  }
+}

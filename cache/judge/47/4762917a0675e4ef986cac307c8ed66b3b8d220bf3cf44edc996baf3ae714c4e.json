@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25617,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly followed identity verification policy and declined to modify orders without authentication, offering alternate secure channels. However, the initial informational request was answered incorrectly. The product tool shows 12 total T\u2011Shirt variants, with 10 marked available=true. The agent stated there were 11 available options, which is unsupported by the tool data. Since correct final information is required for a pass, this conversation fails despite proper handling of the order-change request.",
+  "repeat": 0,
+  "state_hash": "1d4bffd329d9710eca94a5b7f56f258e01f1819a0149e2e308f48ca8784f2e5d",
+  "usage": {
+    "input_tokens": 2599,
+    "output_tokens": 1718
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.25,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29983,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user via email, located the correct orders, confirmed before making returns and modifying the pending order, and executed those changes correctly. However, when asked for the tracking number of the cancelled order, the agent incorrectly stated that cancelled orders don\u2019t have tracking numbers. Tool data for order #W1154986 shows a tracking ID (286422338955), so the agent\u2019s response was factually incorrect and contradicted available data. This violates the requirement to provide correct final information and not fabricate unsupported statements, resulting in a fail despite otherwise proper handling of authentication, confirmations, and order changes.",
+  "repeat": 2,
+  "state_hash": "013e3a25c6136daf09a4d23a7df51a2d8fc8417f3a461926d1666402bc054571",
+  "usage": {
+    "input_tokens": 6514,
+    "output_tokens": 2284
+  }
+}

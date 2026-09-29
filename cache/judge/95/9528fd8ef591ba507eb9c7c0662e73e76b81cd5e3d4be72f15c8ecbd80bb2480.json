@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.35,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20612,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching the provided email to the account, then used read-only tools to retrieve and summarize recent orders. It correctly identified the fleece jacket in order #W2466703 and accurately stated that exchanges can only be processed after delivery, which aligns with the policy. The agent appropriately offered the alternative of modifying the pending order and, when the user chose to wait, made no unauthorized changes. No writes were performed without confirmation, and no unsupported statements were made. Although the exchange itself was not completed (due to the order\u2019s pending status), the agent followed policy and handled the request correctly.",
+  "repeat": 1,
+  "state_hash": "fc379d34d188725d737f74c36e1c7e329598fe20cfdaf49a7af0483609bdb836",
+  "usage": {
+    "input_tokens": 2938,
+    "output_tokens": 1595
+  }
+}

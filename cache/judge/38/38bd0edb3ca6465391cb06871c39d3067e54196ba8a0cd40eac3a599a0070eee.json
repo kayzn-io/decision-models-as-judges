@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.76,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.76,
+        "pass": 0.24
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 24705,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using full name and zip and reviewed the correct recent order. It did not perform any unauthorized writes and correctly refrained from making an exchange while the order was not delivered. However, the user\u2019s request\u2014to exchange the bookshelf for a camera not more expensive\u2014was not completed. The agent deferred action until delivery and promised to monitor/notify without any tool-backed action, and no exchange or alternative resolution (e.g., cancellation or other permitted action) was carried out. Under the pass bar, the request was not completed, so the conversation fails.",
+  "repeat": 1,
+  "state_hash": "f76d17965309990b301b9732442d147a032ee3cef897c505d593de3254e9dd42",
+  "usage": {
+    "input_tokens": 1727,
+    "output_tokens": 1585
+  }
+}

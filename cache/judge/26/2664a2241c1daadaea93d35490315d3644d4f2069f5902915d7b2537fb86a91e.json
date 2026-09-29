@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.84,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.21999999999999997,
+        "pass": 0.78
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32450,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip via the tool and confirmed the order belonged to the authenticated user. They retrieved order details showing status pending and correctly communicated that no delivery estimate is available yet. When the user requested a partial cancellation, the agent stated it wasn\u2019t possible and offered alternatives; while that capability isn\u2019t explicitly confirmed by tools, no policy is violated and no write was attempted. For the full cancellation with refund-to-gift-card request, the agent checked payment history, correctly noted the original payment method, and explained refund would go to the original method unless a gift card existed. The agent sought explicit confirmation before making any order-changing write and, after the user declined to proceed without a gift card, left the order unchanged. No unsupported claims about specific order data were made, and the agent acted only on the authenticated user\u2019s order. Final state matches the user\u2019s preferences and policy requirements.",
+  "repeat": 4,
+  "state_hash": "afc4124a76ed8e4cbdfba01c119bfe12b918e8c68dc2a0fe9c2ee4d2068a306b",
+  "usage": {
+    "input_tokens": 1737,
+    "output_tokens": 2124
+  }
+}

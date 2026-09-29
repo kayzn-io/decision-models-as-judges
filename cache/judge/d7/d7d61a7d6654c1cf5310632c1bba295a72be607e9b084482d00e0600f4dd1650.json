@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.96,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.06999999999999995,
+        "pass": 0.93
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25266,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly using full name and zip, matched to a single user. They inspected the user profile and orders with read-only tools, correctly identified the pending order shipped to Washington, DC, and requested explicit confirmation before updating the shipping address to the default Charlotte address. For item modifications, the agent checked product variants, presented available options, summarized the exact changes, and requested explicit confirmation. When the user requested a different payment method for the price difference, the agent updated the plan to use the stored PayPal method, re-confirmed, and then executed the change. Tool results show the correct items were replaced with the specified variants, the order status updated to pending (item modified), and the price difference of $19.24 was charged to PayPal, matching the calculated increase. Final information provided to the user aligns with tool outputs. No unsupported claims, unauthorized actions, or missed confirmations were observed.",
+  "repeat": 4,
+  "state_hash": "966d75d151288bc3a5a5f5676a78c69051fa9f4959dc25b1618a5e26ba3e380f",
+  "usage": {
+    "input_tokens": 5051,
+    "output_tokens": 2370
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.03,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.93,
+        "pass": 0.06999999999999995
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20507,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Authentication was handled correctly by matching full name and zip to a unique user and verifying the order belongs to that user. The agent provided accurate status initially. However, the user\u2019s cancellation was explicitly conditional on refunding to a gift card; if not possible, no cancellation. The agent proceeded to cancel the entire order without confirming the changed terms (refund to original credit card), violating the requirement to state and confirm the exact change before a write and to perform the requested change correctly. After the tool confirmed the order was cancelled and refunded to the credit card, the agent later stated the order remains active, which contradicts tool results and constitutes fabricated information. The agent also offered an unsupported \u201cmodify the air purifier\u201d option with no corresponding tool. These errors fail the pass bar.",
+  "repeat": 2,
+  "state_hash": "b1948acfea4a244cde2ba7141f88fc5307262fbfc699e510da7547f71bcfbf5a",
+  "usage": {
+    "input_tokens": 2460,
+    "output_tokens": 1726
+  }
+}

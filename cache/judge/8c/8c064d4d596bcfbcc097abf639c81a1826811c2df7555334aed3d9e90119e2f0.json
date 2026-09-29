@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.38,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.76,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.24,
+        "pass": 0.76
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29350,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent followed policy throughout: it verified the user using full name plus old zip via tool and matched a single account, refrained from exposing the current address, and did not perform any writes without explicit confirmation or sufficient details. When the user declined to provide a new address, the agent appropriately declined to update and offered alternatives, which aligns with policy. The agent correctly used catalog tools to identify the cheapest available T-shirt variant ($46.66, red L cotton v-neck) and accurately stated that it could not place new orders, which is consistent with available tools. No fabricated information or unauthorized actions occurred. A minor inconsistency appeared when the agent suggested city/state/zip alone might suffice, then later asked for full address details, but no incorrect action resulted. Overall, the interaction adheres to policy, though the address update was not completed due to lack of user-provided details.",
+  "repeat": 4,
+  "state_hash": "66200420912424c8626336dff2e5974d025a51b6a9bd488aa987387f16ebf8fa",
+  "usage": {
+    "input_tokens": 3355,
+    "output_tokens": 1908
+  }
+}

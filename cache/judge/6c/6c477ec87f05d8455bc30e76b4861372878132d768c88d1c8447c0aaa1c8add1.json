@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20416,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly by matching full name and ZIP to a single user account before accessing order details. It correctly identified the most expensive item, declined split payment as unsupported, and explained alternatives. Before performing an order-changing action, it clearly requested explicit confirmation and a reason, then proceeded to cancel the pending order using the proper tool. The tool response confirmed cancellation and refund, and the agent communicated accurate final information. No unsupported claims about specific order data were made, and no writes occurred without confirmation. Overall, the interaction adhered to the policy and successfully completed the user\u2019s request.",
+  "repeat": 1,
+  "state_hash": "825c24fed6515242fd2bbf6124234ca4407e7e7a7bd77571000d4bfdc7584c75",
+  "usage": {
+    "input_tokens": 2835,
+    "output_tokens": 2232
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 21956,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, which matched a single user. It inspected the user\u2019s order and product variants, correctly identified the largest available matching variant (100ml, woody, men), and obtained explicit confirmation before making an order-changing write. It executed the exchange on the correct order/item with the user\u2019s original payment method and reported the accurate refund amount ($10.48) consistent with tool outputs. No actions were taken without confirmation, no fabricated details were provided, and all steps aligned with policy.",
+  "repeat": 0,
+  "state_hash": "dbfd9c94463e6afec5c7419de9e49751b0d361f8d06c0711a86b84d2787d8e13",
+  "usage": {
+    "input_tokens": 2482,
+    "output_tokens": 1623
+  }
+}

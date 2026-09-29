@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.27,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.78,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.78,
+        "pass": 0.21999999999999997
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19909,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user via email, reviewed all orders, correctly identified the three pending ones, and updated their addresses to the Washington, DC address on file using tool-supported data. However, before performing the address updates, the agent did not explicitly restate the exact changes and obtain the user's confirmation, which is required by policy prior to any order-changing write. The agent also disclosed the full address once despite the user's privacy preference, though that is not a stated policy violation. Because the required pre-change confirmation step was missing, the interaction does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "edfec5e02e50de95999d15e90a9f0718ea0b27dd852431fed8601522e6fd8fa5",
+  "usage": {
+    "input_tokens": 3813,
+    "output_tokens": 1477
+  }
+}

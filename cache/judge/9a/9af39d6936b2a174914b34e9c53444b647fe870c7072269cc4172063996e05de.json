@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.22,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 32930,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via name + zip, the agent listed orders appropriately, sought confirmation before modifying the pending order, and used the specified payment method for the price difference. However, the agent failed to select the most expensive available variants for at least two items in the pending order: the Mechanical Keyboard had a higher-priced available option ($272.33, item 1151293680) than what was chosen ($269.16), and the Makeup Kit had a higher-priced available option ($261.11, item 2882812427) than what was chosen ($258.71). Since the user explicitly requested the most expensive options, the agent did not fully complete the task as requested, leading to a fail despite otherwise correct process and confirmation steps.",
+  "repeat": 0,
+  "state_hash": "6989d123c7cdaf1a89d9c2b86313143c64b79da0d98f51322a3b67ea39553985",
+  "usage": {
+    "input_tokens": 7213,
+    "output_tokens": 2871
+  }
+}

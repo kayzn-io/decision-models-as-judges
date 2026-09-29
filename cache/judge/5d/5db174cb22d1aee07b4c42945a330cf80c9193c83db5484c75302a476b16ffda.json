@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.18,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.88,
+        "pass": 0.12
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12026,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent successfully authenticated the user via matching email and acted only on the user\u2019s orders. They also used read-only tools to inspect orders and product variants, and correctly executed the item swap after explicitly stating the change and receiving confirmation. However, two policy violations occurred: (1) the shipping address for #W5056519 was modified without first stating the exact new address and obtaining explicit confirmation, and (2) order #W5995614 was cancelled without explicit confirmation after stating the exact change. These are write actions requiring pre-action confirmation per policy. Aside from that, actions were on the correct account and final information appears accurate, but the missing confirmations mean the interaction does not meet the pass bar.",
+  "repeat": 2,
+  "state_hash": "6085cb17f902188cda7a0fae312aba9d19827037bc57b7f06ee1c9bd117ec5e1",
+  "usage": {
+    "input_tokens": 4093,
+    "output_tokens": 1433
+  }
+}

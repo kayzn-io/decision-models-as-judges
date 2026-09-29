@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.15,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 54429,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly using full name and zip, and identified the correct pending order. However, it made order-changing writes without obtaining explicit user confirmation first, violating policy. Specifically, it modified two items and triggered an additional $14.06 gift-card charge without confirming the exact changes or the payment method. Afterward, when attempting to update the shipping address, the tool rejected the change; the agent then stated that no further changes are allowed after an item modification, which is not clearly supported by the tools or policy. The agent also refused subsequent payment method changes without attempting or citing a definitive system constraint from tools. Because the agent performed writes without prior confirmation and provided partially unsupported reasoning, the interaction fails the pass bar.",
+  "repeat": 3,
+  "state_hash": "afe77b1d56e381601500528ec9fb4fa8488a92132a57779863009eb6d5e73e29",
+  "usage": {
+    "input_tokens": 4822,
+    "output_tokens": 2717
+  }
+}

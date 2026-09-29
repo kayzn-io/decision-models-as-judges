@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.28,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25137,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was correctly verified via full name and zip, and actions were performed on the authenticated user\u2019s orders. The agent successfully identified the pending order, used the NYC address from the other order, and later modified the Bluetooth speaker to the least expensive available green variant with correct handling of the price difference and an explicit confirmation for that item change. However, the agent changed the delivery address without first obtaining explicit user confirmation after stating the intended change, which violates the requirement to confirm before any order-changing write. All other information and tool-supported details appear accurate. Because of the missing confirmation step for the address update, the conversation fails the pass bar.",
+  "repeat": 1,
+  "state_hash": "a032feb7b21022e5e70559fd9b732a7a230f82b07ae272768c3b6371d2a9f5db",
+  "usage": {
+    "input_tokens": 3904,
+    "output_tokens": 1761
+  }
+}

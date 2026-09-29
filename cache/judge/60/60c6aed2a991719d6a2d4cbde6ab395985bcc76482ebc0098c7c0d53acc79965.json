@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.9,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 20856,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user, and operated only on that user\u2019s account. It pulled the correct order details (status pending), found the cheapest available variant using product data, clearly stated the exact change and refund amount, and obtained explicit confirmation before making the modification. The write action succeeded, and the final message accurately reflected the updated item and the refund of $17.99 to the gift card. One minor extraneous statement (\u201cthis action can only be done once\u201d) was not supported by tool evidence but did not affect the outcome. Overall, the request was completed in line with policy with correct final information.",
+  "repeat": 4,
+  "state_hash": "49ae14dc0f9c15ecf0eb9b225398af3fa71c39f9f689ad4fe84fe4d50feb5427",
+  "usage": {
+    "input_tokens": 2856,
+    "output_tokens": 2240
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.08,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19528,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user correctly using name and zip and retrieved the correct order. However, it failed on critical policy and outcome points: (1) The user\u2019s conditional request was to cancel only if the refund could go to a gift card; otherwise, do not cancel. The agent proceeded to cancel the entire order despite the refund being issued to the original credit card, violating the user\u2019s stated condition. (2) After performing the cancellation (tool shows status changed to cancelled with refund to credit card), the agent later told the user the order remains active, which contradicts the tool result and is incorrect final information. These constitute performing a write that did not match the user\u2019s confirmed conditions and providing fabricated/unsupported statements. Therefore, the conversation fails the pass bar.",
+  "repeat": 0,
+  "state_hash": "b1948acfea4a244cde2ba7141f88fc5307262fbfc699e510da7547f71bcfbf5a",
+  "usage": {
+    "input_tokens": 2460,
+    "output_tokens": 1469
+  }
+}

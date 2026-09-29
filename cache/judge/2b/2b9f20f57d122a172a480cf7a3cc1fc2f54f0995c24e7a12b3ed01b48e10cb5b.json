@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.13,
+        "pass": 0.87
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 29328,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly verified the user using full name and zip code, which matched a single profile. It checked the order details before taking any action. For the cancellation request, the agent confirmed the specific order ID and asked for explicit confirmation and a reason before proceeding, then did not perform a cancellation after the user decided to keep the grill\u2014no unauthorized writes occurred. For the t-shirt inquiry, the agent used order tools to retrieve accurate item details and correctly identified the two t-shirts in order #W9609649, including their materials, consistent with tool data. All information shared pertained to the authenticated user. No fabricated facts or tool-mismatches were observed. Minor UX nit: when asked to list recent orders, the agent did not provide a full list and instead focused on the pending grill order, but this did not violate policy or lead to incorrect outcomes. Overall, the request was handled in line with policy.",
+  "repeat": 3,
+  "state_hash": "edf96fe4a867bd47cc89d5102381902021edf0370f4dae5edfe863d11c539d89",
+  "usage": {
+    "input_tokens": 3022,
+    "output_tokens": 2596
+  }
+}

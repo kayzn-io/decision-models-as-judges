@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.98,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.96,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.040000000000000036,
+        "pass": 0.96
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17625,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user via tool. It retrieved the user\u2019s orders, then confirmed the specific order ID. It checked the order status (pending), explicitly confirmed the exact address change (Suite 640 to Suite 641 while keeping the rest the same), and only then performed the modification using the appropriate tool. The final confirmation reflected the tool\u2019s updated data. No unsupported claims, no actions on another account, and no writes without prior confirmation. This aligns with the policy.",
+  "repeat": 2,
+  "state_hash": "40189ea70be857f5d1bca5b90d4f06665c0b67d4e44545f4588c03d005f92fdf",
+  "usage": {
+    "input_tokens": 2433,
+    "output_tokens": 1277
+  }
+}

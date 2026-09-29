@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.98,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.06999999999999995,
+        "pass": 0.93
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12027,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and ZIP, matched to a single user via tools. It retrieved order details, identified which were pending, and asked for explicit confirmation and a cancellation reason before performing any changes. After receiving confirmation, it cancelled only the eligible pending orders via tool calls, and provided accurate final confirmation including refund amounts and timing. No unsupported claims or actions on the wrong account occurred. All steps aligned with the policy.",
+  "repeat": 0,
+  "state_hash": "f23ba15aa0edf1a9ccff12691340b13d43f1733fffd08b901c03d5ec3568dfe4",
+  "usage": {
+    "input_tokens": 3362,
+    "output_tokens": 1019
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.9,
+        "pass": 0.09999999999999998
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25331,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity correctly and located the right order and items. However, it executed the exchange without first explicitly restating the exact changes and obtaining explicit confirmation to proceed, as required by policy. It also charged the price difference to the stored PayPal method without confirming that authorization. Later, when the user asked to proceed only with the desk lamp and hold off on the water bottle, the agent asserted the exchange could not be changed or canceled without any tool-based support and did not offer a handoff to a human agent, contrary to policy for unsupported actions. These are material policy violations, so the conversation does not meet the pass bar.",
+  "repeat": 3,
+  "state_hash": "27d98ffd9dd1f98b77c131be2dc9131d66ae77383d23754a6680064142e75831",
+  "usage": {
+    "input_tokens": 4086,
+    "output_tokens": 2009
+  }
+}

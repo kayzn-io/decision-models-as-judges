@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 45135,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user ID, and operated only on the authenticated user\u2019s order #W4316152. They reviewed order and product details via tools, confirmed the exact requested exchanges before performing any write, and handled the insufficient gift card balance correctly by pausing and asking for alternative payment or within-budget options. After the user chose within-budget variants, the agent confirmed and executed the exchange using the appropriate tool. The tool result shows the exchange requested with a negative price difference (refund) and the agent accurately reflected that a refund would go to the gift card and return instructions would be emailed. No unsupported claims or actions on the wrong account occurred. Minor nit: the agent didn\u2019t state the exact refund amount, but this is not a policy requirement and does not affect correctness.",
+  "repeat": 0,
+  "state_hash": "fba1d5f5f1a21ae4ca2beb853a2aa9e10794e9a56c1a7ea3bbd82bfc42c86108",
+  "usage": {
+    "input_tokens": 4059,
+    "output_tokens": 3627
+  }
+}

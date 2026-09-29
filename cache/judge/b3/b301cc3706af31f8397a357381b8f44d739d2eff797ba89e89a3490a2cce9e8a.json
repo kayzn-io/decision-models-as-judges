@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.87,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.79,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.20999999999999996,
+        "pass": 0.79
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 28567,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user with full name and zip and matched to a single account. It inspected the pending order, requested explicit confirmation before making any change, attempted the requested removal (tool disallowed single-item removal), transparently explained the constraint, then obtained explicit confirmation to cancel and processed the cancellation with the correct reason. The tool confirms the order status changed to cancelled and a full refund was issued. The agent then provided correct grill prices from a delivered order using tool data. No actions were taken on the wrong account, no unauthorized writes occurred, and final information matched tool outputs. The only minor quibble is the stated 5\u20137 business day refund timeline, which wasn't sourced from tools, but it doesn't materially affect the correctness of the fulfilled requests. Overall, the interaction meets the policy pass bar.",
+  "repeat": 4,
+  "state_hash": "e0739109bd39e3491f32f460178c2c582bc41c1b186064fe63b9b14c88f1ebe4",
+  "usage": {
+    "input_tokens": 4031,
+    "output_tokens": 2640
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 13033,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly verified the user by matching full name and zip code to a single account, trying 98186 then 98187 successfully. It used read-only tools to retrieve the latest order details and payment history, did not perform any writes, and provided information that matches tool outputs ($829.43 paid on Mastercard ending 1065 for order #W6729841). No policy violations or fabricated information observed.",
+  "repeat": 0,
+  "state_hash": "31f97236bbee5a3584a5e94573c4ec2dd2e819f006b36ed7a8577207dc91b67b",
+  "usage": {
+    "input_tokens": 1603,
+    "output_tokens": 1355
+  }
+}

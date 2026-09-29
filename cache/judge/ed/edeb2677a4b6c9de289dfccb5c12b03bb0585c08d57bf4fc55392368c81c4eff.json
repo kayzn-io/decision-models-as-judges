@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.87,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.87,
+        "pass": 0.13
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 19907,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via full name and ZIP, and the agent accessed the correct pending order and product details. However, there are two policy-critical issues: (1) The agent incorrectly stated that no size 8 options were available, while the product data shows an available size 8 (synthetic, non\u2011waterproof) variant. This is a factual error based on the tool results. (2) The agent executed an order modification without first obtaining explicit confirmation of the exact change; they said they would proceed and then performed the write, rather than requesting and receiving a clear confirmation. Although the modification itself was valid for a pending order and the refund information was accurate, the factual error and lack of explicit pre-write confirmation violate the policy, so the conversation does not meet the pass bar.",
+  "repeat": 4,
+  "state_hash": "71e7f8e03a092de48e9472d7b2c8e100a1f3716844b7183f7eed644a79a7d289",
+  "usage": {
+    "input_tokens": 3483,
+    "output_tokens": 1915
+  }
+}

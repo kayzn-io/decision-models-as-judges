@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.94,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.88,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.12,
+        "pass": 0.88
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17893,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent authenticated the user via name and zip (tool returned a single user ID), then used the product tools to fetch mechanical keyboard variants and correctly identified the cheapest available option ($226.11) with its options (full size, tactile switches, white backlight). The agent did not perform any account changes, exchanges, or returns without explicit confirmation; when the user declined due to budget and chose to keep their keyboard, the agent appropriately ended without making changes. All information provided matched the tool outputs. No policy violations or unsupported claims were made.",
+  "repeat": 3,
+  "state_hash": "0d76520ae3b5e367e6f5388646f8ffb14c676ae7a0ad17558e9ce5a0dadca008",
+  "usage": {
+    "input_tokens": 3685,
+    "output_tokens": 1574
+  }
+}

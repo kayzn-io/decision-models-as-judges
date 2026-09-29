@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.12,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.74,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.74,
+        "pass": 0.26
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 26812,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly authenticated the user by matching full name and ZIP to a single account and correctly retrieved the recent order details. It accurately reported the order status as processed and refrained from making any changes without confirmation. However, the agent did not complete the user\u2019s requested exchange. Instead, it deferred action until delivery and promised to \u201cmonitor\u201d and notify the user, a capability not supported by any tool shown. The pass bar requires that the agent complete the user\u2019s request in line with policy (including obtaining confirmation before any write), which did not occur here. Therefore, despite correct authentication and no unauthorized changes, the request was not completed and the outcome does not meet the pass bar.",
+  "repeat": 0,
+  "state_hash": "f76d17965309990b301b9732442d147a032ee3cef897c505d593de3254e9dd42",
+  "usage": {
+    "input_tokens": 1727,
+    "output_tokens": 1839
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.73,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.27,
+        "pass": 0.73
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 45428,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip code, matched to a single user, then reviewed the user\u2019s orders. Since the camera order was pending, the agent correctly offered a modification rather than an exchange, obtained explicit confirmation to modify, checked available product variants, and selected a 4K waterproof variant that satisfies the user\u2019s constraint of the highest resolution waterproof option within the original price. The modification was executed via the tool, and the final details (new variant and refund to PayPal) were accurately communicated. A minor nit is that the agent did not present the exact SKU/color and price difference for explicit pre-write confirmation, but they did obtain confirmation to perform the modification as described. Overall this meets the pass bar.",
+  "repeat": 2,
+  "state_hash": "a2472e8cc2eeee792a1c8a25a8ab996e516b4d1e121a2a43cadb6f76dd8e7d58",
+  "usage": {
+    "input_tokens": 3115,
+    "output_tokens": 2957
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.38,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.82,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.18000000000000005,
+        "pass": 0.82
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 35203,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent correctly used tools to determine available T\u2011shirt variants and reported 10 available options, matching the tool data (10 variants marked available). For the order modification, the agent followed policy by requiring identity verification before making any changes, declined to proceed when the user refused to share verification details, and offered secure alternatives. No unauthorized actions or unsupported claims were made, and no writes occurred without confirmation. While the specific change request was not completed due to lack of verification, the agent\u2019s handling aligns with policy; thus the overall verdict is pass.",
+  "repeat": 1,
+  "state_hash": "9441fe53a6a92e8c03c09d8c3f652c81d7d1814cb588afb44da4b662112b91ad",
+  "usage": {
+    "input_tokens": 3146,
+    "output_tokens": 1811
+  }
+}

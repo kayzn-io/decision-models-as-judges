@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 15221,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly by matching the user's full name and zip code to a single account after the provided email failed to match. They then retrieved the correct order, identified the most expensive item accurately, and correctly explained that split payments are not supported. When the user requested cancellation, the agent sought explicit confirmation with the order ID and a reason before executing the change. They used the appropriate cancel tool, which returned status cancelled and a refund transaction. The agent's final message reflected the tool output and provided a standard refund timeframe. No unsupported claims or actions on the wrong account occurred, and no writes were performed without confirmation.",
+  "repeat": 2,
+  "state_hash": "825c24fed6515242fd2bbf6124234ca4407e7e7a7bd77571000d4bfdc7584c75",
+  "usage": {
+    "input_tokens": 2835,
+    "output_tokens": 1972
+  }
+}

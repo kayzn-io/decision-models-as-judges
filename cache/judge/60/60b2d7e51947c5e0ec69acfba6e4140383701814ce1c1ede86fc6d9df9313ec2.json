@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.93,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.14,
+        "pass": 0.86
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 30231,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly after the email lookup failed by matching the user's full name and ZIP to a unique account. They then retrieved the correct order and accurately identified the most expensive item with its price. When asked to cancel, the agent clearly explained item-level cancellation limitations and offered options. Before performing an order-changing action, the agent requested explicit confirmation to cancel and a reason, then used the cancellation tool on the correct order. The tool confirmed the order status changed to cancelled and showed a full refund, which the agent communicated, along with a standard refund timeline. No actions were taken without confirmation, no data was fabricated, and the agent acted only on the authenticated user's order. Overall, the interaction aligns with the policy and completes the user's request.",
+  "repeat": 4,
+  "state_hash": "983f570b335b5c26e79277eaa30a122b718f84256253554a14f8c2d33cf521dc",
+  "usage": {
+    "input_tokens": 2615,
+    "output_tokens": 1870
+  }
+}

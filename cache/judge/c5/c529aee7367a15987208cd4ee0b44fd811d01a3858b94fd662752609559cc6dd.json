@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.95,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.9,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.09999999999999998,
+        "pass": 0.9
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 12583,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user's identity correctly using full name and zip via the tool, then retrieved and presented the user's recent orders. It identified the Texas-delivered order (#W5565470), provided the correct tracking number from the tool (907614527588), and summarized the exact requested change (return Electric Kettle and Mechanical Keyboard, keep Pet Bed) with refund to the original PayPal method. The agent obtained explicit confirmation before performing any write, then executed the return via the appropriate tool with the correct item IDs and payment method. Post-action confirmation was provided. All actions were on the authenticated user's account, with no unsupported claims or policy violations.",
+  "repeat": 4,
+  "state_hash": "884d15fae28930f6b6d0bd947244e5af467e9ffc49fdde805187deb847f00c96",
+  "usage": {
+    "input_tokens": 3689,
+    "output_tokens": 1539
+  }
+}

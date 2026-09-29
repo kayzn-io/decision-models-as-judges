@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.97,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.93,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.06999999999999995,
+        "pass": 0.93
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 23365,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity using full name and zip, matched to a single user, and accessed the correct account. They reviewed recent orders, identified the relevant pending order (#W5061109), and confirmed the change was allowable. They presented available blue variants with accurate prices from the product tool, asked the user to choose and to confirm only that change. Upon explicit confirmation, they executed the modification using the correct item IDs, and the tool shows the order updated with the blue variant and a refund of $30.18 to PayPal. The final message accurately reflected the successful change and refund, with no fabricated details or policy violations. No unsupported actions or missing confirmations were observed.",
+  "repeat": 0,
+  "state_hash": "45abf1e4a5e6d205bc15cf3bd813060345b441abdca112310d1e940465abf7de",
+  "usage": {
+    "input_tokens": 3294,
+    "output_tokens": 1837
+  }
+}

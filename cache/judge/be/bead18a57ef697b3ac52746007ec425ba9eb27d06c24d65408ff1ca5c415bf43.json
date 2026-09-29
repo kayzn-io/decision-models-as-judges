@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.92,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.89,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.10999999999999999,
+        "pass": 0.89
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 16818,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent properly authenticated the user by matching full name and zip code to a unique account after the email lookup failed. The agent then retrieved and accurately summarized recent orders using read-only tools. When the user requested returns on a pending order, the agent correctly stated that returns can only be processed after delivery and offered appropriate alternatives (cancellation or modification). The user chose to update the shipping address; before making that change, the agent clearly stated the exact update and obtained explicit confirmation. The agent then performed the address update via the correct tool and confirmed the result. No unsupported claims or actions on the wrong account occurred, and no writes were made without confirmation. Overall, the request was completed in line with policy.",
+  "repeat": 4,
+  "state_hash": "281b5afa2fbf0b5b874408b2b1b9e679a8d8d33502a13fd9b319cc6c6c5ef206",
+  "usage": {
+    "input_tokens": 3851,
+    "output_tokens": 1569
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.78,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.76,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.24,
+        "pass": 0.76
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 17525,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user by matching full name and ZIP to a single account before accessing order details. It retrieved the correct order and product information via tools and accurately provided the speaker\u2019s price ($302.67) and battery life (20 hours, water resistant). When asked to cancel just the speaker, the agent stated system limitations and offered policy-compliant alternatives (cancel entire order or modify the variant) and did not perform any write action without explicit confirmation. For the request about speakers under $100, the agent checked the existing product\u2019s variants and concluded none were under $100; while this narrowly scoped check might be incomplete relative to the broader catalog request, it did not fabricate data and no broader search tool was available. The user then chose to keep the order, and the agent correctly confirmed the total ($1,319.43) consistent with the tools. Overall, actions were in line with policy, authentication was done, no unauthorized changes were made, and final information given was correct.",
+  "repeat": 3,
+  "state_hash": "64538678d11678db0e1c666001f45f187d068198fce596c051c5105aca2f6ca4",
+  "usage": {
+    "input_tokens": 4186,
+    "output_tokens": 2286
+  }
+}

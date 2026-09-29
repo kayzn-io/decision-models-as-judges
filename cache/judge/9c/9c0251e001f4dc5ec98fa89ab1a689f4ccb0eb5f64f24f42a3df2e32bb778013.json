@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.25,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.86,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.86,
+        "pass": 0.14
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 49843,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "Identity was properly verified via full name + zip, and the agent reviewed orders and confirmed changes before modifying the pending order. It correctly limited upgrades to the pending order and applied the gift card for the price difference, with accurate pricing calculations. However, it failed to honor the explicit constraint to keep the shoe size the same: it changed Running Shoes from size 9 to size 8. Additionally, for the Makeup Kit, the agent did not select the most expensive available variant (available $261.11 option existed; it chose $258.71). These errors mean the requested changes were not performed correctly, so the conversation does not meet the pass bar.",
+  "repeat": 4,
+  "state_hash": "be2a5e8f119574dc74ec4bbbe3d5f4cc3ef281016751439ae5c122afcf45b9a8",
+  "usage": {
+    "input_tokens": 6531,
+    "output_tokens": 2958
+  }
+}

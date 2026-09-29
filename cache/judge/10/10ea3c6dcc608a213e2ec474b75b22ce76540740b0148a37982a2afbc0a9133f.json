@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.4,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "fail",
+      "confidence": 0.76,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.76,
+        "pass": 0.24
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 25903,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified the user correctly using full name + zip, located the right order, checked item availability, and sought explicit confirmation before modifying the pending order. The item was changed correctly and the small refund was applied to the original payment method as stated by the tool. However, the agent asserted twice that no further modifications or cancellations could be made after the change. This restriction is not supported by the tools or stated policy (the order remained pending), making it fabricated/unsupported final information. Given the policy requires correct final information, this results in a fail despite otherwise proper handling.",
+  "repeat": 0,
+  "state_hash": "82fe8eddac91237a5abdf4977b87043e8ab29fa3f5423c6fbef7c75d44dfd7ee",
+  "usage": {
+    "input_tokens": 4680,
+    "output_tokens": 2613
+  }
+}

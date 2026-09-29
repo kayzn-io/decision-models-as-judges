@@ -1,0 +1,38 @@
+{
+  "answers": [
+    {
+      "choice": null,
+      "confidence": null,
+      "kind": "noul",
+      "noul": 0.88,
+      "probabilities": null,
+      "question_id": "completed",
+      "score": null
+    },
+    {
+      "choice": "pass",
+      "confidence": 0.82,
+      "kind": "choice",
+      "noul": null,
+      "probabilities": {
+        "fail": 0.18000000000000005,
+        "pass": 0.82
+      },
+      "question_id": "verdict",
+      "score": null
+    }
+  ],
+  "error": null,
+  "extra": {},
+  "judge_id": "llm_strong",
+  "latency_ms": 38228,
+  "model_id": "openai/gpt-5",
+  "prompt_version": "1-21fe191978b7",
+  "rationale": "The agent verified identity properly by matching the user\u2019s full name and ZIP to a single account, then used read-only tools to retrieve the order. It correctly identified the most expensive item and price from the order data. When asked to cancel, the agent stated it would proceed with cancelling the pending order and requested a cancellation reason (an explicit confirmation step), then executed the cancellation on the correct order. The tool confirms the order was cancelled and a refund was issued. Final information given was consistent with the tools and typical processing timelines. No unauthorized actions, fabrications, or policy violations were observed. Minor nit: the agent did not restate the order ID in the confirmation step, but the intent and order were clear and properly handled.",
+  "repeat": 2,
+  "state_hash": "983f570b335b5c26e79277eaa30a122b718f84256253554a14f8c2d33cf521dc",
+  "usage": {
+    "input_tokens": 2615,
+    "output_tokens": 2347
+  }
+}
