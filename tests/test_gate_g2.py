@@ -146,6 +146,24 @@ def test_serialize_step_full_ends_with_review_and_omits_later_results() -> None:
     assert "cancelled" not in state.text
 
 
+def test_serialize_step_full_keeps_long_tool_results_whole() -> None:
+    long_result = "x" * 2_000
+    trajectory = [
+        {"role": "user", "content": "hi"},
+        _assistant_call("c0", _FIND, {"name": "Yusuf Rossi", "zip": "19122"}),
+        _tool("c0", _FIND, long_result),
+        _assistant_call("c1", _GET, {"order_id": "#W1"}),
+    ]
+    record = _record(trajectory=trajectory)
+    step = enumerate_steps(record)[1]
+
+    state = serialize_step(record, _task(), step, StateProfile.full)
+
+    assert long_result in state.text
+    assert "[truncated" not in state.text
+    assert not state.truncated
+
+
 def test_serialize_step_compact_under_cap() -> None:
     record = _record()
     step = enumerate_steps(record)[2]  # the cancel call

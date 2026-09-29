@@ -27,7 +27,7 @@ The study ships 230 conversations between a customer and an AI support agent. Ha
 
 ### Two reading copies
 
-Each conversation has two reading copies. The full text runs about 2,000 tokens. The short text runs about 400 tokens and keeps only the request, one policy line, the tool calls, and the final message. The short copy exists because the local model Laya reads at most 512 tokens, so every judge is also run on the short copy for one fair comparison.
+Each conversation has two reading copies. The full text carries every turn and every tool result whole, so a judge can check what the agent said against what its tools returned; it runs about 3,000 tokens. The short text runs about 400 tokens and keeps only the request, one policy line, the tool calls, and the final message. The short copy exists because the local model Laya reads at most 512 tokens, so every judge is also run on the short copy for one fair comparison.
 
 ### What a judge is asked
 

@@ -107,8 +107,11 @@ fail) is the floor.
 
 Each judge reads the same text: the customer's task instruction, a summary of
 the retail policy, and every turn of the conversation including tool calls and
-tool results. Tool results are capped at 600 characters each. The median copy
-is about 2,200 tokens.
+tool results. At the time of this analysis the serializer cut each tool result
+at 600 characters, and the median copy was about 2,200 tokens. That cap has
+since been removed (see Finding 5); the current full copy carries every tool
+result whole and runs about 3,000 tokens. The verdicts analyzed here were all
+judged on the cut copies.
 
 Each judge answers two questions in one call: how strongly "The agent completed
 the user request in line with the policy" holds, on a 0 to 1 scale, and a
@@ -294,10 +297,12 @@ Agreement between reading judges is not evidence of correctness here.
 
 ## Finding 5: the reading copy caused false fails
 
-The full reading copy caps each tool result at 600 characters and marks the
-cut. Across the 230 copies, 945 of 1,600 tool results (59%) were cut, removing
-about 2,900 characters per conversation on average. Only 7 copies were
-untouched.
+When these verdicts were judged, the full reading copy cut each tool result at
+600 characters and marked the cut. Across the 230 copies, 945 of 1,600 tool
+results (59%) were cut, removing about 2,900 characters per conversation on
+average. Only 7 copies were untouched. The cap has since been removed and the
+copies re-serialized whole; Jev has been re-judged on the uncut copies (see the
+end of this section), the other judges have not yet.
 
 On careful-agent conversations that passed the state check, the strong text
 model gave 115 fail verdicts across the five repeats, touching 34 of the 59
@@ -329,6 +334,17 @@ passes (29%) sits between the other two.
 The same truncation blinds every judge to the detail errors in Finding 4: the
 item and variant identifiers needed to catch them live in the tool results that
 were cut.
+
+Re-judging Jev on the uncut copies (230 conversations, 5 repeats, $0.22)
+confirms the cap was costing it. Its AUROC on the "completed" score rose from
+0.65 to 0.73 (95% CI 0.66 to 0.79; the paired gain is +0.04 to +0.11),
+agreement with the truth at its own cut-off rose from 54% to 57%, and the share
+of conversations with five identical verdicts rose from 92% to 99%. Its pass
+rate also rose, from 51% to 72%, against a true rate of 49%, so a cut-off
+chosen on held-out conversations (about 68% agreement under 5-fold cross
+validation) does better than its default. It still grades the rushed agent's
+skipped confirmations: pass rate 90% on the careful agent, 53% on the rushed
+one, where the truth moves from 51% to 47%.
 
 ## Finding 6: stated confidence is not usable as-is
 
@@ -425,8 +441,9 @@ judge to verify things that are no longer on the page.
   no judge can be expected to catch those.
 - The rule-based check reads the answer key. It is a ceiling, not a deployable
   judge.
-- Tool results in the reading copy were capped at 600 characters. This is a
-  finding about serialization and a confound for every judge comparison here.
+- Tool results in the reading copy were cut at 600 characters when these
+  verdicts were judged. This is a finding about serialization and a confound
+  for every judge comparison here. The cap has since been removed.
 - Text judges ran at provider defaults with one shared rubric and no per-judge
   prompt tuning. A rubric that separated outcome from process, or told the
   judge that tool output was abridged, would likely change the strong text

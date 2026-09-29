@@ -36,7 +36,10 @@ tables and charts under `results/` and the gate's prose to
    Writes `cache/agent/degraded/*.json`.
 3. `judges serialize` — no spend. Reads the agent records and writes
    judge-visible states to `cache/state/<variant>/<profile>/*.json`, plus
-   per-step states under `steps/` and injected copies under `injected/`.
+   per-step states under `steps/` and injected copies under `injected/`. The
+   `full` profile carries every turn and every tool result whole; the
+   `compact` profile keeps the request, the tool calls, and the final message
+   under 450 tokens for Laya.
 4. `judges judge --gate g3 --profile full --judges code,llm_cheap,llm_strong,jev`
    — stage `g3`, cap $50.00. Writes verdicts to `cache/judge/` and
    `results/g3_summary.{md,csv}`, `results/g3_accuracy.{png,svg}`,

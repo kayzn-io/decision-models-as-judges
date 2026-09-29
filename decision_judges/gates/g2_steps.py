@@ -9,7 +9,6 @@ whether the normalized call appears in the task's expected actions.
 
 import hashlib
 import json
-import sys
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
 from pathlib import Path
@@ -52,7 +51,6 @@ _ARGS_TEXT = (
     "agent retrieved earlier in the conversation."
 )
 
-_FULL_RESULT_CAP = sys.maxsize  # tool results stay whole unless the budget is exceeded
 _SHRUNK_RESULT_CAP = 100
 _COMPACT_TOKEN_CAP = 450
 _NAN = float("nan")
@@ -186,10 +184,14 @@ def _review_line(step: StepRef) -> str:
 def _full_step_text(
     record: AgentRecord, task: Task, step: StepRef, review: str, budget_tokens: int
 ) -> tuple[str, bool]:
-    """Render the full profile through this call, shrinking tool results to fit."""
+    """Render the full profile through this call, with every tool result whole.
+
+    Tool results are cut only when the copy exceeds budget_tokens, and the
+    record is then marked truncated.
+    """
     messages = _messages_through_step(record, step)
     header = f"{task.instruction}\n{POLICY_SUMMARY}"
-    text = "\n".join([header, render_turns(messages, _FULL_RESULT_CAP), review])
+    text = "\n".join([header, render_turns(messages), review])
     if len(text) // 4 <= budget_tokens:
         return text, False
     text = "\n".join([header, render_turns(messages, _SHRUNK_RESULT_CAP), review])

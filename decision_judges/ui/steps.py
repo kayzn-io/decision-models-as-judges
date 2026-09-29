@@ -1210,8 +1210,10 @@ STEPS: tuple[RunStep, ...] = (
         learn=(
             "A judge never reads the raw conversation. It reads a text copy with the ground "
             "truth taken out, so it has to decide from what the agent did, not from the answer. "
-            "Two copies are written: a full one with every turn, and a short one that trims the "
-            "tool noise so the small local model can fit it. Taking the ground truth out is the "
+            "Two copies are written. The full one carries every turn and every tool result "
+            "whole, so a judge can check each thing the agent said against what its tools "
+            "returned. The short one keeps only the request, the tool calls, and the final "
+            "message, so the small local model can fit it. Taking the ground truth out is the "
             "whole point: if a judge could see it, its verdict would mean nothing."
         ),
         unlock=_needs_conversations,

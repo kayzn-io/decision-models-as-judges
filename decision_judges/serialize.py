@@ -213,19 +213,20 @@ def _build_turns(messages: Sequence[dict[str, object]]) -> list[_Turn]:
 
 
 def _render_turn(turn: _Turn, cap: int) -> str:
-    """Render one turn to text, applying cap to a tool result."""
+    """Render one turn to text; a tool result is cut only when cap is below its length."""
     if turn.role == "tool":
         return f"tool: {_truncate_tool(turn.tool_raw or '', cap)}"
     return "\n".join(turn.lines)
 
 
-def render_turns(messages: Sequence[dict[str, object]], truncate_results_to: int) -> str:
-    """Render messages (system skipped) to text, capping each tool result.
+def render_turns(messages: Sequence[dict[str, object]], result_cap: int = _UNCAPPED) -> str:
+    """Render messages (system skipped) to text, one line per turn.
 
-    Tool results are truncated to ``truncate_results_to`` characters, exactly as
-    the full profile renders a turn.
+    Tool results are rendered whole unless ``result_cap`` is given, in which
+    case each is cut to that many characters with a marker, exactly as the full
+    profile shrinks a turn once a copy exceeds its token budget.
     """
-    return "\n".join(_render_turn(turn, truncate_results_to) for turn in _build_turns(messages))
+    return "\n".join(_render_turn(turn, result_cap) for turn in _build_turns(messages))
 
 
 def _estimate(text: str) -> int:
@@ -252,13 +253,12 @@ def _assemble_full(header: str, turns: list[_Turn], caps: list[int], kept: list[
 
 
 def _serialize_full(record: AgentRecord, task: Task, budget_tokens: int) -> tuple[str, bool]:
-    """Render the full profile, truncating only when the text exceeds budget_tokens.
+    """Render the full profile with every tool result whole.
 
-    Tool results are kept whole by default. A judge asked whether the agent's
-    statements are supported by its tools needs the tool output those
-    statements came from; cutting it made judges fail correct runs for facts
-    that had been removed from the copy. Shrinking happens only past the budget,
-    and then ``truncated`` is set so the cut is visible on the record.
+    A judge asked whether the agent's statements are supported by its tools
+    needs the tool output those statements came from, so nothing is cut. Only a
+    copy over budget_tokens is shrunk, and then ``truncated`` is set so the cut
+    is visible on the record. No conversation in the study reaches the budget.
     """
     header = f"{task.instruction}\n{POLICY_SUMMARY}"
     turns = _build_turns(record.trajectory)
