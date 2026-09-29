@@ -41,11 +41,11 @@ tables and charts under `results/` and the gate's prose to
    `compact` profile keeps the request, the tool calls, and the final message
    under 450 tokens for Laya.
 4. `judges judge --gate g3 --profile full --judges code,llm_cheap,llm_strong,jev`
-   — stage `g3`, cap $50.00. Writes verdicts to `cache/judge/` and
+   — stage `g3`, cap $120.00. Writes verdicts to `cache/judge/` and
    `results/g3_summary.{md,csv}`, `results/g3_accuracy.{png,svg}`,
    `results/g3_findings.md`.
 5. `judges judge --gate g3 --profile compact --judges code,llm_cheap,llm_strong,jev`
-   — stage `g3`, same $50.00 cap. Adds the compact-profile verdicts.
+   — stage `g3`, same $120.00 cap. Adds the compact-profile verdicts.
 6. `judges judge --gate g3 --profile compact --judges laya_base` — stage `g3`.
    Laya runs locally and is priced at zero, so it draws nothing from the cap.
 7. `judges finetune-laya` — no API spend; local training only. Writes one
